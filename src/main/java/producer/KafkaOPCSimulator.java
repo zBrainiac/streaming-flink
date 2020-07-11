@@ -15,7 +15,7 @@ import static java.util.Collections.unmodifiableList;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath flink-simple-tutorial-0.1-SNAPSHOT.jar producer.KafkaOPCSimulator localhost:9092
+ *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaOPCSimulator localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

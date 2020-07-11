@@ -6,25 +6,26 @@ import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.time.Instant;
 import java.util.*;
 
 
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSensorSimulator localhost:9092
+ *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_fx localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class KafkaIOTSensorSimulator {
+public class KafkaJsonProducer_fx {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Random random = new Random();
 
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;
+    private static String fx_rate = "fx_rate";
+    private static String fx_target = "fx_target";
 
     public static void main(String args[]) throws Exception {
 
@@ -61,7 +62,7 @@ public class KafkaIOTSensorSimulator {
     private static Producer<String, byte[]> createProducer() {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        config.put(ProducerConfig.CLIENT_ID_CONFIG, "IOT-Feeder");
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "FX-Feeder");
         config.put(ProducerConfig.ACKS_CONFIG,"1");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
@@ -75,7 +76,7 @@ public class KafkaIOTSensorSimulator {
         ObjectNode messageJsonObject = jsonObject();
         byte[] valueJson = objectMapper.writeValueAsBytes(messageJsonObject);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("iot", key, valueJson);
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>("fxRate", key, valueJson);
 
         RecordMetadata md = producer.send(record).get();
         System.err.println("Published " + md.topic() + "/" + md.partition() + "/" + md.offset()
@@ -85,26 +86,65 @@ public class KafkaIOTSensorSimulator {
     // build random json object
     private static ObjectNode jsonObject() {
 
-        ObjectNode report = objectMapper.createObjectNode();
-        report.put("sensor_ts", Instant.now().toEpochMilli());
-        report.put("sensor_id", (random.nextInt(11)));
-        report.put("sensor_0", (random.nextInt(99)));
-        report.put("sensor_1", (random.nextInt(99)));
-        report.put("sensor_2", (random.nextInt(99)));
-        report.put("sensor_3", (random.nextInt(99)));
-        report.put("sensor_4", (random.nextInt(99)));
-        report.put("sensor_5", (random.nextInt(99)));
-        report.put("sensor_6", (random.nextInt(99)));
-        report.put("sensor_7", (random.nextInt(99)));
-        report.put("sensor_8", (random.nextInt(99)));
-        report.put("sensor_9", (random.nextInt(99)));
-        report.put("sensor_10", (random.nextInt(99)));
-        report.put("sensor_11", (random.nextInt(99)));
+        int i= random.nextInt(8);
 
+        ObjectNode report = objectMapper.createObjectNode();
+        report.put("timestamp", System.currentTimeMillis());
+
+        switch (i) {
+            case 0:
+                report.put("fx", "CHF");
+                report.put(fx_rate, 1.00);
+                report.put(fx_target, "CHF");
+                break;
+            case 1:
+                report.put("fx", "CHF");
+                report.put(fx_target, "USD");
+                report.put(fx_rate, (random.nextInt(20) + 90) / 100.0);
+                break;
+            case 2:
+                report.put("fx", "CHF");
+                report.put(fx_target, "EUR");
+                report.put(fx_rate, (random.nextInt(20) + 90) / 100.0);
+                break;
+            case 3:
+                report.put("fx", "EUR");
+                report.put(fx_rate, 1.00);
+                report.put(fx_target, "EUR");
+                break;
+            case 4:
+                report.put("fx", "EUR");
+                report.put(fx_target, "USD");
+                report.put(fx_rate, (random.nextInt(20) + 90) / 100.0);
+                break;
+            case 5:
+                report.put("fx", "EUR");
+                report.put(fx_target, "CHF");
+                report.put(fx_rate, (random.nextInt(20) + 90) / 100.0);
+                break;
+            case 6:
+                report.put("fx", "USD");
+                report.put(fx_rate, 1.00);
+                report.put(fx_target, "USD");
+                break;
+            case 7:
+                report.put("fx", "USD");
+                report.put(fx_target, "CHF");
+                report.put(fx_rate, (random.nextInt(20) + 90) / 100.0);
+                break;
+            case 8:
+                report.put("fx", "USD");
+                report.put(fx_target, "EUR");
+                report.put(fx_rate, (random.nextInt(20) + 90) / 100.0);
+                break;
+            default:
+                System.err.println("i out of range");
+
+        }
         return report;
     }
 
     public static void setsleeptime(long sleeptime) {
-        KafkaIOTSensorSimulator.sleeptime = sleeptime;
+        KafkaJsonProducer_fx.sleeptime = sleeptime;
     }
 }

@@ -6,25 +6,31 @@ import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.time.Instant;
 import java.util.*;
 
+import static java.util.Collections.unmodifiableList;
 
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSensorSimulator localhost:9092
+ *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_trx localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class KafkaIOTSensorSimulator {
+public class KafkaJsonProducer_trx {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Random random = new Random();
+    private static final List<String> transaction_card_type_list = unmodifiableList(Arrays.asList(
+            "Visa", "MasterCard", "Maestro", "AMEX", "Diners Club", "Revolut"));
+    private static final List<String> transaction_currency_list = unmodifiableList(Arrays.asList(
+            "USD", "EUR", "CHF"));
 
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;
+    private static String shop_name = "shop_name";
+
 
     public static void main(String args[]) throws Exception {
 
@@ -61,7 +67,7 @@ public class KafkaIOTSensorSimulator {
     private static Producer<String, byte[]> createProducer() {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        config.put(ProducerConfig.CLIENT_ID_CONFIG, "IOT-Feeder");
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "CC-TRX-Feeder");
         config.put(ProducerConfig.ACKS_CONFIG,"1");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
@@ -75,7 +81,7 @@ public class KafkaIOTSensorSimulator {
         ObjectNode messageJsonObject = jsonObject();
         byte[] valueJson = objectMapper.writeValueAsBytes(messageJsonObject);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("iot", key, valueJson);
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>("cctrx", key, valueJson);
 
         RecordMetadata md = producer.send(record).get();
         System.err.println("Published " + md.topic() + "/" + md.partition() + "/" + md.offset()
@@ -85,26 +91,41 @@ public class KafkaIOTSensorSimulator {
     // build random json object
     private static ObjectNode jsonObject() {
 
-        ObjectNode report = objectMapper.createObjectNode();
-        report.put("sensor_ts", Instant.now().toEpochMilli());
-        report.put("sensor_id", (random.nextInt(11)));
-        report.put("sensor_0", (random.nextInt(99)));
-        report.put("sensor_1", (random.nextInt(99)));
-        report.put("sensor_2", (random.nextInt(99)));
-        report.put("sensor_3", (random.nextInt(99)));
-        report.put("sensor_4", (random.nextInt(99)));
-        report.put("sensor_5", (random.nextInt(99)));
-        report.put("sensor_6", (random.nextInt(99)));
-        report.put("sensor_7", (random.nextInt(99)));
-        report.put("sensor_8", (random.nextInt(99)));
-        report.put("sensor_9", (random.nextInt(99)));
-        report.put("sensor_10", (random.nextInt(99)));
-        report.put("sensor_11", (random.nextInt(99)));
+        int i= random.nextInt(5);
 
+        ObjectNode report = objectMapper.createObjectNode();
+        report.put("timestamp", System.currentTimeMillis());
+        report.put("cc_id", "51" + (random.nextInt(89) + 10) + "-" + (random.nextInt(8999) + 1000) + "-" + (random.nextInt(8999) + 1000) + "-" + (random.nextInt(8999) + 1000));
+        report.put("cc_type", transaction_card_type_list.get(random.nextInt(transaction_card_type_list.size())));
+        report.put("shop_id", i);
+
+        switch (i) {
+            case 0:
+                report.put(shop_name, "Tante_Emma" );
+                break;
+            case 1:
+                report.put(shop_name, "Aus_der_Region" );
+                break;
+            case 2:
+                report.put(shop_name, "Shop_am_Eck" );
+                break;
+            case 3:
+                report.put(shop_name, "SihlCity" );
+                break;
+            case 4:
+                report.put(shop_name, "BioMarkt" );
+                break;
+            default:
+                System.err.println("i out of range");
+        }
+
+        report.put("fx", transaction_currency_list.get(random.nextInt(transaction_currency_list.size())));
+        report.put("fx_account", transaction_currency_list.get(random.nextInt(transaction_currency_list.size())));
+        report.put("amount_orig", (random.nextInt(8900) + 10) / 100.0);
         return report;
     }
 
     public static void setsleeptime(long sleeptime) {
-        KafkaIOTSensorSimulator.sleeptime = sleeptime;
+        KafkaJsonProducer_trx.sleeptime = sleeptime;
     }
 }
