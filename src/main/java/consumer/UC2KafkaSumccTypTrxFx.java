@@ -2,7 +2,6 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -20,22 +19,21 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 
 import java.util.Properties;
 
-
 /**
- * iotStream: {"sensor_ts":1588617762605,"sensor_id":7,"sensor_0":59,"sensor_1":32,"sensor_2":84,"sensor_3":23,"sensor_4":56,"sensor_5":30,"sensor_6":46,"sensor_7":90,"sensor_8":64,"sensor_9":33,"sensor_10":49,"sensor_11":91}
- * Aggregation on "sensor_id"
+ * trxStream: {"timestamp":1565604389166,"shop_name":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
+ * Aggregation on "shop_name" & "fx"
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.UC2KafkaSumccTypTrxFx -ynm UC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerFilter
+ *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.UC2KafkaSumccTypTrxFx
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class IoTConsumerFilter {
+public class UC2KafkaSumccTypTrxFx {
 
     private static String brokerURI = "localhost:9092";
 
@@ -50,8 +48,8 @@ public class IoTConsumerFilter {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "iot_Consumer_Filter";
-        String topic = "result_" + use_case_id;
+        String use_case_id = "uc2_trx_typ_fx";
+        String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -71,27 +69,24 @@ public class IoTConsumerFilter {
         propertiesProducer.put(ProducerConfig.CLIENT_ID_CONFIG, use_case_id);
         propertiesProducer.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
 
-        DataStream<String> iotStream = env.addSource(
-                new FlinkKafkaConsumer<>("iot", new SimpleStringSchema(), properties));
+        // get trx stream from kafka - topic "cctrx"
+        DataStream<String> trxStream = env.addSource(
+                new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
 
-        iotStream.print("input message: ");
+        trxStream.print("input message: ");
 
-        DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
+        // deserialization of the received JSONObject into Tuple
+        DataStream<Tuple5<String, String, String, String, Double>> aggStream = trxStream
                 .flatMap(new trxJSONDeserializer())
-                .keyBy(1) // sensor_id
-                .sum(4)
-                .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) throws Exception {
-                        return value.f2 >= 50 ;
-                    }
-                });
+                // group by "cc_typ" AND "fx" and sum their occurrences
+                .keyBy(0,1)
+                .sum(4 );
 
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducer = new FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>>(
-                topic, new serializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducer = new FlinkKafkaProducer<>(
+                topic, new serializeTuple5toString(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -101,50 +96,49 @@ public class IoTConsumerFilter {
         System.err.println("jobId=" + jobId);
     }
 
-
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<String, String, String, String, Double>> {
         private transient ObjectMapper jsonParser;
 
+        /**
+         * Select the shop name from the incoming JSON text.
+         */
         @Override
-        public void flatMap(String value, Collector<Tuple5<Long, Integer, Integer, Integer, Integer>> out) throws Exception {
+        public void flatMap(String value, Collector<Tuple5<String, String, String, String, Double>> out) throws Exception {
             if (jsonParser == null) {
                 jsonParser = new ObjectMapper();
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // get sensor_ts, sensor_id, sensor_0 AND sensor_1 from JSONObject
-            Long sensor_ts = jsonNode.get("sensor_ts").asLong();
-            Integer sensor_id = jsonNode.get("sensor_id").asInt();
-            Integer sensor_0 = jsonNode.get("sensor_0").asInt();
-            Integer sensor_1 = jsonNode.get("sensor_1").asInt();
-            out.collect(new Tuple5<>(sensor_ts, sensor_id, sensor_0, sensor_1, 1));
+            // get shop_name AND fx from JSONObject
+            String cc_type = jsonNode.get("cc_type").toString();
+            Double amount_orig = jsonNode.get("amount_orig").asDouble();
+            String fx = jsonNode.get("fx").toString();
+            String fx_account = jsonNode.get("fx_account").toString();
+            String fx_fx = jsonNode.get("fx") + "_" + jsonNode.get("fx_account") ;
+            out.collect(new Tuple5<>(cc_type, fx, fx_account, fx_fx, amount_orig));
 
         }
 
     }
 
-    private static class serializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    public static class serializeTuple5toString implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);
         }
-
         @Override
         public byte[] serializeValue(Tuple5 value) {
 
-            String str = "{"
-                    + "\"type\"" + ":" + "\"alert sensor_0 over 50\""
-                    + "," + "\"sensor_ts_start\"" + ":" + value.getField(0).toString()
-                    + "," + "\"sensor_id\"" + ":" + value.getField(1).toString()
-                    + "," + "\"sensor_0\"" + ":" + value.getField(2).toString() + "}";
+            String str = "{"+ value.getField(0).toString()
+                    + ":" + value.getField(1).toString()
+                    + ":" + value.getField(2).toString()
+                    + ":" + value.getField(4).toString() + "}";
             return str.getBytes();
         }
-
         @Override
         public String getTargetTopic(Tuple5 tuple5) {
             // use always the default topic
             return null;
         }
     }
-
 }

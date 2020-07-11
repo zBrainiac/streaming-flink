@@ -5,12 +5,14 @@ import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
@@ -22,20 +24,20 @@ import java.util.Properties;
 
 
 /**
- * iotStream: {"sensor_ts":1588617762605,"sensor_id":7,"sensor_0":59,"sensor_1":32,"sensor_2":84,"sensor_3":23,"sensor_4":56,"sensor_5":30,"sensor_6":46,"sensor_7":90,"sensor_8":64,"sensor_9":33,"sensor_10":49,"sensor_11":91}
- * Aggregation on "sensor_id"
+ * trxStream: {"timestamp":1565604389166,"shop_name":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
+ * Aggregation on
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.UC6KafkaccTrxFraud -ynm UC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerFilter
+ *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.UC6KafkaccTrxFraud
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class IoTConsumerFilter {
+public class UC6KafkaccTrxFraud {
 
     private static String brokerURI = "localhost:9092";
 
@@ -50,8 +52,8 @@ public class IoTConsumerFilter {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "iot_Consumer_Filter";
-        String topic = "result_" + use_case_id;
+        String use_case_id = "uc6_trx_fraudDedection";
+        String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -71,27 +73,32 @@ public class IoTConsumerFilter {
         propertiesProducer.put(ProducerConfig.CLIENT_ID_CONFIG, use_case_id);
         propertiesProducer.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
 
-        DataStream<String> iotStream = env.addSource(
-                new FlinkKafkaConsumer<>("iot", new SimpleStringSchema(), properties));
+        // get trx stream from kafka - topic "cctrx"
+        DataStream<String> trxStream = env.addSource(
+                new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
 
-        iotStream.print("input message: ");
+        trxStream.print("input message: ");
 
-        DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
+        // deserialization of the received JSONObject into Tuple
+        DataStream<Tuple3<String, Double, Integer>> aggStream = trxStream
                 .flatMap(new trxJSONDeserializer())
-                .keyBy(1) // sensor_id
-                .sum(4)
-                .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
+                // group by "cc-id" and sum their instances
+                .keyBy(0) // cc_id
+                .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
+                .sum(2)
+                // filter out if the cc_id is unique within the window {30 sec}. if the cc-id occurs several times && amount >= 40.00 send alarm event
+                .filter(new FilterFunction<Tuple3<String, Double, Integer>>() {
                     @Override
-                    public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) throws Exception {
-                        return value.f2 >= 50 ;
+                    public boolean filter(Tuple3<String, Double, Integer> value) throws Exception {
+                        return value.f1 >= 10 && value.f2 != 1;
                     }
                 });
 
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducer = new FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>>(
-                topic, new serializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple3<String, Double, Integer>> myProducer = new FlinkKafkaProducer<>(
+                topic, new serializeTuple3toString(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -101,47 +108,43 @@ public class IoTConsumerFilter {
         System.err.println("jobId=" + jobId);
     }
 
-
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple3<String, Double, Integer>> {
         private transient ObjectMapper jsonParser;
 
+        /**
+         * Select the cc_id, aount_orig from the incoming JSON text as trx_fingerprint.
+         */
         @Override
-        public void flatMap(String value, Collector<Tuple5<Long, Integer, Integer, Integer, Integer>> out) throws Exception {
+        public void flatMap(String value, Collector<Tuple3<String, Double, Integer>> out) throws Exception {
             if (jsonParser == null) {
                 jsonParser = new ObjectMapper();
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // get sensor_ts, sensor_id, sensor_0 AND sensor_1 from JSONObject
-            Long sensor_ts = jsonNode.get("sensor_ts").asLong();
-            Integer sensor_id = jsonNode.get("sensor_id").asInt();
-            Integer sensor_0 = jsonNode.get("sensor_0").asInt();
-            Integer sensor_1 = jsonNode.get("sensor_1").asInt();
-            out.collect(new Tuple5<>(sensor_ts, sensor_id, sensor_0, sensor_1, 1));
-
+            // build trx-fingerprint tuple
+            String cc_id = jsonNode.get("cc_id").toString();
+            Double amount_orig = jsonNode.get("amount_orig").asDouble();
+            out.collect(new Tuple3<>(cc_id, amount_orig, 1));
         }
 
     }
 
-    private static class serializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    public static class serializeTuple3toString implements KeyedSerializationSchema<Tuple3<String, Double, Integer>> {
         @Override
-        public byte[] serializeKey(Tuple5 element) {
+        public byte[] serializeKey(Tuple3 element) {
             return (null);
         }
 
         @Override
-        public byte[] serializeValue(Tuple5 value) {
+        public byte[] serializeValue(Tuple3 value) {
 
-            String str = "{"
-                    + "\"type\"" + ":" + "\"alert sensor_0 over 50\""
-                    + "," + "\"sensor_ts_start\"" + ":" + value.getField(0).toString()
-                    + "," + "\"sensor_id\"" + ":" + value.getField(1).toString()
-                    + "," + "\"sensor_0\"" + ":" + value.getField(2).toString() + "}";
+            String str = "{" + value.getField(0).toString()
+                    + ":" + value.getField(2).toString() + "}";
             return str.getBytes();
         }
 
         @Override
-        public String getTargetTopic(Tuple5 tuple5) {
+        public String getTargetTopic(Tuple3 tuple3) {
             // use always the default topic
             return null;
         }

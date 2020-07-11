@@ -26,7 +26,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCount -ynm IoTConsumerCount lib/flink/examples/streaming/flink-simple-tutorial-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCount -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *
+ *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerCount
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -109,7 +111,6 @@ public class IoTConsumerCount {
             Integer sensor_0 = jsonNode.get("sensor_0").asInt();
             Integer sensor_1 = jsonNode.get("sensor_1").asInt();
             out.collect(new Tuple5<>(sensor_ts, sensor_id, sensor_0, sensor_1, 1));
-
         }
 
     }
