@@ -37,13 +37,13 @@ import java.util.Properties;
  * @version 2020/04/26 12:14
  */
 
-public class UC3KafkaJoin2JsonStreams {
+public class UC4KafkaJoin2JsonStreams {
 
     private static String brokerURI = "localhost:9092";
 
     public static void main(String args[]) throws Exception {
 
-            if( args.length == 1 ) {
+        if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
             brokerURI = args[0];
             System.err.println("arg URL: " + brokerURI);
@@ -57,7 +57,6 @@ public class UC3KafkaJoin2JsonStreams {
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
@@ -93,7 +92,7 @@ public class UC3KafkaJoin2JsonStreams {
 
         DataStream<JSONObject> fx =
                 fxStream.flatMap(new Tokenizer());
-
+        
         DataStream<String> joinedString = trx.join(fx)
                 .where(new NameKeySelector())
                 .equalTo(new EqualKeySelector())

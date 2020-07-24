@@ -136,7 +136,7 @@ Alarm in case of a duplicated cc trx
  
 ## run:
 ### Requirements:  
-- local installation of the latest Apache Kafka (e.g. on infra/kafka_2.12-2.3.0)
+- local installation of the latest Apache Kafka (e.g. on infra/kafka_2.12-2.4.1)
 - up-to-date IDE such as Intellij IDEA
 
 ### Test Environment:  
@@ -158,7 +158,7 @@ bin/kafka-server-start.sh config/server.properties
 
 ### Download release:  
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.0/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.1/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
 ### Upload release: 
 scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.1-SNAPSHOT.jar centos@52.59.200.19:/tmp  
@@ -217,12 +217,12 @@ cd /opt/cloudera/parcels/FLINK
 ### FSI
 ./bin/flink run -m yarn-cluster -c consumer.UC1KafkaCountTrxPerShop -ynm UC1KafkaCountTrxPerShop lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.UC2KafkaSumccTypTrxFx -ynm UC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.UC3KafkaJoin2JsonStreams -ynm UC3KafkaJoin2JsonStreams lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar  edge2ai-1.dim.local:9092 
+./bin/flink run -m yarn-cluster -c consumer.UC3KafkaJoin2JsonStreams -ynm UC3KafkaJoin2JsonStreams lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar  edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.UC5KafkaTrxDuplicateChecker -ynm UC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.UC6KafkaccTrxFraud -ynm UC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.UC7KafkaAvgFx -ynm UC7KafkaAvgFx lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
 
 
 ## Run Atlas sync:
-cd /opt/cloudera/parcels/CDH-7.0.3-1.cdh7.0.3.p0.1635019/lib/atlas/hook-bin  
+cd /opt/cloudera/parcels/CDH/lib/atlas/hook-bin  
 ./import-kafka.sh 

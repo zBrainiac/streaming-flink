@@ -2,13 +2,14 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
+import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.streaming.api.collector.selector.OutputSelector;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -18,6 +19,8 @@ import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -35,7 +38,7 @@ import java.util.Properties;
  * @version 2020/07/11 12:14
  */
 
-public class IoTConsumerCount {
+public class IoTConsumerSplit{
 
     private static String brokerURI = "localhost:9092";
 
@@ -79,7 +82,54 @@ public class IoTConsumerCount {
         DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
                 .flatMap(new trxJSONDeserializer())
                 .keyBy(1) // sensor_id
-                .sum(4);
+                .sum(4)
+                .split((OutputSelector<Tuple5<Long, Integer, Integer, Integer, Integer>>) value -> {
+                    List<String> output = new ArrayList<String>();
+                    if (value.f1 == 1) {
+                        System.err.println("1");
+                        output.add("1");
+                    }
+                    if (value.f1 == 2) {
+                        System.err.println("2");
+                        output.add("2");
+                    }
+                    if (value.f1 == 3) {
+                        System.err.println("3");
+                        output.add("3");
+                    }
+                    if (value.f1 == 4) {
+                        System.err.println("4");
+                        output.add("4");
+                    }
+                    if (value.f1 == 5) {
+                        System.err.println("5");
+                        output.add("5");
+                    }
+                    if (value.f1 == 6) {
+                        System.err.println("6");
+                        output.add("6");
+                    }
+                    if (value.f1 == 7) {
+                        System.err.println("7");
+                        output.add("7");
+                    }
+                    if (value.f1 == 8) {
+                        System.err.println("8");
+                        output.add("8");
+                    }
+                    if (value.f1 == 9) {
+                        System.err.println("9");
+                        output.add("9");
+                    }
+                    if (value.f1 ==10) {
+                        System.err.println("10");
+                        output.add("10");
+                    }
+                    else {
+                        output.add("odd");
+                    }
+                    return output;
+                });
 
         aggStream.print(topic + ": ");
 

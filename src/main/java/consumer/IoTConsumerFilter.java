@@ -39,7 +39,7 @@ public class IoTConsumerFilter {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String args[]) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");

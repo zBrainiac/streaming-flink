@@ -39,9 +39,9 @@ import java.util.Properties;
 
 public class OPCNoiseCanceller {
 
-    private static String brokerURI = "localhost:9092";
+    private static String brokerURI = "elocalhost:9092";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String args[]) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
