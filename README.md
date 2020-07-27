@@ -139,9 +139,9 @@ Alarm in case of a duplicated cc trx
 - local installation of the latest Apache Kafka (e.g. on infra/kafka_2.12-2.4.1)
 - up-to-date IDE such as Intellij IDEA
 
-### Test Environment:  
+### Kafka Environment:  
 ```
-cd infra/kafka_2.12-2.3.0  
+cd infra/kafka_2.12-2.4.1  
 bin/zookeeper-server-start.sh config/zookeeper.properties  
 bin/kafka-server-start.sh config/server.properties  
 
@@ -154,7 +154,15 @@ bin/kafka-server-start.sh config/server.properties
 ./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic topic1
 ```
 
+### Execution Environment:  
+```
+cd streaming-flink 
+java -classpath target/streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSensorSimulator
+java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerCount  
+java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerFilter
+java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerSplitter
 
+```
 
 ### Download release:  
 cd /opt/cloudera/parcels/FLINK  
@@ -210,6 +218,7 @@ cd /opt/cloudera/parcels/FLINK
 ### iot
 ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCount -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTConsumerSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
 
 ### OPC
 ./bin/flink run -m yarn-cluster -c consumer.OPCNoiseCanceller -ynm OPCNoiseCanceller lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092  
