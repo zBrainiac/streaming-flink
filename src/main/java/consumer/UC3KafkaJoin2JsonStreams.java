@@ -115,13 +115,11 @@ public class UC3KafkaJoin2JsonStreams {
 
         joinedString.addSink(myProducer);
 
-
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
         System.err.println("jobId=" + jobId);
     }
-
 
     public static final class Tokenizer implements FlatMapFunction<String, JSONObject> {
         @Override

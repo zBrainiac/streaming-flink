@@ -51,9 +51,9 @@ public class IoTConsumerSplitter {
         }
 
         String use_case_id = "iot_Consumer_Splitter";
-        String topicVendorA = "result_" + use_case_id + "VerderA";
-        String topicVendorB = "result_" + use_case_id + "VerderB";
-        String topicVendorX = "result_" + use_case_id + "VerderX";
+        String topicVendorA = "result_" + use_case_id + "VendorA";
+        String topicVendorB = "result_" + use_case_id + "VendorB";
+        String topicVendorX = "result_" + use_case_id + "VendorX";
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -172,7 +172,7 @@ public class IoTConsumerSplitter {
         public byte[] serializeValue(Tuple5 value) {
 
             String str = "{"
-                    + "\"type\"" + ":" + "\"alerts for vendor X\""
+                    + "\"type\"" + ":" + "\"alerts for vendor\""
                     + "," + "\"sensor_ts_start\"" + ":" + value.getField(0).toString()
                     + "," + "\"sensor_id\"" + ":" + value.getField(1).toString()
                     + "," + "\"sensor_0\"" + ":" + value.getField(2).toString() + "}";

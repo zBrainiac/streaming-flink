@@ -31,9 +31,11 @@ mvn clean package
 Presentation of streaming applications based on credit card transactions and FX rate stream
 
   
-### Use cases:  
+### FSI Use cases:  
 #### Use case 1 - "count"
 Start small - counting transactions per shop (group by) 
+
+![Flink App Use Case 1](images/FlinkApp_flow_uc1.png)
  
 class: KafkaCount_trx_per_shop  
 ```
@@ -54,6 +56,9 @@ JSON output stream:
 ```
   
 #### Use case 2 - "sum"
+
+![Flink App Use Case 2](images/FlinkApp_flow_uc2.png)
+
 
 class: KafkaSum_ccid_trx_fx  
 
@@ -76,11 +81,13 @@ JSON output stream:
   
 #### Use case 3 - "merge two streams"
 Merge two data steams - trx with the latest fx rate:  
+![Flink App Use Case 3](images/FlinkApp_flow_uc3.png)
+
 
 JSON input stream:
 ```
-{"timestamp":1566829043004,"cc_id":"5123-5985-1943-6358","cc_type":"Maestro","shop_id":3,"shop_name":"SihlCity","fx":"USD","fx_account":"CHF","amount_orig":40.0}
-{"timestamp":1566829830600,"fx":"USD","fx_target":"CHF","fx_rate":1.03}
+Credit Card Trx: {"timestamp":1566829043004,"cc_id":"5123-5985-1943-6358","cc_type":"Maestro","shop_id":3,"shop_name":"SihlCity","fx":"USD","fx_account":"CHF","amount_orig":40.0}
+FX: {"timestamp":1566829830600,"fx":"USD","fx_target":"CHF","fx_rate":1.03}
 ```
 
 
@@ -110,6 +117,8 @@ Merged result:
  build fingerprint of the "cc transaction" stream, keep fingerprint in a window for {30 sec}.  
  filter out if the fingerprint is unique within the window - if the fingerprint occurs several times send alarm event  
  
+![Flink App Use Case 5](images/FlinkApp_flow_uc5.png)
+
  JSON input stream:
  ```
  {"timestamp":1566829043004,"cc_id":"5123-5985-1943-6358","cc_type":"Maestro","shop_id":3,"shop_name":"SihlCity","fx":"USD","fx_account":"CHF","amount_orig":40.0}
@@ -123,6 +132,12 @@ Merged result:
 #### Use case 6 - "check on fraud"  
 Keep "cc_id" in a window for {30 sec} and count transaction >= 40.00  
 Filter out if the "cc_id" is unique within the window - if  not send alarm event  
+
+![Flink App Use Case 6](images/FlinkApp_flow_uc6-1.png)  
+  
+Flink Flow:  
+![Flink App Use Case 6](images/FlinkApp_flow_uc6-2.png)
+
 
 JSON input stream:
 ```
@@ -154,19 +169,18 @@ bin/kafka-server-start.sh config/server.properties
 ./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic topic1
 ```
 
-### Execution Environment:  
+### Local execution Environment:  
 ```
 cd streaming-flink 
 java -classpath target/streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSensorSimulator
 java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerCount  
 java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerFilter
 java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerSplitter
-
 ```
 
 ### Download release:  
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.1/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.2/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
 ### Upload release: 
 scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.1-SNAPSHOT.jar centos@52.59.200.19:/tmp  
