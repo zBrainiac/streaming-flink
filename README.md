@@ -148,6 +148,13 @@ Alarm in case of a duplicated cc trx
 ```
 {"5155-9621-5112-8965":6}
 ```
+
+### IoT Use cases:  
+
+overview of all IoT use cases:
+![Flink App Use Case 1](images/FlinkApp_IoT_overview.png)
+ `
+
  
 ## run:
 ### Requirements:  

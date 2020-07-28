@@ -52,7 +52,7 @@ public class KafkaSimpleCSVProducer {
         Producer<Integer, String> producer = new KafkaProducer<Integer, String>(config);
 
         //send messages to my-topic
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 1000000; i++) {
 
             String uuid = UUID.randomUUID().toString();
             Long unixTime = System.currentTimeMillis();
