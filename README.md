@@ -220,6 +220,16 @@ sample opc json:
 {"__time":"2020-05-01T11:01:04.818786Z","tagname":"Triangle4711","unit":"Hydrocracker","value":0.96354}
 ```  
 
+### Simple CSV generator
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaSimpleCSVProducer or  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaSimpleCSVProducer localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+```  
+sample CSV message:
+unixTime :1595927799251, id :4ad6695d-928e-44a8-b373-63836888f63f, Test Message #9
+```  
+
+
 ### douple check kafka topic
 cd /opt/cloudera/parcels/CDH
 ./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092
