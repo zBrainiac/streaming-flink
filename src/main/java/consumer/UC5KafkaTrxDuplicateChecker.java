@@ -50,7 +50,7 @@ public class UC5KafkaTrxDuplicateChecker {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "uc5_trx_duplicated_check";
+        String use_case_id = "fsi-uc5_trx_duplicated_check";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment

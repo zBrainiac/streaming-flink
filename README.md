@@ -187,17 +187,20 @@ java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerSpli
 
 ### Download release:  
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.2/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.3/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
 ### Upload release: 
 scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.1-SNAPSHOT.jar centos@52.59.200.19:/tmp  
 sudo cp /tmp/streaming-flink-0.1-SNAPSHOT.jar /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming 
+
+
 
 ## Test data gen:
 ### TRX
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_trx or  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_trx localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_trx edge2ai-1.dim.local:9092
 ```
 sample trx json:
 {"timestamp":1565604610745,"shop_id":4,"shop_name":"Ums Eck","cc_type":"Visa","cc_id":"cc_id":"5130-2220-4900-6727","amount_orig":86.82,"fx":"EUR","fx_account":"CHF"}
@@ -206,6 +209,7 @@ sample trx json:
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_fx or  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_fx localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_fx edge2ai-1.dim.local:9092
 ```  
 sample fx json:
 {"timestamp":1565604610729,"fx":"EUR","fx_rate":0.91}
@@ -214,28 +218,52 @@ sample fx json:
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSensorSimulator or  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSensorSimulator localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSensorSimulator edge2ai-1.dim.local:9092                           
 ```  
 sample iot json:
 {"sensor_ts":1588330712878,"sensor_id":1,"sensor_0":88,"sensor_1":93,"sensor_2":31,"sensor_3":90,"sensor_4":75,"sensor_5":74,"sensor_6":58,"sensor_7":91,"sensor_8":10,"sensor_9":21,"sensor_10":66,"sensor_11":40}
 ```
+
+### IOT Simple CSV generator
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSimpleCSVProducer or  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSimpleCSVProducer localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSimpleCSVProducer edge2ai-1.dim.local:9092  
+```  
+sample CSV message:
+1596953344830, 10, 9d02e657-80c9-4857-b18b-26b58f09ae6c, Test Message #25
+```  
+
+### IOT Simple KV generator
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSimpleKVProducer or  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSimpleKVProducer localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSimpleKVProducer edge2ai-1.dim.local:9092  
+```  
+sample KeyValue message:
+unixTime: 1596953939783, sensor_id: 1, id: ba292ff6-e4db-4776-b70e-2b49edfb6726, Test Message: bliblablub #33
+```  
+
 ### OPC Sensor
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaOPCSimulator or  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaOPCSimulator localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaOPCSimulator edge2ai-1.dim.local:9092
 ```  
 sample opc json:
 {"__time":"2020-05-01T11:01:04.818786Z","tagname":"Triangle4711","unit":"Hydrocracker","value":0.96354}
 ```  
 
-### Simple CSV generator
+### OPC Sensor
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaSimpleCSVProducer or  
-java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaSimpleCSVProducer localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector or  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector edge2ai-1.dim.local:9092
 ```  
-sample CSV message:
-unixTime :1595927799251, id :4ad6695d-928e-44a8-b373-63836888f63f, Test Message #9
+sample opc json:
+{"sensor_ts":1596952894254,"sensor_id":2,"probability":96,"sensor_x":76,"typ":"LKW","light":false,"license_plate":"AT 448-3946"}
+{"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
 ```  
-
 
 ### douple check kafka topic
 cd /opt/cloudera/parcels/CDH

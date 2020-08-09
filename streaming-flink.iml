@@ -53,21 +53,21 @@
     <orderEntry type="library" name="Maven: org.apache.flink:flink-connector-kafka-base_2.11:1.10.0-csa1.2.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.flink:flink-table-api-java-bridge_2.11:1.10.0-csa1.2.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.flink:flink-table-api-java:1.10.0-csa1.2.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.flink:flink-table-planner-blink_2.11:1.10.0-csa1.2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.flink:flink-table-planner-blink_2.11:1.10.0-csa1.2.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.flink:flink-table-common:1.10.0-csa1.2.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.flink:flink-table-api-scala_2.11:1.10.0-csa1.2.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-lang:scala-reflect:2.11.12" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-lang:scala-compiler:2.11.12" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-lang.modules:scala-xml_2.11:1.0.5" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.flink:flink-table-api-scala_2.11:1.10.0-csa1.2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.11.12" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-compiler:2.11.12" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.11:1.0.5" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.flink:flink-table-api-scala-bridge_2.11:1.10.0-csa1.2.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.flink:flink-scala_2.11:1.10.0-csa1.2.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.flink:flink-streaming-scala_2.11:1.10.0-csa1.2.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.flink:flink-table-runtime-blink_2.11:1.10.0-csa1.2.0.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.codehaus.janino:janino:3.0.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.codehaus.janino:commons-compiler:3.0.9" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.calcite.avatica:avatica-core:1.15.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.reflections:reflections:0.9.10" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.flink:flink-table-api-scala-bridge_2.11:1.10.0-csa1.2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.flink:flink-scala_2.11:1.10.0-csa1.2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.flink:flink-streaming-scala_2.11:1.10.0-csa1.2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.flink:flink-table-runtime-blink_2.11:1.10.0-csa1.2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.janino:janino:3.0.9" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.janino:commons-compiler:3.0.9" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.calcite.avatica:avatica-core:1.15.0" level="project" />
+    <orderEntry type="library" name="Maven: org.reflections:reflections:0.9.10" level="project" />
     <orderEntry type="library" name="Maven: org.apache.kafka:kafka-clients:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: com.github.luben:zstd-jni:1.4.3-1" level="project" />
     <orderEntry type="library" name="Maven: org.lz4:lz4-java:1.6.0" level="project" />

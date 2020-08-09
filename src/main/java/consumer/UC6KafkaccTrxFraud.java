@@ -52,7 +52,7 @@ public class UC6KafkaccTrxFraud {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "uc6_trx_fraudDedection";
+        String use_case_id = "fsi-uc6_trx_fraudDedection";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment

@@ -48,7 +48,7 @@ public class UC2KafkaSumccTypTrxFx {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "uc2_trx_typ_fx";
+        String use_case_id = "fsi-uc2_trx_typ_fx";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment

@@ -52,7 +52,7 @@ public class UC3KafkaJoin2JsonStreams {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "uc3_TrxFxCombined";
+        String use_case_id = "fsi-uc3_TrxFxCombined";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment
@@ -137,7 +137,7 @@ public class UC3KafkaJoin2JsonStreams {
         @Override
         public String getKey(JSONObject value) {
             // select fx && fx_account from fxStream
-            final String str = (String) value.get("fx") + "_" + (String) value.get("fx_account");
+            final String str = value.get("fx") + "_" + (String) value.get("fx_account");
 // for debugging: print out
 //            System.err.println("trx: " + str);
             return str;

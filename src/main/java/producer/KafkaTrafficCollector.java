@@ -10,27 +10,30 @@ import java.util.*;
 
 import static java.util.Collections.unmodifiableList;
 
+
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaJsonProducer_trx localhost:9092
+ *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector localhost:9092
+ *
+ *
+ * output:
+ *   {"sensor_ts":1596952894254,"sensor_id":2,"probability":96,"sensor_x":76,"typ":"LKW","light":false,"license_plate":"AT 448-3946"}
+ *   {"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
  *
  * @author Marcel Daeppen
- * @version 2020/07/11 12:14
+ * @version 2020/08/08 12:14
  */
 
-public class KafkaJsonProducer_trx {
+public class KafkaTrafficCollector {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Random random = new Random();
-    private static final List<String> transaction_card_type_list = unmodifiableList(Arrays.asList(
-            "Visa", "MasterCard", "Maestro", "AMEX", "Diners Club", "Revolut"));
-    private static final List<String> transaction_currency_list = unmodifiableList(Arrays.asList(
-            "USD", "EUR", "CHF"));
 
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;
-    private static String shop_name = "shop_name";
 
+    private static final List<String> license_plate_country = unmodifiableList(Arrays.asList(
+            "AT", "CH", "DE"));
 
     public static void main(String args[]) throws Exception {
 
@@ -56,7 +59,24 @@ public class KafkaJsonProducer_trx {
         Producer<String, byte[]> producer = createProducer();
         try {
             for (int i = 0; i < 1000000; i++) {
-                publishMessage(producer);
+                System.out.print("outerloop: " + i);
+                System.out.printf("%n");
+
+                // innerloop
+                int innerloopCount = random.nextInt(11);
+                long innerloopsleep = random.nextInt(999) + 500;
+
+                System.out.print("innerloopCount: " + innerloopCount);
+                System.out.printf("%n");
+                System.out.print("innerloopsleep: " + innerloopsleep);
+                System.out.printf("%n");
+
+                for (int ii = 0; ii < innerloopCount; ii++) {
+                    System.out.print("innerloop: " + ii);
+                    System.out.printf("%n");
+                    publishMessage(producer);
+                    Thread.sleep(innerloopsleep);
+                }
                 Thread.sleep(sleeptime);
             }
         } finally {
@@ -67,7 +87,7 @@ public class KafkaJsonProducer_trx {
     private static Producer<String, byte[]> createProducer() {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-CC-TRX");
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-FX");
         config.put(ProducerConfig.ACKS_CONFIG,"1");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
@@ -81,7 +101,7 @@ public class KafkaJsonProducer_trx {
         ObjectNode messageJsonObject = jsonObject();
         byte[] valueJson = objectMapper.writeValueAsBytes(messageJsonObject);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("cctrx", key, valueJson);
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>("TrafficCounterRaw", key, valueJson);
 
         RecordMetadata md = producer.send(record).get();
         System.err.println("Published " + md.topic() + "/" + md.partition() + "/" + md.offset()
@@ -91,41 +111,36 @@ public class KafkaJsonProducer_trx {
     // build random json object
     private static ObjectNode jsonObject() {
 
-        int i= random.nextInt(5);
+        int i= random.nextInt(2);
 
         ObjectNode report = objectMapper.createObjectNode();
-        report.put("timestamp", System.currentTimeMillis());
-        report.put("cc_id", "51" + (random.nextInt(89) + 10) + "-" + (random.nextInt(8999) + 1000) + "-" + (random.nextInt(8999) + 1000) + "-" + (random.nextInt(8999) + 1000));
-        report.put("cc_type", transaction_card_type_list.get(random.nextInt(transaction_card_type_list.size())));
-        report.put("shop_id", i);
+        report.put("sensor_ts", System.currentTimeMillis());
+        report.put("sensor_id", (random.nextInt(11)));
+        report.put("probability", (random.nextInt(49) + 50));
+        report.put("sensor_x", (random.nextInt(99)));
 
         switch (i) {
             case 0:
-                report.put(shop_name, "Tante_Emma" );
+                report.put("typ", "Bike");
                 break;
             case 1:
-                report.put(shop_name, "Aus_der_Region" );
+                report.put("typ", "LKW");
+                report.put("light", (random.nextBoolean()));
+                report.put("license_plate", license_plate_country.get(random.nextInt(license_plate_country.size())) +" "+ (random.nextInt(998 + 1 - 50) + 50) + "-" + (random.nextInt(8999) + 1000) );
                 break;
             case 2:
-                report.put(shop_name, "Shop_am_Eck" );
-                break;
-            case 3:
-                report.put(shop_name, "SihlCity" );
-                break;
-            case 4:
-                report.put(shop_name, "BioMarkt" );
+                report.put("typ", "PW");
+                report.put("light", (random.nextBoolean()));
+                report.put("license_plate", license_plate_country.get(random.nextInt(license_plate_country.size())) +" "+ (random.nextInt(998 + 1 - 50) + 50) + "-" + (random.nextInt(8999) + 1000) );
                 break;
             default:
                 System.err.println("i out of range");
-        }
 
-        report.put("fx", transaction_currency_list.get(random.nextInt(transaction_currency_list.size())));
-        report.put("fx_account", transaction_currency_list.get(random.nextInt(transaction_currency_list.size())));
-        report.put("amount_orig", (random.nextInt(8900) + 10) / 100.0);
+        }
         return report;
     }
 
     public static void setsleeptime(long sleeptime) {
-        KafkaJsonProducer_trx.sleeptime = sleeptime;
+        KafkaTrafficCollector.sleeptime = sleeptime;
     }
 }

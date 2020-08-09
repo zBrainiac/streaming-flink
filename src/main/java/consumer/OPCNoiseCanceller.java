@@ -39,7 +39,7 @@ import java.util.Properties;
 
 public class OPCNoiseCanceller {
 
-    private static String brokerURI = "elocalhost:9092";
+    private static String brokerURI = "localhost:9092";
 
     public static void main(String args[]) throws Exception {
 
@@ -52,7 +52,7 @@ public class OPCNoiseCanceller {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "iot_Consumer_Count";
+        String use_case_id = "opc-noise-canceller";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment

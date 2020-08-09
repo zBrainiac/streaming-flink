@@ -51,7 +51,7 @@ public class UC7KafkaAvgFx {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "uc7_KafkaAvg_fx";
+        String use_case_id = "fsi-uc7_KafkaAvg_fx";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment

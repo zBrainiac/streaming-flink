@@ -3,18 +3,22 @@ package producer;
 import org.apache.kafka.clients.producer.*;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.testgen localhost:9092
+ *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSimpleKVProducer localhost:9092
+ *
+ * output:
+ *  unixTime: 1596953939783, sensor_id: 1, id: ba292ff6-e4db-4776-b70e-2b49edfb6726, Test Message: bliblablub #33
  *
  * @author Marcel Daeppen
- * @version 2020/07/28 11:14
+ * @version 2020/08/08 11:14
  */
 
-public class KafkaSimpleCSVProducer {
+public class KafkaIOTSimpleKVProducer {
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;
 
@@ -42,25 +46,27 @@ public class KafkaSimpleCSVProducer {
         //properties for producer
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        config.put(ProducerConfig.CLIENT_ID_CONFIG, "IOT-Feeder");
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-KV");
         config.put(ProducerConfig.ACKS_CONFIG,"1");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.IntegerSerializer");
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         config.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
 
         //create producer
-        Producer<Integer, String> producer = new KafkaProducer<Integer, String>(config);
+        Producer<Integer, String> producer = new KafkaProducer<>(config);
 
         //send messages to my-topic
         for(int i = 0; i < 1000000; i++) {
-
+            int randomNum = ThreadLocalRandom.current().nextInt(11 );
             String uuid = UUID.randomUUID().toString();
+
             Long unixTime = System.currentTimeMillis();
 
-            ProducerRecord record = new ProducerRecord<Integer, String>("my-topic", i,
-                    "unixTime :" + unixTime
-                            + ", id :" + uuid
-                            + ", Test Message #" + Integer.toString(i)
+            ProducerRecord record = new ProducerRecord<>("iot_KV", i,
+                    "unixTime: " + unixTime
+                            + ", sensor_id: " + randomNum
+                            + ", id: " + uuid
+                            + ", Test Message: bliblablub #" + i
             );
             producer.send(record);
 
@@ -73,7 +79,7 @@ public class KafkaSimpleCSVProducer {
     }
 
     public static void setsleeptime(long sleeptime) {
-        KafkaSimpleCSVProducer.sleeptime = sleeptime;
+        KafkaIOTSimpleKVProducer.sleeptime = sleeptime;
     }
 
 }

@@ -52,7 +52,7 @@ public class UC4KafkaJoin2JsonStreams {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "uc3_TrxFxCombined";
+        String use_case_id = "fsi-uc3_TrxFxCombined";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment
