@@ -187,7 +187,7 @@ java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerSpli
 
 ### Download release:  
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.4/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.5/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
 ### Upload release: 
 scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.1-SNAPSHOT.jar centos@52.59.200.19:/tmp  
