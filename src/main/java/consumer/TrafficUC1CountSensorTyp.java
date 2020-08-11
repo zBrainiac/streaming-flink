@@ -30,6 +30,7 @@ import java.util.Properties;
  * <p>
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092
  * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
  * <p>
  * java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC1CountSensorTyp

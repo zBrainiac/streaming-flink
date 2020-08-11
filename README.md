@@ -264,11 +264,19 @@ sample TrafficCounter json:
 {"sensor_ts":1596956979295,"sensor_id":8,"probability":50,"sensor_x":47,"typ":"LKW","light":false,"license_plate":"DE 483-5849","toll_typ":"10-day"}
 {"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
 ```  
-
+### Traffic IOT Sensor
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficIOTSensor or  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficIOTSensor localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficIOTSensor edge2ai-1.dim.local:9092
+```  
+sample IOT Sensor json:
+{"sensor_ts":1597138335247,"sensor_id":5,"temp":10,"rain_level":2,"visibility_level":2}
+```  
 
 ### douple check kafka topic
 cd /opt/cloudera/parcels/CDH
-./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092
+./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092  
 ./bin/kafka-console-consumer --bootstrap-server edge2ai-1.dim.local:9092 --topic result_iot_Consumer_Count
 
 
