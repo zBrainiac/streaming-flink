@@ -275,7 +275,7 @@ sample IOT Sensor json:
 ```  
 
 ### douple check kafka topic
-cd /opt/cloudera/parcels/CDH
+cd /opt/cloudera/parcels/CDH  
 ./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092  
 ./bin/kafka-console-consumer --bootstrap-server edge2ai-1.dim.local:9092 --topic result_iot_Consumer_Count
 
