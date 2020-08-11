@@ -72,12 +72,17 @@
     <orderEntry type="library" name="Maven: com.github.luben:zstd-jni:1.4.3-1" level="project" />
     <orderEntry type="library" name="Maven: org.lz4:lz4-java:1.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.xerial.snappy:snappy-java:1.1.7.3" level="project" />
-    <orderEntry type="library" name="Maven: com.hortonworks.smm:monitoring-interceptors:2.1.0.2.0.0.0-135" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.avro:avro:1.8.2" level="project" />
+    <orderEntry type="library" name="Maven: com.hortonworks.smm:monitoring-interceptors:2.1.0.7.2.0.2-2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.avro:avro:1.8.2.7.2.0.2-2" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.13" level="project" />
-    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.13" level="project" />
-    <orderEntry type="library" name="Maven: com.thoughtworks.paranamer:paranamer:2.7" level="project" />
-    <orderEntry type="library" name="Maven: org.tukaani:xz:1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.13-cloudera.1" level="project" />
+    <orderEntry type="library" name="Maven: com.thoughtworks.paranamer:paranamer:2.8" level="project" />
+    <orderEntry type="library" name="Maven: org.tukaani:xz:1.6" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:jul-to-slf4j:1.7.30" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.30" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:log4j-over-slf4j:1.7.30" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.3" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: com.alibaba:fastjson:1.2.72" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-scala_2.11:2.11.1" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.11.12" level="project" />

@@ -6,37 +6,29 @@ import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.time.Instant;
 import java.util.*;
-
-import static java.util.Collections.unmodifiableList;
 
 
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector localhost:9092
+ *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficIoTSensor localhost:9092
  *
  *
  * output:
- *   {"sensor_ts":1596956979295,"sensor_id":8,"probability":50,"sensor_x":47,"typ":"LKW","light":false,"license_plate":"DE 483-5849","toll_typ":"10-day"}
- *   {"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
+ *   {"sensor_ts":1597076764377,"sensor_id":4,"temp":15,"rain_level":0,"visibility_level":0}
  *
  * @author Marcel Daeppen
- * @version 2020/08/08 12:14
+ * @version 2020/08/10 11:25
  */
 
-public class KafkaTrafficCollector {
+public class KafkaTrafficIOTSensor {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Random random = new Random();
 
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;
-
-    private static final List<String> license_plate_country = unmodifiableList(Arrays.asList(
-            "AT", "CH", "DE"));
-
-    private static final List<String> toll_typ = unmodifiableList(Arrays.asList(
-            "none", "10-day", "2-month", "Annual"));
 
     public static void main(String args[]) throws Exception {
 
@@ -62,24 +54,7 @@ public class KafkaTrafficCollector {
         Producer<String, byte[]> producer = createProducer();
         try {
             for (int i = 0; i < 1000000; i++) {
-                System.out.print("outerloop: " + i);
-                System.out.printf("%n");
-
-                // innerloop
-                int innerloopCount = random.nextInt(11);
-                long innerloopsleep = random.nextInt(999) + 500;
-
-                System.out.print("innerloopCount: " + innerloopCount);
-                System.out.printf("%n");
-                System.out.print("innerloopsleep: " + innerloopsleep);
-                System.out.printf("%n");
-
-                for (int ii = 0; ii < innerloopCount; ii++) {
-                    System.out.print("innerloop: " + ii);
-                    System.out.printf("%n");
-                    publishMessage(producer);
-                    Thread.sleep(innerloopsleep);
-                }
+                publishMessage(producer);
                 Thread.sleep(sleeptime);
             }
         } finally {
@@ -90,7 +65,7 @@ public class KafkaTrafficCollector {
     private static Producer<String, byte[]> createProducer() {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-TrafficCounter");
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-IoT");
         config.put(ProducerConfig.ACKS_CONFIG,"1");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
@@ -104,7 +79,7 @@ public class KafkaTrafficCollector {
         ObjectNode messageJsonObject = jsonObject();
         byte[] valueJson = objectMapper.writeValueAsBytes(messageJsonObject);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("TrafficCounterRaw", key, valueJson);
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>("TrafficIOTRaw", key, valueJson);
 
         RecordMetadata md = producer.send(record).get();
         System.err.println("Published " + md.topic() + "/" + md.partition() + "/" + md.offset()
@@ -114,41 +89,16 @@ public class KafkaTrafficCollector {
     // build random json object
     private static ObjectNode jsonObject() {
 
-        int i= random.nextInt(3);
-
         ObjectNode report = objectMapper.createObjectNode();
-        report.put("sensor_ts", System.currentTimeMillis());
+        report.put("sensor_ts", Instant.now().toEpochMilli());
         report.put("sensor_id", (random.nextInt(11)));
-        report.put("probability", (random.nextInt(49) + 50));
-        report.put("sensor_x", (random.nextInt(99)));
-
-        switch (i) {
-            case 0:
-                report.put("typ", "Bike");
-                report.put("license_plate", "n/a");
-                report.put("toll_typ", "n/a");
-                break;
-            case 1:
-                report.put("typ", "LKW");
-                report.put("light", (random.nextBoolean()));
-                report.put("license_plate", license_plate_country.get(random.nextInt(license_plate_country.size())) +" "+ (random.nextInt(998 + 1 - 50) + 50) + "-" + (random.nextInt(8999) + 1000) );
-                report.put("toll_typ", toll_typ.get(random.nextInt(toll_typ.size())));
-
-                break;
-            case 2:
-                report.put("typ", "PKW");
-                report.put("light", (random.nextBoolean()));
-                report.put("license_plate", license_plate_country.get(random.nextInt(license_plate_country.size())) +" "+ (random.nextInt(998 + 1 - 50) + 50) + "-" + (random.nextInt(8999) + 1000) );
-                report.put("toll_typ", toll_typ.get(random.nextInt(toll_typ.size())));
-                break;
-            default:
-                System.err.println("i out of range");
-
-        }
+        report.put("temp", (random.nextInt(42 - 20 + 1)));
+        report.put("rain_level", (random.nextInt(5)));
+        report.put("visibility_level", (random.nextInt(5)));
         return report;
     }
 
     public static void setsleeptime(long sleeptime) {
-        KafkaTrafficCollector.sleeptime = sleeptime;
+        KafkaTrafficIOTSensor.sleeptime = sleeptime;
     }
 }

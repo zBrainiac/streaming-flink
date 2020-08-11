@@ -1,16 +1,20 @@
 package consumer;
 
+
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
@@ -22,35 +26,38 @@ import java.util.Properties;
 
 
 /**
- * iotStream: {"sensor_ts":1588617762605,"sensor_id":7,"sensor_0":59,"sensor_1":32,"sensor_2":84,"sensor_3":23,"sensor_4":56,"sensor_5":30,"sensor_6":46,"sensor_7":90,"sensor_8":64,"sensor_9":33,"sensor_10":49,"sensor_11":91}
- * Aggregation on "sensor_id"
+ * input stream:
+ *   {"sensor_ts":1596956979295,"sensor_id":8,"probability":50,"sensor_x":47,"typ":"LKW","light":false,"license_plate":"DE 483-5849","toll_typ":"10-day"}
+ *   {"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
  *
+ * Aggregation on "sensor_id" & "typ"
+ * <p>
  * run:
- *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
- *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerFilter
+ * cd /opt/cloudera/parcels/FLINK &&
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ * <p>
+ * java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC4TollValidation
  *
  * @author Marcel Daeppen
- * @version 2020/07/11 12:14
+ * @version 2020/08/08 12:14
  */
 
-public class IoTConsumerFilter {
+public class TrafficUC4TollValidation {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-        if( args.length == 1 ) {
+        if (args.length == 1) {
             System.err.println("case 'customized URI':");
             brokerURI = args[0];
             System.err.println("arg URL: " + brokerURI);
-        }else {
+        } else {
             System.err.println("case default");
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "iot_Consumer_Filter";
+        String use_case_id = "Traffic_UC4_TollValidation";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -72,25 +79,33 @@ public class IoTConsumerFilter {
         propertiesProducer.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
 
         DataStream<String> iotStream = env.addSource(
-                new FlinkKafkaConsumer<>("iot", new SimpleStringSchema(), properties));
+                new FlinkKafkaConsumer<>("TrafficCounterRaw", new SimpleStringSchema(), properties));
 
         iotStream.print("input message: ");
 
-        DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
+        DataStream<Tuple5<Long, Integer, String, String, String>> aggStream = iotStream
                 .flatMap(new trxJSONDeserializer())
-                .keyBy(1) // sensor_id
-                .sum(4)
-                .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) {
-                        return value.f2 >= 50 ;
+                .filter(new FilterFunction<Tuple5<Long, Integer, String, String, String>>() {
+            @Override
+            public boolean filter(Tuple5<Long, Integer, String, String, String> value) {
+               // return value.f3 == "none" | value.f4 == "LKW" | value.f4 == "PKW" ;
+
+                if (value.f3.equals("none")) {
+                    if (value.f4.equals("LKW")) {
+                        return true;
+                    } else if (value.f4.equals("PKW")) {
+                        return true;
                     }
-                });
+                    return false;
+                }
+                return false;
+            }
+        });
 
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducer = new FlinkKafkaProducer<>(
+        FlinkKafkaProducer<Tuple5<Long, Integer, String, String, String>> myProducer = new FlinkKafkaProducer<>(
                 topic, new serializeSum2String(), propertiesProducer);
 
         aggStream.addSink(myProducer);
@@ -102,28 +117,28 @@ public class IoTConsumerFilter {
     }
 
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, String, String, String>> {
         private transient ObjectMapper jsonParser;
 
         @Override
-        public void flatMap(String value, Collector<Tuple5<Long, Integer, Integer, Integer, Integer>> out) throws Exception {
+        public void flatMap(String value, Collector<Tuple5<Long, Integer, String, String, String>> out) throws JsonProcessingException {
             if (jsonParser == null) {
                 jsonParser = new ObjectMapper();
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // get sensor_ts, sensor_id, sensor_0 AND sensor_1 from JSONObject
+            // get sensor_ts, sensor_id, typ AND sensor_1 from JSONObject
             Long sensor_ts = jsonNode.get("sensor_ts").asLong();
             Integer sensor_id = jsonNode.get("sensor_id").asInt();
-            Integer sensor_0 = jsonNode.get("sensor_0").asInt();
-            Integer sensor_1 = jsonNode.get("sensor_1").asInt();
-            out.collect(new Tuple5<>(sensor_ts, sensor_id, sensor_0, sensor_1, 1));
-
+            String license_plate = jsonNode.get("license_plate").asText();
+            String toll_typ = jsonNode.get("toll_typ").asText();
+            String typ = jsonNode.get("typ").asText();
+            out.collect(new Tuple5<>(sensor_ts, sensor_id, license_plate, toll_typ, typ));
         }
 
     }
 
-    private static class serializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    private static class serializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, String, String, String>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);
@@ -133,10 +148,13 @@ public class IoTConsumerFilter {
         public byte[] serializeValue(Tuple5 value) {
 
             String str = "{"
-                    + "\"type\"" + ":" + "\"alert sensor_0 over 50\""
-                    + "," + "\"sensor_ts_start\"" + ":" + value.getField(0).toString()
+                    + "\"type\"" + ":" + "\"Alert\""
+                    + "," + "\"subtype\"" + ":" + "\"TollValidation\""
+                    + "," + "\"sensor_ts\"" + ":" + value.getField(0).toString()
                     + "," + "\"sensor_id\"" + ":" + value.getField(1).toString()
-                    + "," + "\"sensor_0\"" + ":" + value.getField(2).toString() + "}";
+                    + "," + "\"license_plate\"" + ":" + "\"" + value.getField(2).toString() + "\""
+                    + "," + "\"toll_typ\"" + ":" + "\"" + value.getField(3).toString() + "\""
+                    + "," + "\"typ\"" + ":" + "\"" + value.getField(4).toString() + "\"" + "}";
             return str.getBytes();
         }
 

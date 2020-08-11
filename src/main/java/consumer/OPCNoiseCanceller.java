@@ -52,7 +52,7 @@ public class OPCNoiseCanceller {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "opc-noise-canceller";
+        String use_case_id = "opc_UC1_NoiseCanceller";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment

@@ -187,7 +187,7 @@ java -classpath target/streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerSpli
 
 ### Download release:  
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.3/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.1.4/streaming-flink-0.1-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
 ### Upload release: 
 scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.1-SNAPSHOT.jar centos@52.59.200.19:/tmp  
@@ -254,16 +254,17 @@ sample opc json:
 {"__time":"2020-05-01T11:01:04.818786Z","tagname":"Triangle4711","unit":"Hydrocracker","value":0.96354}
 ```  
 
-### OPC Sensor
+### Traffic Counter
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector or  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
 java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector edge2ai-1.dim.local:9092
 ```  
-sample opc json:
-{"sensor_ts":1596952894254,"sensor_id":2,"probability":96,"sensor_x":76,"typ":"LKW","light":false,"license_plate":"AT 448-3946"}
+sample TrafficCounter json:
+{"sensor_ts":1596956979295,"sensor_id":8,"probability":50,"sensor_x":47,"typ":"LKW","light":false,"license_plate":"DE 483-5849","toll_typ":"10-day"}
 {"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
 ```  
+
 
 ### douple check kafka topic
 cd /opt/cloudera/parcels/CDH
