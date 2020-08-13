@@ -13,8 +13,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
@@ -31,11 +29,12 @@ import java.util.Properties;
  *   {"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
  *
  * Aggregation on "sensor_id" & "typ"
- * <p>
+ *
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
  * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
- * <p>
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092
+ *
  * java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC4TollValidation
  *
  * @author Marcel Daeppen

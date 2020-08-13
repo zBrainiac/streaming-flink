@@ -33,6 +33,7 @@ import java.util.Properties;
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
  * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092
  * <p>
  * java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC2WindowSensorTyp
  *

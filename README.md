@@ -149,11 +149,37 @@ Alarm in case of a duplicated cc trx
 {"5155-9621-5112-8965":6}
 ```
 
+#### Use case 8 - "dispatch Credit Card transactions for approval"  
+Send credit card transactions above 40.00 to approval topic
+  
+Flink Flow:  
+![Flink FSI Use Case 8](images/FSI_UC8.png)
+
+
+JSON input stream:
+```
+{"timestamp":1566829043004,"cc_id":"5123-5985-1943-6358","cc_type":"Maestro","shop_id":3,"shop_name":"SihlCity","fx":"USD","fx_account":"CHF","amount_orig":40.0}
+```
+  
+okay case: amount below 40 - auto approval
+```
+{"type":"okay","subtype":"auto approval - amount below 40","credit cart id":"5171-9364-9817-2054","credit cart issuer":"USD","original amount":47.17}
+```
+
+nok case: amount above 40 - approval required
+```
+{"type":"nok","subtype":"verification required - amount above 40","credit cart id":"5126-7561-2004-4916","credit cart issuer":"EUR","original amount":85.78}
+```
+
 ### IoT Use cases:  
 
 overview of all IoT use cases:
 ![Flink App Use Case 1](images/FlinkApp_IoT_overview.png)
  `
+### Traffic Use cases:  
+#### Use case 5 - "join"
+![Flink App Use Case 6](images/FlinkApp_Trafficflow_uc5.png)
+
 
  
 ## run:

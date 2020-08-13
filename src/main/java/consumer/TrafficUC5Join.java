@@ -21,12 +21,12 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import java.util.Properties;
 
 /**
- * className: ConsunerFlink.KafkaJoin2JsonStreams
- * trxStream: {"timestamp":1565604389166,"shop_id":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
- * fxStream: {"timestamp":1565604494202,"fx":"EUR","fx_rate":1.01}
+ * Input streams
+ *    TrafficCounterRaw: {"sensor_ts":1596956979295,"sensor_id":8,"probability":50,"sensor_x":47,"typ":"LKW","light":false,"license_plate":"DE 483-5849","toll_typ":"10-day"}
+ *    TrafficIOTRaw: {"sensor_ts":1597076764377,"sensor_id":4,"temp":15,"rain_level":0,"visibility_level":0}
  *
- * DataStream<String> joinedString = trx.join(fx)
- * {"EUR":{"fx":"EUR","fx_rate":0.9,"timestamp":1565604610729},"5130-2220-4900-6727":{"cc_type":"Visa","shop_id":4,"fx":"EUR","amount_orig":86.82,"fx_account":"EUR","cc_id":"5130-2220-4900-6727","shop_name":"Ums Eck","timestamp":1565604610745}}
+ * DataStream<String> joinedString
+ *   { "traffic":{ "sensor_ts":1596952893254, "sensor_id":1, "license_plate":"AT 448-3946", "toll_typ":"2-month", "probability":96, "sensor_x":76, "typ":"LKW", "light":false }, "iot":{ "sensor_ts":1597138335247, "sensor_id":1, "temp":10, "rain_level":2, "visibility_level":2 } }
  *
  *
  * run:
@@ -36,7 +36,7 @@ import java.util.Properties;
  *   java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC5Join
  *
  * @author Marcel Daeppen
- * @version 2020/08/10 18:14
+ * @version 2020/08/12 14:54
  */
 
 public class TrafficUC5Join {
@@ -78,37 +78,37 @@ public class TrafficUC5Join {
         //it is necessary to use IngestionTime, not EventTime. during my running this program
         env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
 
-        DataStream<String> fxStream = env.addSource(
+        DataStream<String> trafficStream = env.addSource(
                 new FlinkKafkaConsumer<>("TrafficCounterRaw", new SimpleStringSchema(), properties));
 
-        fxStream.print("DataStream - fx");
+        trafficStream.print("DataStream - trafficStream");
 
-        DataStream<String> trxStream = env.addSource(
+        DataStream<String> iotStream = env.addSource(
                 new FlinkKafkaConsumer<>("TrafficIOTRaw", new SimpleStringSchema(), properties));
 
-        trxStream.print("DataStream - trx");
+        iotStream.print("DataStream - iotStream");
 
-        DataStream<JSONObject> trx =
-                trxStream.flatMap(new Tokenizer());
+        DataStream<JSONObject> iot =
+                iotStream.flatMap(new Tokenizer());
 
-        trx.print("test trx: ");
+        iot.print("test iot: ");
 
-        DataStream<JSONObject> fx =
-                fxStream.flatMap(new Tokenizer());
-        fx.print("test fx: ");
+        DataStream<JSONObject> traffic =
+                trafficStream.flatMap(new Tokenizer());
+        traffic.print("test fx: ");
 
-        DataStream<String> joinedString = trx.join(fx)
+        DataStream<String> joinedString = traffic.join(iot)
                 .where(new NameKeySelector())
                 .equalTo(new EqualKeySelector())
                 .window(TumblingProcessingTimeWindows.of(Time.milliseconds(10000)))
                 .apply((JoinFunction<JSONObject, JSONObject, String>) (first, second) -> {
                     JSONObject joinJson = new JSONObject();
-                    joinJson.put("trx", first);
-                    joinJson.put("fx", second);
+                    joinJson.put("traffic", first);
+                    joinJson.put("iot", second);
 
                     // for debugging: print out
-                    //         System.err.println("trx data: " + first);
-                    //         System.err.println("fx data: " + second);
+                             System.err.println("traffic data: " + first);
+                             System.err.println("iot data: " + second);
                     return joinJson.toJSONString();
                 });
 
@@ -139,10 +139,10 @@ public class TrafficUC5Join {
     private static class NameKeySelector implements KeySelector<JSONObject, Integer> {
         @Override
         public Integer getKey(JSONObject value) {
-            // select fx && fx_account from fxStream
+            // select fx && fx_account from trafficStream
             final int str = (int) value.get("sensor_id");
 // for debugging: print out
-            System.err.println("matchkey trx: " + str);
+            System.err.println("matchkey traffic: " + str);
             return str;
         }
     }
@@ -150,10 +150,10 @@ public class TrafficUC5Join {
     private static class EqualKeySelector implements KeySelector<JSONObject, Integer> {
         @Override
         public Integer getKey(JSONObject value) {
-            // select fx && fx_target from fxStream
+            // select fx && fx_target from iotStream
             final int str = (int) value.get("sensor_id");
 // for debugging: print out
-           System.err.println("matchkey fx: " + str);
+           System.err.println("matchkey iot: " + str);
             return str;
         }
     }
