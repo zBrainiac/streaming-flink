@@ -2,6 +2,7 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -16,6 +17,8 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.descriptors.Csv;
 import org.apache.flink.table.descriptors.Kafka;
 import org.apache.flink.table.descriptors.Schema;
+import org.apache.flink.table.sources.CsvTableSource;
+import org.apache.flink.table.sources.TableSource;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -29,15 +32,15 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerSQLFilter -ynm IoTConsumerSQLFilter lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLFilter -ynm IoTCsvConsumerSQLFilter lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTConsumerSQLFilter
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTCsvConsumerSQLFilter
  *
  * @author Marcel Daeppen
  * @version 2020/08/22 12:14
  */
 
-public class IoTConsumerSQLFilter {
+public class IoTCsvConsumerSQLLookup {
 
     private static String brokerURI = "localhost:9092";
 
@@ -52,7 +55,7 @@ public class IoTConsumerSQLFilter {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "iot_SQL_Filter";
+        String use_case_id = "IoT_Csv_Consumer_SQL_Lookup";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -84,6 +87,32 @@ public class IoTConsumerSQLFilter {
                 .field("uuid", DataTypes.STRING())
                 .field("text", DataTypes.STRING());
 
+        TableSource<?> lookupValues = CsvTableSource
+                .builder()
+                .path("data/lookup.csv")
+                .field("sensor_id", Types.INT)
+                .field("location", Types.STRING)
+                .fieldDelimiter(",")
+                .lineDelimiter("\n")
+                .ignoreFirstLine()
+                .ignoreParseErrors()
+                .build();
+
+        tableEnv.registerTableSource("lookupValues", lookupValues);
+
+        System.out.println("\n CSV Lookup Table Created with Schema: \n");
+
+        //Create a Table Object with the product_sales table.
+        Table lookupValuesTable = tableEnv
+                .scan("lookupValues");
+
+        lookupValuesTable.printSchema();
+
+        Table lookupTable = tableEnv.scan("lookupValues");
+
+        DataStream<Row> CsvTable = tableEnv.toAppendStream(lookupTable, Row.class);
+        CsvTable.print("lookupTable print: ");
+
         tableEnv.connect(
                 new Kafka()
                         .version("universal")    // required: valid connector versions are
@@ -97,7 +126,7 @@ public class IoTConsumerSQLFilter {
                 .createTemporaryTable("CsvSinkTable");
 
 
-        String sql = "SELECT * FROM CsvSinkTable WHERE sensor_id = 3";
+        String sql = "SELECT * FROM CsvSinkTable, lookupValues WHERE CsvSinkTable.sensor_id =  lookupValues.sensor_id";
 
         Table iotTable = tableEnv.sqlQuery(sql);
         iotTable.printSchema();
