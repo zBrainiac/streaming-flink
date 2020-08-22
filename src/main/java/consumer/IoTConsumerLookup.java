@@ -36,9 +36,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCount -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCount -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerCount
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTConsumerCount
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -48,7 +48,7 @@ public class IoTConsumerLookup {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -119,7 +119,7 @@ public class IoTConsumerLookup {
         // iotStream.print("input message: ");
 
         DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
-                .flatMap(new trxJSONDeserializer());
+                .flatMap(new TrxJSONDeserializer());
 
         aggStream.print("agg stream: ");
 
@@ -127,7 +127,7 @@ public class IoTConsumerLookup {
         // new
         DataStream<Tuple3<String, Integer, String>> joinedString = aggStream.join(CsvTable)
                 .where(new NameKeySelector())
-                .equalTo(new tableKeySelector())
+                .equalTo(new TableKeySelector())
                 .window(TumblingProcessingTimeWindows.of(Time.milliseconds(2000)))
                 .apply(new JoinFunction<Tuple5<Long, Integer, Integer, Integer, Integer>, Row, Tuple3<String, Integer, String>>() {
 
@@ -149,7 +149,7 @@ public class IoTConsumerLookup {
         System.err.println("jobId=" + jobId);
     }
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, Integer, Integer, Integer>> {
         private transient ObjectMapper jsonParser;
 
         @Override
@@ -177,7 +177,7 @@ public class IoTConsumerLookup {
         }
     }
 
-    private static class tableKeySelector implements KeySelector<Row, Integer> {
+    private static class TableKeySelector implements KeySelector<Row, Integer> {
         @Override
         public Integer getKey(Row row) throws Exception {
             return 1;

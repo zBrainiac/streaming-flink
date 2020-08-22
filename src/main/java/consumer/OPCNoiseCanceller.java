@@ -29,9 +29,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.OPCNoiseCanceller -ynm OPCNoiseCanceller lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.OPCNoiseCanceller -ynm OPCNoiseCanceller lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.OPCNoiseCanceller
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.OPCNoiseCanceller
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -41,7 +41,7 @@ public class OPCNoiseCanceller {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -79,7 +79,7 @@ public class OPCNoiseCanceller {
         opcStream.print("input message: ");
 
         DataStream<Tuple4<String, String, Double, Integer>> aggStream = opcStream
-                .flatMap(new trxJSONDeserializer())
+                .flatMap(new TrxJSONDeserializer())
                 .keyBy(1)
                 .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
                 .reduce(new ReduceFunc())
@@ -91,7 +91,6 @@ public class OPCNoiseCanceller {
                             return true;
                         } else if (value.f1.equals("Sawtooth")) {
                             return true;
-                        } else {
                         }
                         return false;
                     }
@@ -100,8 +99,8 @@ public class OPCNoiseCanceller {
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple4<String, String, Double, Integer>> myProducer = new FlinkKafkaProducer<Tuple4<String, String, Double, Integer>>(
-                topic, new serializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple4<String, String, Double, Integer>> myProducer = new FlinkKafkaProducer<>(
+                topic, new SerializeSum2String(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -112,7 +111,7 @@ public class OPCNoiseCanceller {
     }
 
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple4<String, String, Double, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple4<String, String, Double, Integer>> {
         private transient ObjectMapper jsonParser;
 
         @Override
@@ -134,7 +133,7 @@ public class OPCNoiseCanceller {
     }
 
 
-    private static class serializeSum2String implements KeyedSerializationSchema<Tuple4<String, String, Double, Integer>> {
+    private static class SerializeSum2String implements KeyedSerializationSchema<Tuple4<String, String, Double, Integer>> {
         @Override
         public byte[] serializeKey(Tuple4 element) {
             return (null);
@@ -170,7 +169,7 @@ public class OPCNoiseCanceller {
             System.out.println("reducefunc f3 new: " + current.f3);
             System.out.println("reducefunc f3 pre_result: " + pre_result.f3);
  */
-            return new Tuple4<String, String, Double, Integer>(current.f0, current.f1, (current.f2 + pre_result.f2) / (current.f3 + pre_result.f3), current.f3 + pre_result.f3);
+            return new Tuple4<>(current.f0, current.f1, (current.f2 + pre_result.f2) / (current.f3 + pre_result.f3), current.f3 + pre_result.f3);
         }
     }
 }

@@ -30,10 +30,10 @@ import java.util.Properties;
  *
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
- * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC3SummeryPerSensor -ynm TrafficUC3SummeryPerSensor lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
- * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC3SummeryPerSensor -ynm TrafficUC3SummeryPerSensor lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC3SummeryPerSensor -ynm TrafficUC3SummeryPerSensor lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC3SummeryPerSensor -ynm TrafficUC3SummeryPerSensor lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
  *
- * java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC3SummeryPerSensor
+ * java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.TrafficUC3SummeryPerSensor
  *
  * @author Marcel Daeppen
  * @version 2020/08/08 12:14
@@ -81,7 +81,7 @@ public class TrafficUC3SummeryPerSensor {
         iotStream.print("input message: ");
 
         DataStream<Tuple8<Long, Integer, String, Integer, String, Integer, String, Integer>> aggStream = iotStream
-                .flatMap(new trxJSONDeserializer())
+                .flatMap(new TrxJSONDeserializer())
                 .keyBy(1) // sensor_id & typ
                 .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
                 .sum(7)
@@ -103,7 +103,7 @@ public class TrafficUC3SummeryPerSensor {
     }
 
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple8<Long, Integer, String, Integer, String, Integer, String, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple8<Long, Integer, String, Integer, String, Integer, String, Integer>> {
         private transient ObjectMapper jsonParser;
 
         @Override

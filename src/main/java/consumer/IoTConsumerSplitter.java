@@ -27,9 +27,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerSplitter
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTConsumerSplitter
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -39,7 +39,7 @@ public class IoTConsumerSplitter {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -79,7 +79,7 @@ public class IoTConsumerSplitter {
         iotStream.print("input message: ");
 
         DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
-                .flatMap(new trxJSONDeserializer())
+                .flatMap(new TrxJSONDeserializer())
                 .keyBy(1) // sensor_id
                 .sum(4);
 
@@ -88,14 +88,14 @@ public class IoTConsumerSplitter {
                 .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
                     @Override
                     public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) throws Exception {
-                        return value.f1 == 1 | value.f1 == 3;
+                        return value.f1 == 1 || value.f1 == 3;
                     }
                 });
         splittedStreamA.print("splitted StreamA :");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerA = new FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>>(
-                topicVendorA, new serializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerA = new FlinkKafkaProducer<>(
+                topicVendorA, new SerializeSum2String(), propertiesProducer);
 
         splittedStreamA.addSink(myProducerA);
 
@@ -104,14 +104,14 @@ public class IoTConsumerSplitter {
                 .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
                     @Override
                     public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) throws Exception {
-                        return value.f1 == 2 | value.f1 == 4 | value.f1 == 9;
+                        return value.f1 == 2 || value.f1 == 4 || value.f1 == 9;
                     }
                 });
         splittedStreamB.print("splitted StreamB :");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerB = new FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>>(
-                topicVendorB, new serializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerB = new FlinkKafkaProducer<>(
+                topicVendorB, new SerializeSum2String(), propertiesProducer);
 
         splittedStreamB.addSink(myProducerB);
 
@@ -120,14 +120,14 @@ public class IoTConsumerSplitter {
                 .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
                     @Override
                     public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) throws Exception {
-                        return value.f1 == 4 | value.f1 == 5 | value.f1 == 6 | value.f1 == 7 | value.f1 == 8 ;
+                        return value.f1 == 4 || value.f1 == 5 || value.f1 == 7 || value.f1 == 6 || value.f1 == 8;
                     }
                 });
         splittedStreamX.print("splitted StreamX :");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerX = new FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>>(
-                topicVendorX, new serializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerX = new FlinkKafkaProducer<>(
+                topicVendorX, new SerializeSum2String(), propertiesProducer);
 
         splittedStreamX.addSink(myProducerX);
 
@@ -141,7 +141,7 @@ public class IoTConsumerSplitter {
     }
 
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, Integer, Integer, Integer>> {
         private transient ObjectMapper jsonParser;
 
         @Override
@@ -162,7 +162,7 @@ public class IoTConsumerSplitter {
 
     }
 
-    private static class serializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    private static class SerializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, Integer, Integer, Integer>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);

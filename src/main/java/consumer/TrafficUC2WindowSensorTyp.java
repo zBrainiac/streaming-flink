@@ -32,10 +32,10 @@ import java.util.Properties;
  * <p>
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
- * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
- * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
  * <p>
- * java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC2WindowSensorTyp
+ * java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.TrafficUC2WindowSensorTyp
  *
  * @author Marcel Daeppen
  * @version 2020/08/08 12:14
@@ -83,7 +83,7 @@ public class TrafficUC2WindowSensorTyp {
         iotStream.print("input message: ");
 
         DataStream<Tuple5<Long, Integer, String, Integer, Integer>> aggStream = iotStream
-                .flatMap(new trxJSONDeserializer())
+                .flatMap(new TrxJSONDeserializer())
                 .keyBy(1, 2) // sensor_id & typ
                 .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
                 .sum(4);
@@ -94,7 +94,7 @@ public class TrafficUC2WindowSensorTyp {
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Tuple5<Long, Integer, String, Integer, Integer>> myProducer = new FlinkKafkaProducer<>(
-                topic, new serializeSum2String(), propertiesProducer);
+                topic, new SerializeSum2String(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -105,7 +105,7 @@ public class TrafficUC2WindowSensorTyp {
     }
 
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, String, Integer, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, String, Integer, Integer>> {
         private transient ObjectMapper jsonParser;
 
         @Override
@@ -125,7 +125,7 @@ public class TrafficUC2WindowSensorTyp {
 
     }
 
-    private static class serializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, String, Integer, Integer>> {
+    private static class SerializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, String, Integer, Integer>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);

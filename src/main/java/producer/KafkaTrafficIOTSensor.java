@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficIoTSensor localhost:9092
+ *   java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaTrafficIoTSensor localhost:9092
  *
  *
  * output:
@@ -30,7 +30,7 @@ public class KafkaTrafficIOTSensor {
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -51,14 +51,11 @@ public class KafkaTrafficIOTSensor {
             System.err.println("default sleeptime (ms): " + sleeptime);
         }
 
-        Producer<String, byte[]> producer = createProducer();
-        try {
+        try (Producer<String, byte[]> producer = createProducer()) {
             for (int i = 0; i < 1000000; i++) {
                 publishMessage(producer);
                 Thread.sleep(sleeptime);
             }
-        } finally {
-            producer.close();
         }
     }
 

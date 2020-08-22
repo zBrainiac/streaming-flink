@@ -3,7 +3,6 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -32,10 +31,10 @@ import java.util.Properties;
  *
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
- * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
- * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
  *
- * java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC4TollValidation
+ * java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.TrafficUC4TollValidation
  *
  * @author Marcel Daeppen
  * @version 2020/08/08 12:14
@@ -83,29 +82,24 @@ public class TrafficUC4TollValidation {
         iotStream.print("input message: ");
 
         DataStream<Tuple5<Long, Integer, String, String, String>> aggStream = iotStream
-                .flatMap(new trxJSONDeserializer())
-                .filter(new FilterFunction<Tuple5<Long, Integer, String, String, String>>() {
-            @Override
-            public boolean filter(Tuple5<Long, Integer, String, String, String> value) {
-               // return value.f3 == "none" | value.f4 == "LKW" | value.f4 == "PKW" ;
-
-                if (value.f3.equals("none")) {
-                    if (value.f4.equals("LKW")) {
-                        return true;
-                    } else if (value.f4.equals("PKW")) {
-                        return true;
+                .flatMap(new TrxJSONDeserializer())
+                .filter(value -> {
+                    if (value.f3.equals("none")) {
+                        if (value.f4.equals("LKW")) {
+                            return true;
+                        } else if (value.f4.equals("PKW")) {
+                            return true;
+                        }
+                        return false;
                     }
                     return false;
-                }
-                return false;
-            }
-        });
+                });
 
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Tuple5<Long, Integer, String, String, String>> myProducer = new FlinkKafkaProducer<>(
-                topic, new serializeSum2String(), propertiesProducer);
+                topic, new SerializeSum2String(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -116,7 +110,7 @@ public class TrafficUC4TollValidation {
     }
 
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, String, String, String>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple5<Long, Integer, String, String, String>> {
         private transient ObjectMapper jsonParser;
 
         @Override
@@ -137,7 +131,7 @@ public class TrafficUC4TollValidation {
 
     }
 
-    private static class serializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, String, String, String>> {
+    private static class SerializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, String, String, String>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);

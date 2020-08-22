@@ -27,9 +27,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC5KafkaTrxDuplicateChecker -ynm UC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.UC5KafkaTrxDuplicateChecker -ynm UC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.UC5KafkaTrxDuplicateChecker
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC5KafkaTrxDuplicateChecker
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -39,7 +39,7 @@ public class UC5KafkaTrxDuplicateChecker {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -79,7 +79,7 @@ public class UC5KafkaTrxDuplicateChecker {
 
         // deserialization of the received JSONObject into Tuple
         DataStream<Tuple2<String, Integer>> aggStream = trxStream
-                .flatMap(new trxJSONDeserializer())
+                .flatMap(new TrxJSONDeserializer())
                 // group by "trx_fingerprint" and sum their occurrences
                 .keyBy(0) // trx_fingerprint
                 .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
@@ -95,8 +95,8 @@ public class UC5KafkaTrxDuplicateChecker {
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple2<String, Integer>> myProducer = new FlinkKafkaProducer<Tuple2<String, Integer>>(
-                topic, new serializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple2<String, Integer>> myProducer = new FlinkKafkaProducer<>(
+                topic, new SerializeSum2String(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -106,7 +106,7 @@ public class UC5KafkaTrxDuplicateChecker {
         System.err.println("jobId=" + jobId);
     }
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple2<String, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple2<String, Integer>> {
         private transient ObjectMapper jsonParser;
 
         /**
@@ -125,7 +125,7 @@ public class UC5KafkaTrxDuplicateChecker {
         }
     }
 
-    public static class serializeSum2String implements KeyedSerializationSchema<Tuple2<String, Integer>> {
+    public static class SerializeSum2String implements KeyedSerializationSchema<Tuple2<String, Integer>> {
         @Override
         public byte[] serializeKey(Tuple2 element) {
             return (null);

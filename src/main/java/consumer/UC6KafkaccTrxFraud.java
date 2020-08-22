@@ -2,7 +2,6 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -29,9 +28,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC6KafkaccTrxFraud -ynm UC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.UC6KafkaccTrxFraud -ynm UC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.UC6KafkaccTrxFraud
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC6KafkaccTrxFraud
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -41,7 +40,7 @@ public class UC6KafkaccTrxFraud {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -81,24 +80,19 @@ public class UC6KafkaccTrxFraud {
 
         // deserialization of the received JSONObject into Tuple
         DataStream<Tuple3<String, Double, Integer>> aggStream = trxStream
-                .flatMap(new trxJSONDeserializer())
+                .flatMap(new TrxJSONDeserializer())
                 // group by "cc-id" and sum their instances
                 .keyBy(0) // cc_id
                 .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
                 .sum(2)
                 // filter out if the cc_id is unique within the window {30 sec}. if the cc-id occurs several times && amount >= 40.00 send alarm event
-                .filter(new FilterFunction<Tuple3<String, Double, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple3<String, Double, Integer> value) throws Exception {
-                        return value.f1 >= 10 && value.f2 != 1;
-                    }
-                });
+                .filter(value -> value.f1 >= 10 && value.f2 != 1);
 
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Tuple3<String, Double, Integer>> myProducer = new FlinkKafkaProducer<>(
-                topic, new serializeTuple3toString(), propertiesProducer);
+                topic, new SerializeTuple3toString(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -108,7 +102,7 @@ public class UC6KafkaccTrxFraud {
         System.err.println("jobId=" + jobId);
     }
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple3<String, Double, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple3<String, Double, Integer>> {
         private transient ObjectMapper jsonParser;
 
         /**
@@ -129,7 +123,7 @@ public class UC6KafkaccTrxFraud {
 
     }
 
-    public static class serializeTuple3toString implements KeyedSerializationSchema<Tuple3<String, Double, Integer>> {
+    public static class SerializeTuple3toString implements KeyedSerializationSchema<Tuple3<String, Double, Integer>> {
         @Override
         public byte[] serializeKey(Tuple3 element) {
             return (null);

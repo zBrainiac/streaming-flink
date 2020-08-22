@@ -25,9 +25,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC2KafkaSumccTypTrxFx -ynm UC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.UC2KafkaSumccTypTrxFx -ynm UC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.UC2KafkaSumccTypTrxFx
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC2KafkaSumccTypTrxFx
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -37,7 +37,7 @@ public class UC2KafkaSumccTypTrxFx {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -77,7 +77,7 @@ public class UC2KafkaSumccTypTrxFx {
 
         // deserialization of the received JSONObject into Tuple
         DataStream<Tuple5<String, String, String, String, Double>> aggStream = trxStream
-                .flatMap(new trxJSONDeserializer())
+                .flatMap(new TrxJSONDeserializer())
                 // group by "cc_typ" AND "fx" and sum their occurrences
                 .keyBy(0,1)
                 .sum(4 );
@@ -86,7 +86,7 @@ public class UC2KafkaSumccTypTrxFx {
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducer = new FlinkKafkaProducer<>(
-                topic, new serializeTuple5toString(), propertiesProducer);
+                topic, new SerializeTuple5toString(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -96,7 +96,7 @@ public class UC2KafkaSumccTypTrxFx {
         System.err.println("jobId=" + jobId);
     }
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<String, String, String, String, Double>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple5<String, String, String, String, Double>> {
         private transient ObjectMapper jsonParser;
 
         /**
@@ -121,7 +121,7 @@ public class UC2KafkaSumccTypTrxFx {
 
     }
 
-    public static class serializeTuple5toString implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
+    public static class SerializeTuple5toString implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);

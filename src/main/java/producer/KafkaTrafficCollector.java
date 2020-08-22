@@ -14,7 +14,7 @@ import static java.util.Collections.unmodifiableList;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaTrafficCollector localhost:9092
+ *   java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaTrafficCollector localhost:9092
  *
  *
  * output:
@@ -38,7 +38,7 @@ public class KafkaTrafficCollector {
     private static final List<String> toll_typ = unmodifiableList(Arrays.asList(
             "none", "10-day", "2-month", "Annual"));
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -59,15 +59,14 @@ public class KafkaTrafficCollector {
             System.err.println("default sleeptime (ms): " + sleeptime);
         }
 
-        Producer<String, byte[]> producer = createProducer();
-        try {
+        try (Producer<String, byte[]> producer = createProducer()) {
             for (int i = 0; i < 1000000; i++) {
                 System.out.print("outerloop: " + i);
                 System.out.printf("%n");
 
                 // innerloop
                 int innerloopCount = random.nextInt(11);
-                long innerloopsleep = random.nextInt(999) + 500;
+                int innerloopsleep = random.nextInt(999) + 500;
 
                 System.out.print("innerloopCount: " + innerloopCount);
                 System.out.printf("%n");
@@ -82,8 +81,6 @@ public class KafkaTrafficCollector {
                 }
                 Thread.sleep(sleeptime);
             }
-        } finally {
-            producer.close();
         }
     }
 

@@ -22,9 +22,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCSV -ynm IoTConsumerCSV lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCSV -ynm IoTConsumerCSV lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.IoTConsumerCSV
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTConsumerCSV
  *
  * @author Marcel Daeppen
  * @version 2020/07/29 14:14
@@ -34,7 +34,7 @@ public class IoTConsumerCSVCheckpointing1000 {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -107,7 +107,7 @@ public class IoTConsumerCSVCheckpointing1000 {
 
 
 
-    private static class serializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    private static class SerializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, Integer, Integer, Integer>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);

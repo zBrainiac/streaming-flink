@@ -28,9 +28,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC7KafkaAvgFx -ynm UC7KafkaAvgFx lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.UC7KafkaAvgFx -ynm UC7KafkaAvgFx lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.UC7KafkaAvgFx
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC7KafkaAvgFx
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -40,7 +40,7 @@ public class UC7KafkaAvgFx {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -80,7 +80,7 @@ public class UC7KafkaAvgFx {
 
         // deserialization of the received JSONObject into Tuple
         DataStream<Tuple3<String, Double, Integer>> aggStream = fxRateStream
-                .flatMap(new trxJSONDeserializer())
+                .flatMap(new TrxJSONDeserializer())
                 // group by "fx_fx"
                 .keyBy(0)
                 .window(TumblingProcessingTimeWindows.of(Time.seconds(10)))
@@ -90,7 +90,7 @@ public class UC7KafkaAvgFx {
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Tuple3<String, Double, Integer>>  myProducer = new FlinkKafkaProducer<>(
-                topic, new serializeTuple2toString(), propertiesProducer);
+                topic, new SerializeTuple2toString(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -100,7 +100,7 @@ public class UC7KafkaAvgFx {
         System.err.println("jobId=" + jobId);
     }
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple3<String, Double, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple3<String, Double, Integer>> {
         private transient ObjectMapper jsonParser;
 
         /**
@@ -124,7 +124,7 @@ public class UC7KafkaAvgFx {
     }
 
 
-    public static class serializeTuple2toString implements KeyedSerializationSchema<Tuple3<String, Double, Integer>> {
+    public static class SerializeTuple2toString implements KeyedSerializationSchema<Tuple3<String, Double, Integer>> {
         @Override
         public byte[] serializeKey(Tuple3 element) {
             return (null);
@@ -151,7 +151,7 @@ public class UC7KafkaAvgFx {
             System.err.println("reducefunc f1: " + current.f1);
             System.err.println("reducefunc f2: " + current.f2);
 
-            return new Tuple3<String, Double, Integer> (current.f0 , current.f1, current.f2);
+            return new Tuple3<> (current.f0 , current.f1, current.f2);
         }
     }
 }

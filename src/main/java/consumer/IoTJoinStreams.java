@@ -2,18 +2,12 @@ package consumer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.JoinFunction;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.operators.CollectionExecutor;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -25,7 +19,6 @@ import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
-import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -37,7 +30,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.IoTJoinStreams
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTJoinStreams
  *
  * @author Marcel Daeppen
  * @version 2020/07/29 20:14
@@ -47,7 +40,7 @@ public class IoTJoinStreams {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -104,7 +97,7 @@ public class IoTJoinStreams {
                 .where(new NameKeySelector())
                 .equalTo(new EqualKeySelector())
                 .window(TumblingProcessingTimeWindows.of(Time.milliseconds(10000)))
-                .apply((JoinFunction<JSONObject, JSONObject, String>) (first, second) -> {
+                .apply((first, second) -> {
                     JSONObject joinJson = new JSONObject();
                     joinJson.put("iot", first);
                     joinJson.put("csv", second);

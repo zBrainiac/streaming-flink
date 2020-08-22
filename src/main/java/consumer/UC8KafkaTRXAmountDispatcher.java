@@ -2,7 +2,6 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -26,9 +25,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC8KafkaTRXAmountDispatcher -ynm UC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.UC8KafkaTRXAmountDispatcher -ynm UC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
  *
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.UC8KafkaTRXAmountDispatcher
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC8KafkaTRXAmountDispatcher
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -38,7 +37,7 @@ public class UC8KafkaTRXAmountDispatcher {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -79,38 +78,28 @@ public class UC8KafkaTRXAmountDispatcher {
 
         // Above40Stream //
         DataStream<Tuple5<String, String, String, String, Double>> Above40Stream = trxStream
-                .flatMap(new trxJSONDeserializer())
-                .filter(new FilterFunction<Tuple5<String, String, String, String, Double>>() {
-                    @Override
-                    public boolean filter(Tuple5<String, String, String, String, Double> value) throws Exception {
-                        return value.f4 >= 41 ;
-                    }
-                });
+                .flatMap(new TrxJSONDeserializer())
+                .filter(value -> value.f4 >= 40.01);
         Above40Stream.print("Above40Stream :");
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducerA = new FlinkKafkaProducer<>(
-                topicAbove40, new serializeTuple5toStringApproval(), propertiesProducer);
+                topicAbove40, new SerializeTuple5toStringApproval(), propertiesProducer);
 
         Above40Stream.addSink(myProducerA);
 
 
         // Below40Stream //
         DataStream<Tuple5<String, String, String, String, Double>> Below40Stream = trxStream
-                .flatMap(new trxJSONDeserializer())
-                .filter(new FilterFunction<Tuple5<String, String, String, String, Double>>() {
-                    @Override
-                    public boolean filter(Tuple5<String, String, String, String, Double> value) throws Exception {
-                        return value.f4 <= 40 ;
-                    }
-                });
+                .flatMap(new TrxJSONDeserializer())
+                .filter(value -> value.f4 <= 40.00);
         Below40Stream.print("Below40Stream :");
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducerB = new FlinkKafkaProducer<>(
-                topicBelow40, new serializeTuple5toString(), propertiesProducer);
+                topicBelow40, new SerializeTuple5toString(), propertiesProducer);
 
-        Above40Stream.addSink(myProducerB);
+        Below40Stream.addSink(myProducerB);
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
@@ -118,7 +107,7 @@ public class UC8KafkaTRXAmountDispatcher {
         System.err.println("jobId=" + jobId);
     }
 
-    public static class trxJSONDeserializer implements FlatMapFunction<String, Tuple5<String, String, String, String, Double>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple5<String, String, String, String, Double>> {
         private transient ObjectMapper jsonParser;
 
         /**
@@ -143,7 +132,7 @@ public class UC8KafkaTRXAmountDispatcher {
 
     }
 
-    public static class serializeTuple5toString implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
+    public static class SerializeTuple5toString implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);
@@ -165,7 +154,7 @@ public class UC8KafkaTRXAmountDispatcher {
             return null;
         }
     }
-    public static class serializeTuple5toStringApproval implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
+    public static class SerializeTuple5toStringApproval implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);

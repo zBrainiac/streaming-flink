@@ -4,10 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -31,7 +29,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.UC3KafkaJoin2JsonStreams
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC3KafkaJoin2JsonStreams
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14
@@ -41,7 +39,7 @@ public class UC3KafkaJoin2JsonStreams {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
             if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
@@ -98,7 +96,7 @@ public class UC3KafkaJoin2JsonStreams {
                 .where(new NameKeySelector())
                 .equalTo(new EqualKeySelector())
                 .window(TumblingProcessingTimeWindows.of(Time.milliseconds(2000)))
-                .apply((JoinFunction<JSONObject, JSONObject, String>) (first, second) -> {
+                .apply((first, second) -> {
                     JSONObject joinJson = new JSONObject();
                     joinJson.put("trx", first);
                     joinJson.put("fx", second);

@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar producer.KafkaIOTSimpleKVProducer localhost:9092
+ *   java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaIOTSimpleKVProducer localhost:9092
  *
  * output:
  *  unixTime: 1596953939783, sensor_id: 1, id: ba292ff6-e4db-4776-b70e-2b49edfb6726, Test Message: bliblablub #33
@@ -22,7 +22,7 @@ public class KafkaIOTSimpleKVProducer {
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
             if( args.length == 1 ) {
                 System.err.println("case 'customized URI':");
@@ -60,7 +60,7 @@ public class KafkaIOTSimpleKVProducer {
             int randomNum = ThreadLocalRandom.current().nextInt(11 );
             String uuid = UUID.randomUUID().toString();
 
-            Long unixTime = System.currentTimeMillis();
+            long unixTime = System.currentTimeMillis();
 
             ProducerRecord record = new ProducerRecord<>("iot_KV", i,
                     "unixTime: " + unixTime

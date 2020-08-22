@@ -31,9 +31,9 @@ import java.util.Properties;
  *
  * run:
  *   cd /opt/cloudera/parcels/FLINK &&
- *   ./bin/flink run -m yarn-cluster -c consumer.TrafficUC5Join -ynm TrafficUC5Join lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar localhost:9092
- *   ./bin/flink run -m yarn-cluster -c consumer.TrafficUC5Join -ynm TrafficUC5Join lib/flink/examples/streaming/streaming-flink-0.1-SNAPSHOT.jar edge2ai-1.dim.local:9092
- *   java -classpath streaming-flink-0.1-SNAPSHOT.jar consumer.TrafficUC5Join
+ *   ./bin/flink run -m yarn-cluster -c consumer.TrafficUC5Join -ynm TrafficUC5Join lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ *   ./bin/flink run -m yarn-cluster -c consumer.TrafficUC5Join -ynm TrafficUC5Join lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
+ *   java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.TrafficUC5Join
  *
  * @author Marcel Daeppen
  * @version 2020/08/12 14:54
@@ -43,7 +43,7 @@ public class TrafficUC5Join {
 
     private static String brokerURI = "localhost:9092";
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
