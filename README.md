@@ -179,6 +179,9 @@ overview of all IoT use cases:
 ![Flink App Use Case 1](images/FlinkApp_IoT_overview.png)
 
 Use Case enhance stream / Lookup CSV:
+- IoTCsvConsumerSQLLookupCSV
+- IoTCsvConsumerSQLLookupJSON
+
 ![Flink App Use Case enhance stream /Lookup CSV](images/FlinkApp_IoT_LookupCSV.png)
 
 CSV input stream:
@@ -194,9 +197,14 @@ sensorid, location
 3, City Cambera,
 ```
 
-Output stream:
+CSV Output stream:
 ```
 1598101297091, 1, 16bc7e63-95bc-424b-a5d5-69b5bee9644e, Test Message #1186, City Amsterdam
+```
+
+JSON Output stream:
+```
+{"type":"ok","subtype":"message enrichment","sensor_ts":1598263121787,"uuid":"8ef8f0d9-af5e-45c2-8f5f-af7844423849","sensor_id":6,"message":"Test Message #2076","location":"City Florenz"}
 ```
 
 ### Traffic_Use_cases:  

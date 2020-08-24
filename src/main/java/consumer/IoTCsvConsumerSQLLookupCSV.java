@@ -3,13 +3,11 @@ package consumer;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
-import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
@@ -32,15 +30,15 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLFilter -ynm IoTCsvConsumerSQLFilter lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupCSV -ynm IoTCsvConsumerSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTCsvConsumerSQLFilter
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTCsvConsumerSQLLookupCSV
  *
  * @author Marcel Daeppen
  * @version 2020/08/22 12:14
  */
 
-public class IoTCsvConsumerSQLLookup {
+public class IoTCsvConsumerSQLLookupCSV {
 
     private static String brokerURI = "localhost:9092";
 
@@ -150,28 +148,5 @@ public class IoTCsvConsumerSQLLookup {
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
         System.err.println("jobId=" + jobId);
-    }
-
-    public static class SerializeSum2String implements KeyedSerializationSchema<Tuple4<Long, Integer, String, String>> {
-        @Override
-        public byte[] serializeKey(Tuple4 element) {
-            return (null);
-        }
-        @Override
-        public byte[] serializeValue(Tuple4 value) {
-
-            String str = "{"
-                    + "\"type\"" + ":" + "\"ok\""
-                    + "," + "\"subtype\"" + ":" + "\"filter sensor_id #3 \""
-                    + "," + "\"sensor_ts\"" + ":" + value.getField(0).toString()
-                    + "," + "\"uuid\"" + ":" + value.getField(2).toString()
-                    + "," + "\"msg\"" + ":" + value.getField(3)  + "}";
-            return str.getBytes();
-        }
-
-        @Override
-        public String getTargetTopic(Tuple4<Long, Integer, String, String> longIntegerStringStringTuple4) {
-            return null;
-        }
     }
 }
