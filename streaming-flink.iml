@@ -69,6 +69,7 @@
     <orderEntry type="library" name="Maven: org.apache.calcite.avatica:avatica-core:1.15.0" level="project" />
     <orderEntry type="library" name="Maven: org.reflections:reflections:0.9.10" level="project" />
     <orderEntry type="library" name="Maven: org.apache.flink:flink-csv:1.10.0-csa1.2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.flink:flink-json:1.10.0-csa1.2.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.kafka:kafka-clients:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: com.github.luben:zstd-jni:1.4.3-1" level="project" />
     <orderEntry type="library" name="Maven: org.lz4:lz4-java:1.6.0" level="project" />

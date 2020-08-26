@@ -14,6 +14,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -89,13 +91,12 @@ public class TrafficUC3SummeryPerSensor {
 
         aggStream.print(topic + ": ");
 
-/*
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Tuple8<Long, Integer, String, Integer, String, Integer, String, Integer>> myProducer = new FlinkKafkaProducer<>(
-                topic, new serializeSum2String(), propertiesProducer);
+                topic, new SerializeSum2String(), propertiesProducer);
 
         aggStream.addSink(myProducer);
-*/
+
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
@@ -117,9 +118,37 @@ public class TrafficUC3SummeryPerSensor {
             Long sensor_ts = jsonNode.get("sensor_ts").asLong();
             Integer sensor_id = jsonNode.get("sensor_id").asInt();
             String typ = jsonNode.get("typ").asText();
-            out.collect(new Tuple8<>(sensor_ts, sensor_id, typ, 1, typ,1,typ,1));
+            Integer probability = jsonNode.get("probability").asInt();
+            Integer sensor_x = jsonNode.get("sensor_x").asInt();
+            String toll_typ = jsonNode.get("toll_typ").asText();
+            String license_plate = jsonNode.get("license_plate").asText();
+            out.collect(new Tuple8<>(sensor_ts, sensor_id, typ, probability, license_plate,sensor_x,toll_typ,1));
+        }
+    }
+
+    private static class SerializeSum2String implements KeyedSerializationSchema<Tuple8<Long, Integer, String, Integer, String, Integer, String, Integer>> {
+        @Override
+        public byte[] serializeKey(Tuple8 element) {
+            return (null);
         }
 
+        @Override
+        public byte[] serializeValue(Tuple8 value) {
+
+            String str = "{"
+                    + "\"type\"" + ":" + "\"Info\""
+                    + "," + "\"subtype\"" + ":" + "\"Counter by sensor_id and typ over 30 sec.\""
+                    + "," + "\"sensor_ts_start\"" + ":" + value.getField(0).toString()
+                    + "," + "\"sensor_id\"" + ":" + value.getField(1).toString()
+                    + "," + "\"counter\"" + ":" + value.getField(7).toString() + "}";
+            return str.getBytes();
+        }
+
+        @Override
+        public String getTargetTopic(Tuple8 tuple5) {
+            // use always the default topic
+            return null;
+        }
     }
 
 }

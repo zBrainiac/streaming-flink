@@ -27,17 +27,18 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTConsumerSplitter
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.TrafficUC7EventDispatcher
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class IoTConsumerSplitter {
+public class TrafficUC7EventDispatcher {
 
     private static String brokerURI = "localhost:9092";
+    private static String topicPrefix = "result_";
 
     public static void main(String[] args) throws Exception {
 
@@ -50,10 +51,10 @@ public class IoTConsumerSplitter {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "iot_Consumer_Splitter";
-        String topicVendorA = "result_" + use_case_id + "VendorA";
-        String topicVendorB = "result_" + use_case_id + "VendorB";
-        String topicVendorX = "result_" + use_case_id + "VendorX";
+        String use_case_id = "Traffic_UC7_IOTRaw_Consumer_EventDispatcher";
+        String topicVendorA = topicPrefix + use_case_id + "VendorA";
+        String topicVendorB = topicPrefix + use_case_id + "VendorB";
+        String topicVendorX = topicPrefix + use_case_id + "VendorX";
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -74,7 +75,7 @@ public class IoTConsumerSplitter {
         propertiesProducer.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
 
         DataStream<String> iotStream = env.addSource(
-                new FlinkKafkaConsumer<>("iot", new SimpleStringSchema(), properties));
+                new FlinkKafkaConsumer<>("TrafficIOTRaw", new SimpleStringSchema(), properties));
 
         iotStream.print("input message: ");
 
@@ -154,9 +155,10 @@ public class IoTConsumerSplitter {
             // get sensor_ts, sensor_id, sensor_0 AND sensor_1 from JSONObject
             Long sensor_ts = jsonNode.get("sensor_ts").asLong();
             Integer sensor_id = jsonNode.get("sensor_id").asInt();
-            Integer sensor_0 = jsonNode.get("sensor_0").asInt();
-            Integer sensor_1 = jsonNode.get("sensor_1").asInt();
-            out.collect(new Tuple5<>(sensor_ts, sensor_id, sensor_0, sensor_1, 1));
+            Integer temp = jsonNode.get("temp").asInt();
+            Integer rain_level = jsonNode.get("rain_level").asInt();
+            Integer visibility_level = jsonNode.get("visibility_level").asInt();
+            out.collect(new Tuple5<>(sensor_ts, sensor_id, temp, rain_level, visibility_level));
 
         }
 

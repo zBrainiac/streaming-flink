@@ -29,12 +29,12 @@ import java.util.Properties;
  *   {"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
  *
  * Aggregation on "sensor_id" & "typ"
- * <p>
+ *
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
  * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
  * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
- * <p>
+ *
  * java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.TrafficUC2WindowSensorTyp
  *
  * @author Marcel Daeppen
