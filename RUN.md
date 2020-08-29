@@ -107,6 +107,11 @@ sample TrafficCounter json:
 {"sensor_ts":1596952895018,"sensor_id":10,"probability":52,"sensor_x":14,"typ":"Bike"}
 ```  
 ### Traffic IOT Sensor
+move lookup CSV to:  
+```
+/tmp/data/lookup.csv  
+```
+
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
 java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaTrafficIOTSensor or  
 java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaTrafficIOTSensor localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  

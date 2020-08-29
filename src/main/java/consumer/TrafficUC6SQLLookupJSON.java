@@ -21,6 +21,7 @@ import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
+import java.lang.reflect.Type;
 import java.util.Properties;
 
 
@@ -87,9 +88,11 @@ public class TrafficUC6SQLLookupJSON {
 
         TableSource<?> lookupValues = CsvTableSource
                 .builder()
-                .path("data/lookup.csv")
+                .path("/tmp/data/lookup.csv")
                 .field("sensor_id", Types.INT)
                 .field("location", Types.STRING)
+                .field("lat", Types.DOUBLE)
+                .field("long", Types.DOUBLE)
                 .fieldDelimiter(",")
                 .lineDelimiter("\n")
                 .ignoreFirstLine()
@@ -124,14 +127,24 @@ public class TrafficUC6SQLLookupJSON {
                 .createTemporaryTable("JSONSinkTable");
 
 
-        String sql = "SELECT * FROM JSONSinkTable, lookupValues WHERE JSONSinkTable.sensor_id =  lookupValues.sensor_id";
+        String sql = "SELECT " +
+                "  JSONSinkTable.sensor_ts" +
+                ", JSONSinkTable.sensor_id" +
+                ", JSONSinkTable.temp" +
+                ", JSONSinkTable.rain_level" +
+                ", JSONSinkTable.visibility_level" +
+                ", lookupValues.location" +
+                ", lookupValues.lat" +
+                ", lookupValues.long " +
+                "FROM JSONSinkTable, lookupValues " +
+                "WHERE JSONSinkTable.sensor_id = lookupValues.sensor_id";
 
         Table iotTable = tableEnv.sqlQuery(sql);
         iotTable.printSchema();
 
         DataStream<Row> aggStream = tableEnv.toAppendStream(iotTable, Row.class);
 
-        aggStream.print();
+        aggStream.print("sql result: ");
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer<Row> myProducer = new FlinkKafkaProducer<>(
@@ -153,7 +166,6 @@ public class TrafficUC6SQLLookupJSON {
         }
         @Override
         public byte[] serializeValue(Row value) {
-
             String str = "{"
                     + "\"type\"" + ":" + "\"ok\""
                     + "," + "\"subtype\"" + ":" + "\"message enrichment\""
@@ -162,7 +174,9 @@ public class TrafficUC6SQLLookupJSON {
                     + "," + "\"temp\"" + ":" + value.getField(2)
                     + "," + "\"rain_level\"" + ":" + value.getField(3)
                     + "," + "\"visibility_level\"" + ":" + value.getField(4)
-                    + "," + "\"location\"" + ":"+ "\"" + value.getField(6).toString().trim() + "\"" + "}";
+                    + "," + "\"location\"" + ":"+ "\"" + value.getField(5).toString().trim() + "\""
+                    + "," + "\"lat\"" + ":" + value.getField(6)
+                    + "," + "\"long\"" + ":" + value.getField(7) + "}";
             return str.getBytes();
         }
 
