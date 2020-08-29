@@ -1,7 +1,5 @@
 package producer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -22,7 +20,6 @@ import java.util.Random;
  */
 
 public class MqTTTrafficIOTSensor {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Random random = new Random();
 
     private static String brokerURI = "tcp://localhost:1883";
@@ -49,25 +46,26 @@ public class MqTTTrafficIOTSensor {
         }
 
         try  {
-            MqttClient client = new MqttClient(brokerURI, MqttClient.generateClientId());
-            client.connect();
+            try (MqttClient client = new MqttClient(brokerURI, MqttClient.generateClientId())) {
+                client.connect();
 
-            for (int i = 0; i < 1000000; i++) {
-                MqttMessage message = new MqttMessage();
-                message.setPayload(("{"
-                        + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
-                        + "," + "\"sensor_id\"" + ":" + random.nextInt(11)
-                        + "," + "\"temp\"" + ":" + random.nextInt(42 - 20 + 1)
-                        + "," + "\"rain_level\"" + ":" + random.nextInt(5)
-                        + "," + "\"visibility_level\"" + ":" + random.nextInt(5)
-                        + "}").getBytes());
+                for (int i = 0; i < 1000000; i++) {
+                    MqttMessage message = new MqttMessage();
+                    message.setPayload(("{"
+                            + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
+                            + "," + "\"sensor_id\"" + ":" + random.nextInt(11)
+                            + "," + "\"temp\"" + ":" + random.nextInt(42 - 20 + 1)
+                            + "," + "\"rain_level\"" + ":" + random.nextInt(5)
+                            + "," + "\"visibility_level\"" + ":" + random.nextInt(5)
+                            + "}").getBytes());
 
-                client.publish("iot", message);
-                System.out.println("Published data: " + message);
+                    client.publish("iot", message);
+                    System.out.println("Published data: " + message);
 
-                Thread.sleep(sleeptime);
+                    Thread.sleep(sleeptime);
+                }
+                client.disconnect();
             }
-            client.disconnect();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,4 +74,5 @@ public class MqTTTrafficIOTSensor {
 
     public static void setsleeptime(long sleeptime) {
         MqTTTrafficIOTSensor.sleeptime = sleeptime;
-    }}
+    }
+}

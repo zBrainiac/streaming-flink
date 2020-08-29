@@ -53,29 +53,27 @@ public class KafkaIOTSimpleKVProducer {
         config.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
 
         //create producer
-        Producer<Integer, String> producer = new KafkaProducer<>(config);
+        try (Producer<Integer, String> producer = new KafkaProducer<>(config)) {
 
-        //send messages to my-topic
-        for(int i = 0; i < 1000000; i++) {
-            int randomNum = ThreadLocalRandom.current().nextInt(11 );
-            String uuid = UUID.randomUUID().toString();
+            //send messages to my-topic
+            for (int i = 0; i < 1000000; i++) {
+                int randomNum = ThreadLocalRandom.current().nextInt(11);
+                String uuid = UUID.randomUUID().toString();
 
-            long unixTime = System.currentTimeMillis();
+                long unixTime = System.currentTimeMillis();
 
-            ProducerRecord record = new ProducerRecord<>("iot_KV", i,
-                    "unixTime: " + unixTime
-                            + ", sensor_id: " + randomNum
-                            + ", id: " + uuid
-                            + ", Test Message: bliblablub #" + i
-            );
-            producer.send(record);
+                ProducerRecord record = new ProducerRecord<>("iot_KV", i,
+                        "unixTime: " + unixTime
+                                + ", sensor_id: " + randomNum
+                                + ", id: " + uuid
+                                + ", Test Message: bliblablub #" + i
+                );
+                producer.send(record);
 
-            System.err.println("Published " + record.topic() + "/" + record.partition() + "/" + " (key=" + record.key() + ") : " + record.value());
-            Thread.sleep(sleeptime);
+                System.err.println("Published " + record.topic() + "/" + record.partition() + "/" + " (key=" + record.key() + ") : " + record.value());
+                Thread.sleep(sleeptime);
+            }
         }
-
-        //close producer
-        producer.close();
     }
 
     public static void setsleeptime(long sleeptime) {

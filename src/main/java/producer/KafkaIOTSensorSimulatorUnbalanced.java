@@ -110,6 +110,7 @@ public class KafkaIOTSensorSimulatorUnbalanced<WeightedRandomBag> {
         return report;
     }
 
-    public static void setsleeptime(long sleeptime) {sleeptime = sleeptime;
+    public static void setsleeptime(long sleeptime) {
+        KafkaIOTSensorSimulatorUnbalanced.sleeptime = sleeptime;
     }
 }
