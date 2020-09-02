@@ -149,14 +149,15 @@ This Kafka producer send events unbalanced to a kafka topic.
 
 create kafka topic:
 ```
-bin/kafka-topics.sh --create --bootstrap-server edge2ai-1.dim.local:9092 --replication-factor 1 --partitions 5 --topic kafka_unbalanced &&
-bin/kafka-topics.sh --list --bootstrap-server edge2ai-1.dim.local:9092 &&
-bin/kafka-console-consumer.sh --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_unbalanced
+cd /opt/cloudera/parcels/CDH  
+./bin/kafka-topics --create --bootstrap-server edge2ai-1.dim.local:9092 --replication-factor 1 --partitions 5 --topic kafka_unbalanced &&
+./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092 &&
+./bin/kafka-console-consumer --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_unbalanced
 ```
 run generator:
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&  
-java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaProducerUnbalanced localhost:9092
+java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaProducerUnbalanced edge2ai-1.dim.local:9092 99
 ```
 
 ### Let run multiple JAVA processes in the background
@@ -168,6 +169,15 @@ Sample:
 nohup java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaJsonProducerFX edge2ai-1.dim.local:9092 &
 nohup java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaJsonProducerTRX edge2ai-1.dim.local:9092 &
 nohup java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaIOTSensorSimulator edge2ai-1.dim.local:9092 &
+```
+
+```
+#!/bin/sh
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaTrafficCollector edge2ai-1.dim.local:9092 &
+echo $! > run_KafkaTrafficCollector.pid &
+java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaTrafficIOTSensor edge2ai-1.dim.local:9092 &
+echo $! > run_KafkaTrafficIOTSensor.pid &
 ```
 
 make nohup.sh script executable:  

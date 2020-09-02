@@ -18,10 +18,8 @@ import org.apache.flink.table.descriptors.Schema;
 import org.apache.flink.table.sources.CsvTableSource;
 import org.apache.flink.table.sources.TableSource;
 import org.apache.flink.types.Row;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
-import java.lang.reflect.Type;
 import java.util.Properties;
 
 
@@ -31,8 +29,9 @@ import java.util.Properties;
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
  *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
- *
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTCsvConsumerSQLLookupJSON
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
+
+ *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTCsvConsumerSQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
@@ -63,15 +62,6 @@ public class TrafficUC6SQLLookupJSON {
 
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-
-        Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, use_case_id);
-        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, use_case_id);
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        properties.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringConsumerInterceptor");
 
         Properties propertiesProducer = new Properties();
         propertiesProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
@@ -117,10 +107,10 @@ public class TrafficUC6SQLLookupJSON {
         tableEnv.connect(
                 new Kafka()
                         .version("universal")    // required: valid connector versions are
-                        .topic("TrafficIOTRaw")       // required: topic name from which the table is read
+                        .topic("TrafficIOTRaw")  // required: topic name from which the table is read
                         .startFromLatest()
-                        .property("bootstrap.servers", "localhost:9092")
-                        .property("group.id", "testGroup")
+                        .property("bootstrap.servers", brokerURI)
+                        .property("group.id", use_case_id)
         )
                 .withFormat(new Json())
                 .withSchema(schemaTableIoT)

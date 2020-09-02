@@ -59,7 +59,7 @@ public class MqTTTrafficIOTSensor {
                             + "," + "\"visibility_level\"" + ":" + random.nextInt(5)
                             + "}").getBytes());
 
-                    client.publish("iot", message);
+                    client.publish("TrafficIOTRaw", message);
                     System.out.println("Published data: " + message);
 
                     Thread.sleep(sleeptime);
