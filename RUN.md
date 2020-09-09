@@ -152,12 +152,28 @@ create kafka topic:
 cd /opt/cloudera/parcels/CDH  
 ./bin/kafka-topics --create --bootstrap-server edge2ai-1.dim.local:9092 --replication-factor 1 --partitions 5 --topic kafka_unbalanced &&
 ./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092 &&
+./bin/kafka-topics.sh --describe --bootstrap-server localhost:9092 --topic kafka_unbalanced && 
 ./bin/kafka-console-consumer --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_unbalanced
 ```
 run generator:
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&  
 java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaProducerUnbalanced edge2ai-1.dim.local:9092 99
+```
+### Simple Kafka Generator
+Super simple Kafka producer  
+
+create kafka topic:
+```
+cd /opt/cloudera/parcels/CDH  
+./bin/kafka-topics --create --bootstrap-server edge2ai-1.dim.local:9092 --replication-factor 1 --partitions 5 --topic kafka_simple &&
+./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092 &&
+./bin/kafka-console-consumer --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_simple
+```
+run generator:
+```
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&  
+java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaProducerSimple edge2ai-1.dim.local:9092 99
 ```
 
 ### Let run multiple JAVA processes in the background

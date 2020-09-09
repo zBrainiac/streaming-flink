@@ -26,12 +26,14 @@ nifi.c2.agent.identifier=raspi-agent-iot-1
 
 ## EFM: 
 ### EFM setup:  
+
+add to efm.properties
 ```
-..
+efm.encryption.password=setAnEncryptionPasswordHere
 ```
 ### EFM start:  
 ```
-./bin/efm.sh start --efm.encryption.password=setAnEncryptionPasswordHere
+./bin/efm.sh start
 ```
 > http://localhost:10080/efm/ui/
 

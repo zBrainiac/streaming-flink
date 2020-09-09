@@ -9,10 +9,9 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Create Kafka Topic:
- *    bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 5 --topic kafka_unbalanced &&
+ *    bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 5 --topic kafka_simple &&
  *    bin/kafka-topics.sh --list --bootstrap-server localhost:9092 &&
- *    bin/kafka-console-consumer.sh --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_unbalanced
- *    bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic kafka_unbalanced
+ *    bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic kafka_simple
  *
  *
  * output:
@@ -20,13 +19,13 @@ import java.util.concurrent.ExecutionException;
  *
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaProducerUnbalanced localhost:9092
+ *   java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaProducerSimple localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/30 17:14
  */
 
-public class KafkaProducerUnbalanced {
+public class KafkaProducerSimple{
 
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;
@@ -64,26 +63,10 @@ public class KafkaProducerUnbalanced {
 
         try (Producer<String, String> producer = new KafkaProducer<>(properties)) {
 
-            WeightedRandomBag<Integer> itemDrops = new WeightedRandomBag<>();
-            itemDrops.addEntry(0, 5.0);
-            itemDrops.addEntry(1, 20.0);
-            itemDrops.addEntry(2, 50.0);
-            itemDrops.addEntry(3, 15.0);
-            itemDrops.addEntry(4, 10.0);
-
-            //prepare the record
-
             for (int i = 0; i < 1000000; i++) {
-                Integer part = itemDrops.getRandom();
-                Long timestamp = Instant.now().toEpochMilli();
-                String key = UUID.randomUUID().toString();
                 String recordValue = "Current time is " + Instant.now().toString();
 
-                ProducerRecord<String, String> record = new ProducerRecord<>("kafka_unbalanced",
-                        part,
-                        timestamp,
-                        key,
-                        recordValue);
+                ProducerRecord<String, String> record = new ProducerRecord<>("kafka_simple", recordValue);
 
                 //produce the record
                 RecordMetadata metadata = producer.send(record).get();
@@ -91,52 +74,19 @@ public class KafkaProducerUnbalanced {
                 System.err.println("Published: "
                         + "topic=" + metadata.topic() + ", "
                         + "partition=" + metadata.partition() + ", "
-                        + "offset=" + metadata.offset() + ","
+                        + "offset=" + metadata.offset() + ", "
                         + "timestamp=" + metadata.timestamp() + ", "
-                        + "key=" + key + ", "
                         + "payload=" +recordValue);
 
                 producer.flush();
-
                 // wait
                 Thread.sleep(sleeptime);
             }
         }
     }
 
-    private static class WeightedRandomBag<T> {
-
-        private class Entry {
-            double accumulatedWeight;
-            T object;
-        }
-
-        private final List<Entry> entries = new ArrayList<>();
-        private double accumulatedWeight;
-        private final Random rand = new Random();
-
-        public void addEntry(T object, double weight) {
-            accumulatedWeight += weight;
-            Entry e = new Entry();
-            e.object = object;
-            e.accumulatedWeight = accumulatedWeight;
-            entries.add(e);
-        }
-
-        public T getRandom() {
-            double r = rand.nextDouble() * accumulatedWeight;
-
-            for (Entry entry: entries) {
-                if (entry.accumulatedWeight >= r) {
-                    return entry.object;
-                }
-            }
-            return null; //should only happen when there are no entries
-        }
-    }
-
     public static void setsleeptime(long sleeptime) {
-        KafkaProducerUnbalanced.sleeptime = sleeptime;
+        KafkaProducerSimple.sleeptime = sleeptime;
     }
 
 }
