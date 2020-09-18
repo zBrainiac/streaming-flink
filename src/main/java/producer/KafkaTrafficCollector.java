@@ -15,6 +15,7 @@ import static java.util.Collections.unmodifiableList;
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
  *   java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaTrafficCollector localhost:9092
+ *   java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaTrafficCollector edge2ai-1.dim.local:9092
  *
  *
  * output:

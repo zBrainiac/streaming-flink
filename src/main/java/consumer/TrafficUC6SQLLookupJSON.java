@@ -78,7 +78,7 @@ public class TrafficUC6SQLLookupJSON {
 
         TableSource<?> lookupValues = CsvTableSource
                 .builder()
-                .path("/tmp/data/lookup.csv")
+                .path("data/lookup.csv")
                 .field("sensor_id", Types.INT)
                 .field("location", Types.STRING)
                 .field("lat", Types.DOUBLE)

@@ -1,4 +1,4 @@
-CREATE TABLE sensors
+CREATE TABLE sensors_enhanced
 (
  type STRING,
  subtype STRING,

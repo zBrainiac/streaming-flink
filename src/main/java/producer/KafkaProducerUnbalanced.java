@@ -56,7 +56,7 @@ public class KafkaProducerUnbalanced {
         //create kafka producer
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        properties.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-Kafka-unbalanced");
+        properties.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-Kafka-Unbalanced");
         properties.put(ProducerConfig.ACKS_CONFIG,"1");
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);

@@ -152,7 +152,7 @@ create kafka topic:
 cd /opt/cloudera/parcels/CDH  
 ./bin/kafka-topics --create --bootstrap-server edge2ai-1.dim.local:9092 --replication-factor 1 --partitions 5 --topic kafka_unbalanced &&
 ./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092 &&
-./bin/kafka-topics.sh --describe --bootstrap-server localhost:9092 --topic kafka_unbalanced && 
+./bin/kafka-topics --describe --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_unbalanced && 
 ./bin/kafka-console-consumer --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_unbalanced
 ```
 run generator:
@@ -238,6 +238,13 @@ cd /opt/cloudera/parcels/FLINK
 ./bin/flink run -m yarn-cluster -c consumer.UC7KafkaAvgFx -ynm UC7KafkaAvgFx lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.UC8KafkaTRXAmountDispatcher -ynm UC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
 ```
+
+### Traffic
+```
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC5Join -ynm TrafficUC5Join lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
+```
+
 ## Run Atlas sync:
 run:
 ```

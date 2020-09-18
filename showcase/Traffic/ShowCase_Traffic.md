@@ -50,19 +50,20 @@ nifi.remote.input.http.enabled=true
 nifi.remote.input.http.transaction.ttl=30 sec
 nifi.remote.contents.cache.expiration=30 secs
 ```
-### NiFi setup:  
+### NiFi start:  
 ```
 ./bin/nifi.sh start
 ```
 
 ### Let run multiple JAVA processes in the background
 Create a new nohup.sh with a list of jar's  
-+ Sample: [link](nohup.sh)
++ Sample: [link](minifi_nohup.sh)
 
 Make nohup.sh script executable:  
 ```
-sudo chmod +x nohup.sh
+sudo chmod +x minifi_nohup.sh
 ```
 
 
 
+CREATE DATABASE iot;
