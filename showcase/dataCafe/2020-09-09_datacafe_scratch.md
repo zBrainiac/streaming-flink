@@ -11,7 +11,7 @@ cd /opt/cloudera/parcels/CDH
 
 
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.2.5/streaming-flink-0.2-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.2.5.3/streaming-flink-0.2-SNAPSHOT.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
 
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
