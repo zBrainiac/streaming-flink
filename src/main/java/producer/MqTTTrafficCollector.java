@@ -4,6 +4,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -60,14 +61,40 @@ public class MqTTTrafficCollector {
             try (MqttClient client = new MqttClient(brokerURI, MqttClient.generateClientId())) {
                 client.connect();
 
+                WeightedRandomBag<Integer> itemTyp = new WeightedRandomBag<>();
+                itemTyp.addEntry(0, 25.0);
+                itemTyp.addEntry(1, 20.0);
+                itemTyp.addEntry(2, 55.0);
+
+                WeightedRandomBag<Integer> itemDrops = new WeightedRandomBag<>();
+                itemDrops.addEntry(0, 25.0);
+                itemDrops.addEntry(1, 20.0);
+                itemDrops.addEntry(2, 55.0);
+
+
+
+                WeightedRandomBag<Integer> sensorDrops = new WeightedRandomBag<>();
+                sensorDrops.addEntry(0, 5.0);
+                sensorDrops.addEntry(1, 20.0);
+                sensorDrops.addEntry(2, 15.0);
+                sensorDrops.addEntry(3, 15.0);
+                sensorDrops.addEntry(4, 10.0);
+                sensorDrops.addEntry(5, 5.0);
+                sensorDrops.addEntry(6, 5.0);
+                sensorDrops.addEntry(7, 15.0);
+                sensorDrops.addEntry(8, 5.0);
+                sensorDrops.addEntry(9, 5.0);
+
+
+
                 for (int i = 0; i < 1000000; i++) {
                     MqttMessage message = new MqttMessage();
-                    int s = random.nextInt(3);
+                    int s = itemDrops.getRandom();
                     switch (s) {
                         case 0:
                             message.setPayload(("{"
                                     + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
-                                    + "," + "\"sensor_id\"" + ":" + random.nextInt(11)
+                                    + "," + "\"sensor_id\"" + ":" + sensorDrops.getRandom()
                                     + "," + "\"probability\"" + ":" + random.nextInt(49) + 50
                                     + "," + "\"sensor_x\"" + ":" + random.nextInt(11)
                                     + "," + "\"typ\"" + ":" + "\"" + "Bike" + "\""
@@ -79,7 +106,7 @@ public class MqTTTrafficCollector {
                         case 1:
                             message.setPayload(("{"
                                     + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
-                                    + "," + "\"sensor_id\"" + ":" + random.nextInt(11)
+                                    + "," + "\"sensor_id\"" + ":" + sensorDrops.getRandom()
                                     + "," + "\"probability\"" + ":" + random.nextInt(49) + 50
                                     + "," + "\"sensor_x\"" + ":" + random.nextInt(11)
                                     + "," + "\"typ\"" + ":" + "\"" + "LKW" + "\""
@@ -91,7 +118,7 @@ public class MqTTTrafficCollector {
                         case 2:
                             message.setPayload(("{"
                                     + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
-                                    + "," + "\"sensor_id\"" + ":" + random.nextInt(11)
+                                    + "," + "\"sensor_id\"" + ":" + sensorDrops.getRandom()
                                     + "," + "\"probability\"" + ":" + random.nextInt(49) + 50
                                     + "," + "\"sensor_x\"" + ":" + random.nextInt(11)
                                     + "," + "\"typ\"" + ":" + "\"" + "PKW" + "\""
@@ -117,6 +144,36 @@ public class MqTTTrafficCollector {
         }
     }
 
+    private static class WeightedRandomBag<T> {
+
+        private class Entry {
+            double accumulatedWeight;
+            T object;
+        }
+
+        private final List<WeightedRandomBag.Entry> entries = new ArrayList<>();
+        private double accumulatedWeight;
+        private final Random rand = new Random();
+
+        public void addEntry(T object, double weight) {
+            accumulatedWeight += weight;
+            WeightedRandomBag.Entry e = new WeightedRandomBag.Entry();
+            e.object = object;
+            e.accumulatedWeight = accumulatedWeight;
+            entries.add(e);
+        }
+
+        public T getRandom() {
+            double r = rand.nextDouble() * accumulatedWeight;
+
+            for (WeightedRandomBag.Entry entry: entries) {
+                if (entry.accumulatedWeight >= r) {
+                    return (T) entry.object;
+                }
+            }
+            return null; //should only happen when there are no entries
+        }
+    }
     public static void setsleeptime(long sleeptime) {
         MqTTTrafficCollector.sleeptime = sleeptime;
     }

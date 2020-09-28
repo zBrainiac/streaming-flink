@@ -7,7 +7,7 @@ cd /opt/cloudera/parcels/CDH
 ./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092 &&
 ./bin/kafka-topics --describe --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_unbalanced
 
-./bin/kafka-topics --delete --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_simple 
+./bin/kafka-topics --delete --bootstrap-server edge2ai-1.dim.local:9092 --topic kafka_unbalanced 
 
 
 cd /opt/cloudera/parcels/FLINK  
