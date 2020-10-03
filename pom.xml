@@ -22,7 +22,7 @@ under the License.
 
 	<groupId>com.zBrainiac.flink</groupId>
 	<artifactId>streaming-flink</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.3.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>Streaming Flink</name>

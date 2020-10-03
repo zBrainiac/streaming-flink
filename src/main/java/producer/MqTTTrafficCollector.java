@@ -15,7 +15,7 @@ import static java.util.Collections.unmodifiableList;
 /**
  * run:
  * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- * java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.MqTTTrafficIOTSensor tcp://localhost:1883
+ * java -classpath streaming-flink-0.3.0.0.jar producer.MqTTTrafficCollector tcp://localhost:1883
  *
  * output:
  *   {"sensor_ts":1596956979295,"sensor_id":8,"probability":50,"sensor_x":47,"typ":"LKW","light":false,"license_plate":"DE 483-5849","toll_typ":"10-day"}
@@ -66,13 +66,6 @@ public class MqTTTrafficCollector {
                 itemTyp.addEntry(1, 20.0);
                 itemTyp.addEntry(2, 55.0);
 
-                WeightedRandomBag<Integer> itemDrops = new WeightedRandomBag<>();
-                itemDrops.addEntry(0, 25.0);
-                itemDrops.addEntry(1, 20.0);
-                itemDrops.addEntry(2, 55.0);
-
-
-
                 WeightedRandomBag<Integer> sensorDrops = new WeightedRandomBag<>();
                 sensorDrops.addEntry(0, 5.0);
                 sensorDrops.addEntry(1, 20.0);
@@ -85,11 +78,9 @@ public class MqTTTrafficCollector {
                 sensorDrops.addEntry(8, 5.0);
                 sensorDrops.addEntry(9, 5.0);
 
-
-
                 for (int i = 0; i < 1000000; i++) {
                     MqttMessage message = new MqttMessage();
-                    int s = itemDrops.getRandom();
+                    int s = itemTyp.getRandom();
                     switch (s) {
                         case 0:
                             message.setPayload(("{"

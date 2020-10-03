@@ -26,9 +26,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTConsumerFilter
+ *    java -classpath streaming-flink-0.3.0.0.jar consumer.IoTConsumerFilter
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

@@ -29,7 +29,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC3KafkaJoin2JsonStreams
+ *    java -classpath streaming-flink-0.3.0.0.jar consumer.UC3KafkaJoin2JsonStreams
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14
@@ -77,7 +77,7 @@ public class UC3KafkaJoin2JsonStreams {
         DataStream<String> fxStream = env.addSource(
                 new FlinkKafkaConsumer<>("fxRate", new SimpleStringSchema(), properties));
 
-        //fxStream.print("DataStream - fx");
+        fxStream.print("DataStream - fx");
 
         DataStream<String> trxStream = env.addSource(
                 new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
@@ -87,10 +87,13 @@ public class UC3KafkaJoin2JsonStreams {
         DataStream<JSONObject> trx =
                 trxStream.flatMap(new Tokenizer());
 
-        // trx.print("test");
+        //trx.print("test");
 
         DataStream<JSONObject> fx =
                 fxStream.flatMap(new Tokenizer());
+
+
+        //fx.print("test");
 
         DataStream<String> joinedString = trx.join(fx)
                 .where(new NameKeySelector())
@@ -102,8 +105,8 @@ public class UC3KafkaJoin2JsonStreams {
                     joinJson.put("fx", second);
 
                     // for debugging: print out
-           //         System.err.println("trx data: " + first);
-           //         System.err.println("fx data: " + second);
+//                    System.err.println("trx data: " + first)
+//                    System.err.println("fx data: " + second);
                     return joinJson.toJSONString();
                 });
 

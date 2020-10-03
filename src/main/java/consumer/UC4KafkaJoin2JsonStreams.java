@@ -29,7 +29,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC3KafkaJoin2JsonStreams
+ *    java -classpath streaming-flink-0.3.0.0.jar consumer.UC3KafkaJoin2JsonStreams
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14

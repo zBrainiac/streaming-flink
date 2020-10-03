@@ -28,10 +28,10 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar edge2ai-1.dim.local:9092
 
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTCsvConsumerSQLLookupJSON edge2ai-1.dim.local:9092
+ *    java -classpath streaming-flink-0.3.0.0.jar consumer.IoTCsvConsumerSQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
@@ -80,7 +80,7 @@ public class TrafficUC6SQLLookupJSON {
                 .builder()
                 .path("data/lookup.csv")
                 .field("sensor_id", Types.INT)
-                .field("location", Types.STRING)
+                .field("city", Types.STRING)
                 .field("lat", Types.DOUBLE)
                 .field("long", Types.DOUBLE)
                 .fieldDelimiter(",")
@@ -123,7 +123,7 @@ public class TrafficUC6SQLLookupJSON {
                 ", JSONSinkTable.temp" +
                 ", JSONSinkTable.rain_level" +
                 ", JSONSinkTable.visibility_level" +
-                ", lookupValues.location" +
+                ", lookupValues.city" +
                 ", lookupValues.lat" +
                 ", lookupValues.long " +
                 "FROM JSONSinkTable, lookupValues " +
@@ -164,7 +164,7 @@ public class TrafficUC6SQLLookupJSON {
                     + "," + "\"temp\"" + ":" + value.getField(2)
                     + "," + "\"rain_level\"" + ":" + value.getField(3)
                     + "," + "\"visibility_level\"" + ":" + value.getField(4)
-                    + "," + "\"location\"" + ":"+ "\"" + value.getField(5).toString().trim() + "\""
+                    + "," + "\"city\"" + ":"+ "\"" + value.getField(5).toString().trim() + "\""
                     + "," + "\"lat\"" + ":" + value.getField(6)
                     + "," + "\"long\"" + ":" + value.getField(7) + "}";
             return str.getBytes();

@@ -25,9 +25,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC1KafkaCountTrxPerShop -ynm UC1KafkaCountTrxPerShop lib/flink/examples/streaming/streaming-flink-0.2-SNAPSHOT.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.UC1KafkaCountTrxPerShop -ynm UC1KafkaCountTrxPerShop lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.UC1KafkaCountTrxPerShop
+ *    java -classpath streaming-flink-0.3.0.0.jar consumer.UC1KafkaCountTrxPerShop
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

@@ -1,13 +1,12 @@
-CREATE TABLE sensors_enhanced
-(
+CREATE TABLE sensors_enhanced(
+ sensor_id INT,
+ sensor_ts TIMESTAMP,
  type STRING,
  subtype STRING,
- sensor_ts TIMESTAMP,
- sensor_id INT,
  temp DOUBLE,
  rain_level DOUBLE,
  visibility_level DOUBLE,
- location STRING,
+ city STRING,
  lat DOUBLE,
  long DOUBLE,
  PRIMARY KEY (sensor_id, sensor_ts)

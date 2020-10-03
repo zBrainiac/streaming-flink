@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.2-SNAPSHOT.jar producer.KafkaIOTSimpleCSVProducer localhost:9092
+ *   java -classpath streaming-flink-0.3.0.0.jar producer.KafkaIOTSimpleCSVProducer localhost:9092
  *
  * output:
  *   1596953344830, 10, 9d02e657-80c9-4857-b18b-26b58f09ae6c, Test Message #25

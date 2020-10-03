@@ -1,4 +1,4 @@
-sensorid,location,lat,long,
+sensorid,city,lat,long,
 0,Vienna,48.20849,16.37208,
 1,Linz,48.30639,14.28611,
 2,Salzburg,47.79941,13.04399,

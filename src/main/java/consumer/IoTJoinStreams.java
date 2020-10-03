@@ -30,7 +30,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.2-SNAPSHOT.jar consumer.IoTJoinStreams
+ *    java -classpath streaming-flink-0.3.0.0.jar consumer.IoTJoinStreams
  *
  * @author Marcel Daeppen
  * @version 2020/07/29 20:14

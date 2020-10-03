@@ -1,6 +1,6 @@
 {
   "type": "record",
-  "name": "SensorReading",
+  "name": "TrafficSensorReading",
   "namespace": "com.cloudera.example",
   "doc": "This is a sample sensor reading",
   "fields": [
@@ -41,7 +41,7 @@
     "type": "int"
     },
     {
-    "name": "location",
+    "name": "city",
     "doc": "Reading #3.",
     "type": "string"
     },
