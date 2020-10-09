@@ -9,7 +9,7 @@
 3.3. [Traffic Use cases](#Traffic_Use_cases)  
 4. [Execution](RUN.md)
 5. Show Cases
-5.1. [Traffic](showcase/Traffic/ShowCase_Traffic.md)
+5.1. [Traffic](showcase/traffic/ShowCase_Traffic.md)
 
 
 ## Overview

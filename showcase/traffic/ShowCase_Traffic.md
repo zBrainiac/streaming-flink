@@ -31,7 +31,9 @@ efm.db.password=efmPassword
 ./bin/efm.sh start --efm.encryption.password=setAnEncryptionPasswordHere
 
 ```
-> http://localhost:10080/efm/ui/
+Link to: [efm designer](http://localhost:10080/efm/ui/)
+
+
 
 ## IoT Agent: 
 ### Download release:  
@@ -98,6 +100,17 @@ Make nohup.sh script executable:
 sudo chmod +x nohup_minifi.sh
 ```
 
+cd /Users/mdaeppen/infra/kafka_2.12-2.4.1
+./bin/zookeeper-server-start.sh config/zookeeper.properties
+./bin/kafka-server-start.sh config/server.properties
+./bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic minifi
+./bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic minifi
+{"filename": "minifi-rel0001.txt","version": "0.0.0.1"}
 
 
-CREATE DATABASE iot;
+
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic agent_log_minifi-bootstrap 
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic minifi-ack
+ 
+
