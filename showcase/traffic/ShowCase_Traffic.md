@@ -1,10 +1,10 @@
-# Run sensor on a Raspberry pi 3 b+:
+# Run MiNiFi on a Raspberry:
 ## Requirements:  
 - Raspberry pi 3 b+
 
 
 ## EFM: 
-### EFM setup:  
+### EFM setup on mac:  
 Install mysql db (v5.7)
 ```
 mysql -u root -p
@@ -28,7 +28,8 @@ efm.db.password=efmPassword
 
 ### EFM start:  
 ```
-./bin/efm.sh start --efm.encryption.password=setAnEncryptionPasswordHere
+cd /Users/mdaeppen/infra/efm-1.0.0.1.2.1.0-23
+./efm/efm.sh start --efm.encryption.password=setAnEncryptionPasswordHere
 
 ```
 Link to: [efm designer](http://localhost:10080/efm/ui/)
@@ -46,7 +47,9 @@ java -classpath streaming-flink-0.3.0.0.jar producer.MqTTTrafficCollector tcp://
 ```
 ### Upload latest MiNiFi release: 
 ```
-scp -i "field.pem" /Users/mdaeppen/infra/minifi-0.6.0.1.2.1.0-23-bin.tar.gz centos@ec2-3-122-237-145.eu-central-1.compute.amazonaws.com:/home/centos  
+scp -i "field.pem" /Users/mdaeppen/infra/minifi-0.6.0.1.2.1.0-23-bin.tar.gz centos@ec2-3-122-237-145.eu-central-1.compute.amazonaws.com:/home/centos
+tar -xvf minifi-0.6.0.1.2.1.0-23-bin.tar.gz 
+cd minifi-0.6.0.1.2.1.0-23
 ```
 
 ## MiNiFi (e.g running on a Raspberry Pi):  
@@ -69,6 +72,7 @@ nifi.c2.agent.identifier=agemt-traffic-0001
 ### MiNiFi start:  
 
 ```
+cd /Users/mdaeppen/infra/minifi-0.6.0.1.2.1.0-23
 ./bin/minifi.sh start
 ```
 
@@ -100,17 +104,27 @@ Make nohup.sh script executable:
 sudo chmod +x nohup_minifi.sh
 ```
 
-cd /Users/mdaeppen/infra/kafka_2.12-2.4.1
-./bin/zookeeper-server-start.sh config/zookeeper.properties
-./bin/kafka-server-start.sh config/server.properties
-./bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic minifi
-./bin/kafka-topics.sh --list --bootstrap-server localhost:9092
-./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic minifi
-{"filename": "minifi-rel0001.txt","version": "0.0.0.1"}
+
+## run local: 
+
+cd /Users/mdaeppen/infra/kafka_2.12-2.4.1  
+./bin/zookeeper-server-start.sh config/zookeeper.properties  
+./bin/kafka-server-start.sh config/server.properties  
+./bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic minifi  
+./bin/kafka-topics.sh --list --bootstrap-server localhost:9092  
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic minifi  
+{"filename": "minifi-rel0001.txt","version": "0.0.0.1"}  
 
 
 
-./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic agent_log_minifi-bootstrap 
-./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic minifi-ack
- 
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic agent_log_minifi-bootstrap   
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic minifi-ack  
+
+
+## SQL on Impala/Kudu:
+
+```
+SELECT 	sensor_id, temp, city, count(*)  FROM sensors_enhanced
+GROUP BY sensor_id, temp, city;
+```
 

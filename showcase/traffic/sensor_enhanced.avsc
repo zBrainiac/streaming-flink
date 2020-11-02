@@ -1,13 +1,13 @@
 {
   "type": "record",
-  "name": "TrafficSensorReading",
+  "name": "TrafficSensorEnhanced",
   "namespace": "com.cloudera.example",
   "doc": "This is a sample sensor reading",
   "fields": [
     {
       "name": "type",
       "doc": "Sensor event ok | nok",
-      "type": "string"
+      "type": "string",
       "symbols" : [ "ok", "nok"]
     },
     {
