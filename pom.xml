@@ -49,11 +49,7 @@ under the License.
 	</repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-java</artifactId>
-			<version>${flink.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
@@ -90,9 +86,6 @@ under the License.
 			<artifactId>flink-json</artifactId>
 			<version>${flink.version}</version>
 		</dependency>
-
-
-
 
 		<!-- Kafka -->
 		<dependency>
@@ -142,10 +135,11 @@ under the License.
 			<version>2.13.3</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.7.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -262,7 +256,7 @@ under the License.
 						<dependency>
 							<groupId>com.puppycrawl.tools</groupId>
 							<artifactId>checkstyle</artifactId>
-							<version>8.35</version>
+							<version>8.37</version>
 						</dependency>
 					</dependencies>
 					<executions>

@@ -78,11 +78,11 @@ public class TrafficUC6SQLLookupJSON {
 
         TableSource<?> lookupValues = CsvTableSource
                 .builder()
-                .path("data/lookup.csv")
+                .path("data/lookupHeader.csv")
                 .field("sensor_id", Types.INT)
                 .field("city", Types.STRING)
                 .field("lat", Types.DOUBLE)
-                .field("long", Types.DOUBLE)
+                .field("lon", Types.DOUBLE)
                 .fieldDelimiter(",")
                 .lineDelimiter("\n")
                 .ignoreFirstLine()
@@ -125,7 +125,7 @@ public class TrafficUC6SQLLookupJSON {
                 ", JSONSinkTable.visibility_level" +
                 ", lookupValues.city" +
                 ", lookupValues.lat" +
-                ", lookupValues.long " +
+                ", lookupValues.lon " +
                 "FROM JSONSinkTable, lookupValues " +
                 "WHERE JSONSinkTable.sensor_id = lookupValues.sensor_id";
 
