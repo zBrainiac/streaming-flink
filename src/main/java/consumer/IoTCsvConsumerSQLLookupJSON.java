@@ -29,9 +29,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.0.jar consumer.IoTCsvConsumerSQLLookupJSON
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTCsvConsumerSQLLookupJSON
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
@@ -86,9 +86,11 @@ public class IoTCsvConsumerSQLLookupJSON {
 
         TableSource<?> lookupValues = CsvTableSource
                 .builder()
-                .path("data/lookup.csv")
+                .path("data/lookupHeader.csv")
                 .field("sensor_id", Types.INT)
-                .field("location", Types.STRING)
+                .field("city", Types.STRING)
+                .field("lat", Types.DOUBLE)
+                .field("lon", Types.DOUBLE)
                 .fieldDelimiter(",")
                 .lineDelimiter("\n")
                 .ignoreFirstLine()

@@ -27,10 +27,10 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092
  *
- *    java -classpath streaming-flink-0.3.0.0.jar consumer.TrafficUC7EventDispatcher
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.TrafficUC7EventDispatcher
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

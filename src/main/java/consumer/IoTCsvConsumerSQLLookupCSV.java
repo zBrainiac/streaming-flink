@@ -30,9 +30,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupCSV -ynm IoTCsvConsumerSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupCSV -ynm IoTCsvConsumerSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.0.jar consumer.IoTCsvConsumerSQLLookupCSV
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTCsvConsumerSQLLookupCSV
  *
  * @author Marcel Daeppen
  * @version 2020/08/22 12:14

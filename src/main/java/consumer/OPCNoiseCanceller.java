@@ -29,9 +29,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.OPCNoiseCanceller -ynm OPCNoiseCanceller lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.OPCNoiseCanceller -ynm OPCNoiseCanceller lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.0.jar consumer.OPCNoiseCanceller
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.OPCNoiseCanceller
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

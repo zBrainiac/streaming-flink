@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.3.0.0.jar producer.KafkaJsonProducerFX localhost:9092
+ *   java -classpath streaming-flink-0.3.0.1.jar producer.KafkaJsonProducerFX localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

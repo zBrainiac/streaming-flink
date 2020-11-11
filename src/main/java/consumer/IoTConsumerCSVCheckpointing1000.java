@@ -9,6 +9,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -22,9 +23,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCSV -ynm IoTConsumerCSV lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCSV -ynm IoTConsumerCSV lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.0.jar consumer.IoTConsumerCSV
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTConsumerCSV
  *
  * @author Marcel Daeppen
  * @version 2020/07/29 14:14
@@ -68,12 +69,7 @@ public class IoTConsumerCSVCheckpointing1000 {
         propertiesProducer.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
 
         DataStream<String> csvStream = env.addSource(
-                new FlinkKafkaConsumer<>("csv", new SimpleStringSchema(), properties));
-
-        // csvStream.print("input message: ");
-
-        // unixTime :1596022830196, sensor_id :6, id :e78b8a17-527b-4e51-9fdb-577da3207db0, Test Message #198
-        // String                 ,String       . String                                  , String
+                new FlinkKafkaConsumer<>("iot_CSV", new SimpleStringSchema(), properties));
 
         DataStream<Tuple5<String, String, String, String, Integer>> aggStream = csvStream
                 .map(new MapFunction<String, Tuple5<String, String, String, String, Integer>>() {
@@ -92,22 +88,20 @@ public class IoTConsumerCSVCheckpointing1000 {
                 .sum(4);
 
         aggStream.print(topic + ": ");
-/*
+
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducer = new FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>>(
-                topic, new serializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple5<String, String, String, String, Integer>> myProducer = new FlinkKafkaProducer<>(
+                topic, new SerializeSum2String(), propertiesProducer);
 
         aggStream.addSink(myProducer);
-*/
+
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
         System.err.println("jobId=" + jobId);
     }
 
-
-
-    private static class SerializeSum2String implements KeyedSerializationSchema<Tuple5<Long, Integer, Integer, Integer, Integer>> {
+    private static class SerializeSum2String implements KeyedSerializationSchema<Tuple5<String, String, String, String, Integer>> {
         @Override
         public byte[] serializeKey(Tuple5 element) {
             return (null);

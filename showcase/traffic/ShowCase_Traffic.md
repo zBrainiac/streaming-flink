@@ -40,10 +40,10 @@ Link to: [efm designer](http://localhost:10080/efm/ui/)
 ### Download release:  
 ```
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.0/streaming-flink-0.3.0.0.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.0/streaming-flink-0.3.0.1.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
-java -classpath streaming-flink-0.3.0.0.jar producer.MqTTTrafficIOTSensor tcp://18.184.199.92:1883 999
-java -classpath streaming-flink-0.3.0.0.jar producer.MqTTTrafficCollector tcp://18.184.199.92:1883 999
+java -classpath streaming-flink-0.3.0.1.jar producer.MqTTTrafficIOTSensor tcp://18.184.199.92:1883 999
+java -classpath streaming-flink-0.3.0.1.jar producer.MqTTTrafficCollector tcp://18.184.199.92:1883 999
 ```
 ### Upload latest MiNiFi release: 
 ```

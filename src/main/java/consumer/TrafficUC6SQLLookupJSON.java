@@ -28,10 +28,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.0.jar edge2ai-1.dim.local:9092
-
- *    java -classpath streaming-flink-0.3.0.0.jar consumer.IoTCsvConsumerSQLLookupJSON edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC6SQLLookupJSON -ynm TrafficUC6SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC6SQLLookupJSON -ynm TrafficUC6SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.TrafficUC6SQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
@@ -40,6 +39,7 @@ import java.util.Properties;
 public class TrafficUC6SQLLookupJSON {
 
     private static String brokerURI = "localhost:9092";
+    private static String lookupCSV = "data/lookupHeader.csv";
 
     public static void main(String[] args) throws Exception {
 
@@ -47,9 +47,16 @@ public class TrafficUC6SQLLookupJSON {
             System.err.println("case 'customized URI':");
             brokerURI = args[0];
             System.err.println("arg URL: " + brokerURI);
+        }else if( args.length == 2 ) {
+            System.err.println("case 'customized URI & lookup file':");
+            brokerURI = args[0];
+            lookupCSV = args[1];
+            System.err.println("arg URL: " + brokerURI);
+            System.err.println("arg lookup file: " + lookupCSV);
         }else {
             System.err.println("case default");
             System.err.println("default URI: " + brokerURI);
+            System.err.println("default lookupCSV: " + lookupCSV);
         }
 
         String use_case_id = "Traffic_UC6_IOTRaw_Json_Consumer_SQL_LookupJSON";
@@ -78,7 +85,7 @@ public class TrafficUC6SQLLookupJSON {
 
         TableSource<?> lookupValues = CsvTableSource
                 .builder()
-                .path("data/lookupHeader.csv")
+                .path(lookupCSV)
                 .field("sensor_id", Types.INT)
                 .field("city", Types.STRING)
                 .field("lat", Types.DOUBLE)
@@ -106,11 +113,12 @@ public class TrafficUC6SQLLookupJSON {
 
         tableEnv.connect(
                 new Kafka()
-                        .version("universal")    // required: valid connector versions are
-                        .topic("TrafficIOTRaw")  // required: topic name from which the table is read
+                        .version("universal")
+                        .topic("TrafficIOTRaw")
                         .startFromLatest()
                         .property("bootstrap.servers", brokerURI)
                         .property("group.id", use_case_id)
+                        .property("INTERCEPTOR_CLASSES_CONFIG", "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringConsumerInterceptor")
         )
                 .withFormat(new Json())
                 .withSchema(schemaTableIoT)
