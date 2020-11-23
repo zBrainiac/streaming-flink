@@ -96,6 +96,8 @@ public class TrafficUC6SQLLookupJSON {
                 .ignoreParseErrors()
                 .build();
 
+       // tableEnv.fromTableSource("lookupValues", lookupValues);
+
         tableEnv.registerTableSource("lookupValues", lookupValues);
 
         System.out.println("\n CSV Lookup Table Created with Schema: \n");

@@ -123,7 +123,6 @@ public class UC7KafkaAvgFx {
 
     }
 
-
     public static class SerializeTuple2toString implements KeyedSerializationSchema<Tuple3<String, Double, Integer>> {
         @Override
         public byte[] serializeKey(Tuple3 element) {

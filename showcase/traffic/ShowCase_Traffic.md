@@ -44,6 +44,13 @@ sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.0/s
 
 java -classpath streaming-flink-0.3.0.1.jar producer.MqTTTrafficIOTSensor tcp://18.184.199.92:1883 999
 java -classpath streaming-flink-0.3.0.1.jar producer.MqTTTrafficCollector tcp://18.184.199.92:1883 999
+
+cd /tmp
+sudo  wget https://raw.githubusercontent.com/zBrainiac/streaming-flink/master/data/lookupHeader.csv -P /tmp
+sudo  wget https://raw.githubusercontent.com/zBrainiac/streaming-flink/master/data/geolocation_ru.csv -P /tmp
+sudo  wget https://raw.githubusercontent.com/zBrainiac/streaming-flink/master/data/geolocation_de.csv -P /tmp
+sudo  wget https://raw.githubusercontent.com/zBrainiac/streaming-flink/master/data/geolocation_ch.csv -P /tmp
+sudo  wget https://raw.githubusercontent.com/zBrainiac/streaming-flink/master/data/geolocation_at.csv -P /tmp
 ```
 ### Upload latest MiNiFi release: 
 ```

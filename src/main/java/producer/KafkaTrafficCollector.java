@@ -89,7 +89,7 @@ public class KafkaTrafficCollector {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
         config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-TrafficCounter");
-        config.put(ProducerConfig.ACKS_CONFIG,"1");
+        config.put(ProducerConfig.ACKS_CONFIG,"all");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
         config.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
