@@ -3,6 +3,7 @@ package producer;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -113,7 +114,7 @@ public class KafkaProducerUnbalanced {
 
         private final List<Entry> entries = new ArrayList<>();
         private double accumulatedWeight;
-        private final Random rand = new Random();
+        private final Random rand = new SecureRandom();
 
         public void addEntry(T object, double weight) {
             accumulatedWeight += weight;

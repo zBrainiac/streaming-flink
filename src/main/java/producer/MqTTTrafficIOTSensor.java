@@ -3,6 +3,7 @@ package producer;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Random;
 
@@ -20,7 +21,7 @@ import java.util.Random;
  */
 
 public class MqTTTrafficIOTSensor {
-    private static final Random random = new Random();
+    private static final Random random = new SecureRandom();
 
     private static String brokerURI = "tcp://localhost:1883";
     private static long sleeptime;

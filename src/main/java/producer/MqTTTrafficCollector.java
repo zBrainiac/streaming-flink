@@ -3,6 +3,7 @@ package producer;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ import static java.util.Collections.unmodifiableList;
  */
 
 public class MqTTTrafficCollector {
-    private static final Random random = new Random();
+    private static final Random random = new SecureRandom();
 
     private static String brokerURI = "tcp://localhost:1883";
     private static long sleeptime;
@@ -144,7 +145,7 @@ public class MqTTTrafficCollector {
 
         private final List<WeightedRandomBag.Entry> entries = new ArrayList<>();
         private double accumulatedWeight;
-        private final Random rand = new Random();
+        private final Random rand = new SecureRandom();
 
         public void addEntry(T object, double weight) {
             accumulatedWeight += weight;

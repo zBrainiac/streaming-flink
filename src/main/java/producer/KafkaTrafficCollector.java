@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 import static java.util.Collections.unmodifiableList;
@@ -28,7 +29,7 @@ import static java.util.Collections.unmodifiableList;
 
 public class KafkaTrafficCollector {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Random random = new Random();
+    private static final Random random = new SecureRandom();
 
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;

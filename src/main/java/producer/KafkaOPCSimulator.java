@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
 
@@ -23,7 +24,7 @@ import static java.util.Collections.unmodifiableList;
 
 public class KafkaOPCSimulator {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Random random = new Random();
+    private static final Random random = new SecureRandom();
     private static final List<String> tagname_list = unmodifiableList(Arrays.asList(
             "Triangle1", "Triangle4711", "Sinusoid", "Sawtooth"));
     private static final List<String> unit_list = unmodifiableList(Arrays.asList(

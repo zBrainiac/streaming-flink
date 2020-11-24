@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
 
@@ -26,7 +27,7 @@ import java.util.*;
 
 public class KafkaTrafficIOTSensor {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Random random = new Random();
+    private static final Random random = new SecureRandom();
 
     private static String brokerURI = "localhost:9092";
     private static long sleeptime;

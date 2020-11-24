@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 import static java.util.Collections.unmodifiableList;
@@ -21,7 +22,7 @@ import static java.util.Collections.unmodifiableList;
 
 public class KafkaJsonProducerTRX {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Random random = new Random();
+    private static final Random random = new SecureRandom();
     private static final List<String> transaction_card_type_list = unmodifiableList(Arrays.asList(
             "Visa", "MasterCard", "Maestro", "AMEX", "Diners Club", "Revolut"));
     private static final List<String> transaction_currency_list = unmodifiableList(Arrays.asList(
