@@ -29,19 +29,19 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.UC3KafkaJoin2JsonStreams
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC3KafkaJoin2JsonStreams
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14
  */
 
-public class UC4KafkaJoin2JsonStreams {
+public class FSIUC3KafkaJoin2JsonStreams {
 
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
-        if( args.length == 1 ) {
+            if( args.length == 1 ) {
             System.err.println("case 'customized URI':");
             brokerURI = args[0];
             System.err.println("arg URL: " + brokerURI);
@@ -55,6 +55,7 @@ public class UC4KafkaJoin2JsonStreams {
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
@@ -76,7 +77,7 @@ public class UC4KafkaJoin2JsonStreams {
         DataStream<String> fxStream = env.addSource(
                 new FlinkKafkaConsumer<>("fxRate", new SimpleStringSchema(), properties));
 
-        //fxStream.print("DataStream - fx");
+        fxStream.print("DataStream - fx");
 
         DataStream<String> trxStream = env.addSource(
                 new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
@@ -86,11 +87,14 @@ public class UC4KafkaJoin2JsonStreams {
         DataStream<JSONObject> trx =
                 trxStream.flatMap(new Tokenizer());
 
-        // trx.print("test");
+        //trx.print("test");
 
         DataStream<JSONObject> fx =
                 fxStream.flatMap(new Tokenizer());
-        
+
+
+        //fx.print("test");
+
         DataStream<String> joinedString = trx.join(fx)
                 .where(new NameKeySelector())
                 .equalTo(new EqualKeySelector())
@@ -101,8 +105,8 @@ public class UC4KafkaJoin2JsonStreams {
                     joinJson.put("fx", second);
 
                     // for debugging: print out
-           //         System.err.println("trx data: " + first);
-           //         System.err.println("fx data: " + second);
+//                    System.err.println("trx data: " + first)
+//                    System.err.println("fx data: " + second);
                     return joinJson.toJSONString();
                 });
 
@@ -112,13 +116,11 @@ public class UC4KafkaJoin2JsonStreams {
 
         joinedString.addSink(myProducer);
 
-
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
         System.err.println("jobId=" + jobId);
     }
-
 
     public static final class Tokenizer implements FlatMapFunction<String, JSONObject> {
         @Override
@@ -136,7 +138,7 @@ public class UC4KafkaJoin2JsonStreams {
         @Override
         public String getKey(JSONObject value) {
             // select fx && fx_account from fxStream
-            final String str = (String) value.get("fx") + "_" + (String) value.get("fx_account");
+            final String str = value.get("fx") + "_" + (String) value.get("fx_account");
 // for debugging: print out
 //            System.err.println("trx: " + str);
             return str;

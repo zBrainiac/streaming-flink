@@ -4,12 +4,14 @@ import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
@@ -19,21 +21,22 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 
 import java.util.Properties;
 
+
 /**
  * trxStream: {"timestamp":1565604389166,"shop_name":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
- * Aggregation on "shop_name" & "fx"
+ * Aggregation on
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC8KafkaTRXAmountDispatcher -ynm UC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm FSIUC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.UC8KafkaTRXAmountDispatcher
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC6KafkaccTrxFraud
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class UC8KafkaTRXAmountDispatcher {
+public class FSIUC6KafkaccTrxFraud {
 
     private static String brokerURI = "localhost:9092";
 
@@ -48,9 +51,8 @@ public class UC8KafkaTRXAmountDispatcher {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "fsi-uc8_trx_amt40";
-        String topicAbove40 = "result_" + use_case_id + "Above40Stream";
-        String topicBelow40 = "result_" + use_case_id + "Below40Stream";
+        String use_case_id = "fsi-uc6_trx_fraudDedection";
+        String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -76,30 +78,23 @@ public class UC8KafkaTRXAmountDispatcher {
 
         trxStream.print("input message: ");
 
-        // Above40Stream //
-        DataStream<Tuple5<String, String, String, String, Double>> Above40Stream = trxStream
+        // deserialization of the received JSONObject into Tuple
+        DataStream<Tuple3<String, Double, Integer>> aggStream = trxStream
                 .flatMap(new TrxJSONDeserializer())
-                .filter(value -> value.f4 >= 40.01);
-        Above40Stream.print("Above40Stream :");
+                // group by "cc-id" and sum their instances
+                .keyBy(0) // cc_id
+                .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
+                .sum(2)
+                // filter out if the cc_id is unique within the window {30 sec}. if the cc-id occurs several times && amount >= 40.00 send alarm event
+                .filter(value -> value.f1 >= 10 && value.f2 != 1);
+
+        aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducerA = new FlinkKafkaProducer<>(
-                topicAbove40, new SerializeTuple5toStringApproval(), propertiesProducer);
+        FlinkKafkaProducer<Tuple3<String, Double, Integer>> myProducer = new FlinkKafkaProducer<>(
+                topic, new SerializeTuple3toString(), propertiesProducer);
 
-        Above40Stream.addSink(myProducerA);
-
-
-        // Below40Stream //
-        DataStream<Tuple5<String, String, String, String, Double>> Below40Stream = trxStream
-                .flatMap(new TrxJSONDeserializer())
-                .filter(value -> value.f4 <= 40.00);
-        Below40Stream.print("Below40Stream :");
-
-        // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducerB = new FlinkKafkaProducer<>(
-                topicBelow40, new SerializeTuple5toString(), propertiesProducer);
-
-        Below40Stream.addSink(myProducerB);
+        aggStream.addSink(myProducer);
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
@@ -107,73 +102,46 @@ public class UC8KafkaTRXAmountDispatcher {
         System.err.println("jobId=" + jobId);
     }
 
-    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple5<String, String, String, String, Double>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple3<String, Double, Integer>> {
         private transient ObjectMapper jsonParser;
 
         /**
-         * Select the shop name from the incoming JSON text.
+         * Select the cc_id, aount_orig from the incoming JSON text as trx_fingerprint.
          */
         @Override
-        public void flatMap(String value, Collector<Tuple5<String, String, String, String, Double>> out) throws Exception {
+        public void flatMap(String value, Collector<Tuple3<String, Double, Integer>> out) throws Exception {
             if (jsonParser == null) {
                 jsonParser = new ObjectMapper();
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // get shop_name AND fx from JSONObject
-            String cc_type = jsonNode.get("cc_type").toString();
-            Double amount_orig = jsonNode.get("amount_orig").asDouble();
-            String fx = jsonNode.get("fx").toString();
-            String fx_account = jsonNode.get("fx_account").toString();
+            // build trx-fingerprint tuple
             String cc_id = jsonNode.get("cc_id").toString();
-            out.collect(new Tuple5<>(cc_type, fx, fx_account, cc_id, amount_orig));
-
+            Double amount_orig = jsonNode.get("amount_orig").asDouble();
+            out.collect(new Tuple3<>(cc_id, amount_orig, 1));
         }
 
     }
 
-    public static class SerializeTuple5toString implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
+    public static class SerializeTuple3toString implements KeyedSerializationSchema<Tuple3<String, Double, Integer>> {
         @Override
-        public byte[] serializeKey(Tuple5 element) {
+        public byte[] serializeKey(Tuple3 element) {
             return (null);
         }
-        @Override
-        public byte[] serializeValue(Tuple5 value) {
 
-            String str = "{"
-                    + "\"type\"" + ":" + "\"okay\""
-                    + "," + "\"subtype\"" + ":" + "\"auto approval - amount below 40\""
-                    + "," + "\"credit cart id\"" + ":" + value.getField(3).toString()
-                    + "," + "\"credit cart issuer\"" + ":" + value.getField(1).toString()
-                    + "," + "\"original amount\"" + ":" + value.getField(4)  + "}";
+        @Override
+        public byte[] serializeValue(Tuple3 value) {
+
+            String str = "{" + value.getField(0).toString()
+                    + ":" + value.getField(2).toString() + "}";
             return str.getBytes();
         }
+
         @Override
-        public String getTargetTopic(Tuple5 tuple5) {
+        public String getTargetTopic(Tuple3 tuple3) {
             // use always the default topic
             return null;
         }
     }
-    public static class SerializeTuple5toStringApproval implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
-        @Override
-        public byte[] serializeKey(Tuple5 element) {
-            return (null);
-        }
-        @Override
-        public byte[] serializeValue(Tuple5 value) {
 
-            String str = "{"
-                    + "\"type\"" + ":" + "\"nok\""
-                    + "," + "\"subtype\"" + ":" + "\"verification required - amount above 40\""
-                    + "," + "\"credit cart id\"" + ":" + value.getField(3).toString()
-                    + "," + "\"credit cart issuer\"" + ":" + value.getField(1).toString()
-                    + "," + "\"original amount\"" + ":" + value.getField(4)  + "}";
-            return str.getBytes();
-        }
-        @Override
-        public String getTargetTopic(Tuple5 tuple5) {
-            // use always the default topic
-            return null;
-        }
-    }
 }

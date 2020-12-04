@@ -38,7 +38,7 @@ public class MqTTTrafficCollector {
     private static final List<String> toll_typ = unmodifiableList(Arrays.asList(
             "none", "10-day", "2-month", "Annual"));
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         if (args.length == 1) {
             System.err.println("case 'customized URI':");

@@ -2,17 +2,14 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
@@ -24,18 +21,19 @@ import java.util.Properties;
 
 /**
  * trxStream: {"timestamp":1565604389166,"shop_name":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
+ * Aggregation on "shop_name" & "fx"
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC5KafkaTrxDuplicateChecker -ynm UC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC2KafkaSumccTypTrxFx -ynm FSIUC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.UC5KafkaTrxDuplicateChecker
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC2KafkaSumccTypTrxFx
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class UC5KafkaTrxDuplicateChecker {
+public class FSIUC2KafkaSumccTypTrxFx {
 
     private static String brokerURI = "localhost:9092";
 
@@ -50,7 +48,7 @@ public class UC5KafkaTrxDuplicateChecker {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "fsi-uc5_trx_duplicated_check";
+        String use_case_id = "fsi-uc2_trx_typ_fx";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment
@@ -78,25 +76,17 @@ public class UC5KafkaTrxDuplicateChecker {
         trxStream.print("input message: ");
 
         // deserialization of the received JSONObject into Tuple
-        DataStream<Tuple2<String, Integer>> aggStream = trxStream
+        DataStream<Tuple5<String, String, String, String, Double>> aggStream = trxStream
                 .flatMap(new TrxJSONDeserializer())
-                // group by "trx_fingerprint" and sum their occurrences
-                .keyBy(0) // trx_fingerprint
-                .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
-                .sum(1)
-                 // filter out if the fingerprint is unique within the window {30 sec}. if the fingerprint occurs several times send alarm event
-                .filter(new FilterFunction<Tuple2<String, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple2<String, Integer> value) throws Exception {
-                        return value.f1 != 1;
-                    }
-                });
+                // group by "cc_typ" AND "fx" and sum their occurrences
+                .keyBy(0,1)
+                .sum(4 );
 
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple2<String, Integer>> myProducer = new FlinkKafkaProducer<>(
-                topic, new SerializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducer = new FlinkKafkaProducer<>(
+                topic, new SerializeTuple5toString(), propertiesProducer);
 
         aggStream.addSink(myProducer);
 
@@ -106,42 +96,49 @@ public class UC5KafkaTrxDuplicateChecker {
         System.err.println("jobId=" + jobId);
     }
 
-    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple2<String, Integer>> {
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple5<String, String, String, String, Double>> {
         private transient ObjectMapper jsonParser;
 
         /**
-         * Select the cc_id, fx, fx_amount, aount_orig from the incoming JSON text as trx_fingerprint.
+         * Select the shop name from the incoming JSON text.
          */
         @Override
-        public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
+        public void flatMap(String value, Collector<Tuple5<String, String, String, String, Double>> out) throws Exception {
             if (jsonParser == null) {
                 jsonParser = new ObjectMapper();
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // build trx-fingerprint tuple
-            String trx_fingerprint = jsonNode.get("cc_id") + "_" + jsonNode.get("fx") + "_" + jsonNode.get("fx_account") + "_" + jsonNode.get("amount_orig");
-            out.collect(new Tuple2<>(trx_fingerprint, 1));
+            // get shop_name AND fx from JSONObject
+            String cc_type = jsonNode.get("cc_type").toString();
+            Double amount_orig = jsonNode.get("amount_orig").asDouble();
+            String fx = jsonNode.get("fx").toString();
+            String fx_account = jsonNode.get("fx_account").toString();
+            String fx_fx = jsonNode.get("fx") + "_" + jsonNode.get("fx_account") ;
+            out.collect(new Tuple5<>(cc_type, fx, fx_account, fx_fx, amount_orig));
+
         }
+
     }
 
-    public static class SerializeSum2String implements KeyedSerializationSchema<Tuple2<String, Integer>> {
+    public static class SerializeTuple5toString implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
         @Override
-        public byte[] serializeKey(Tuple2 element) {
+        public byte[] serializeKey(Tuple5 element) {
             return (null);
         }
         @Override
-        public byte[] serializeValue(Tuple2 value) {
+        public byte[] serializeValue(Tuple5 value) {
 
             String str = "{"+ value.getField(0).toString()
-                    + ":" + value.getField(1).toString() + "}";
+                    + ":" + value.getField(1).toString()
+                    + ":" + value.getField(2).toString()
+                    + ":" + value.getField(4).toString() + "}";
             return str.getBytes();
         }
         @Override
-        public String getTargetTopic(Tuple2 tuple3) {
+        public String getTargetTopic(Tuple5 tuple5) {
             // use always the default topic
             return null;
         }
     }
-
 }

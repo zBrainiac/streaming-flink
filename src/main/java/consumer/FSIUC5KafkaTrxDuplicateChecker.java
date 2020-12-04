@@ -2,6 +2,7 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
+import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -10,6 +11,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
@@ -21,19 +24,18 @@ import java.util.Properties;
 
 /**
  * trxStream: {"timestamp":1565604389166,"shop_name":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
- * Aggregation on "shop_name"
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC1KafkaCountTrxPerShop -ynm UC1KafkaCountTrxPerShop lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm FSIUC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.UC1KafkaCountTrxPerShop
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC5KafkaTrxDuplicateChecker
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class UC1KafkaCountTrxPerShop {
+public class FSIUC5KafkaTrxDuplicateChecker {
 
     private static String brokerURI = "localhost:9092";
 
@@ -48,7 +50,7 @@ public class UC1KafkaCountTrxPerShop {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "fsi-uc1_trx_per_shop";
+        String use_case_id = "fsi-uc5_trx_duplicated_check";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment
@@ -75,11 +77,20 @@ public class UC1KafkaCountTrxPerShop {
 
         trxStream.print("input message: ");
 
-        DataStream <Tuple2<String, Integer>> aggStream = trxStream
+        // deserialization of the received JSONObject into Tuple
+        DataStream<Tuple2<String, Integer>> aggStream = trxStream
                 .flatMap(new TrxJSONDeserializer())
-                // group by shop_name and sum their occurrences
-                .keyBy(0)
-                .sum(1);
+                // group by "trx_fingerprint" and sum their occurrences
+                .keyBy(0) // trx_fingerprint
+                .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
+                .sum(1)
+                 // filter out if the fingerprint is unique within the window {30 sec}. if the fingerprint occurs several times send alarm event
+                .filter(new FilterFunction<Tuple2<String, Integer>>() {
+                    @Override
+                    public boolean filter(Tuple2<String, Integer> value) throws Exception {
+                        return value.f1 != 1;
+                    }
+                });
 
         aggStream.print(topic + ": ");
 
@@ -95,12 +106,11 @@ public class UC1KafkaCountTrxPerShop {
         System.err.println("jobId=" + jobId);
     }
 
-
     public static class TrxJSONDeserializer implements FlatMapFunction<String, Tuple2<String, Integer>> {
         private transient ObjectMapper jsonParser;
 
         /**
-         * Select the shop name from the incoming JSON text.
+         * Select the cc_id, fx, fx_amount, aount_orig from the incoming JSON text as trx_fingerprint.
          */
         @Override
         public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
@@ -109,11 +119,10 @@ public class UC1KafkaCountTrxPerShop {
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // get shop_name AND fx from JSONObject
-            String shop_name = jsonNode.get("shop_name").toString();
-            out.collect(new Tuple2<>(shop_name, 1));
+            // build trx-fingerprint tuple
+            String trx_fingerprint = jsonNode.get("cc_id") + "_" + jsonNode.get("fx") + "_" + jsonNode.get("fx_account") + "_" + jsonNode.get("amount_orig");
+            out.collect(new Tuple2<>(trx_fingerprint, 1));
         }
-
     }
 
     public static class SerializeSum2String implements KeyedSerializationSchema<Tuple2<String, Integer>> {

@@ -14,13 +14,13 @@ import java.util.Random;
  * java -classpath streaming-flink-0.3.0.1.jar producer.MqTTTrafficIOTSensor tcp://localhost:1883
  *
  * output:
- * {"sensor_ts":1598712320504,"sensor_id":10,"temp":16,"rain_level":0,"visibility_level":2}
+ * {"sensor_ts":1606234000126,"sensor_id":76,"sensor_0":1,"sensor_1":27,"sensor_2":54,"sensor_3":54,"sensor_4":76,"sensor_5":68,"sensor_6":25,"sensor_7":19,"sensor_8":7,"sensor_9":18,"sensor_10":80,"sensor_11":93}
  *
  * @author Marcel Daeppen
- * @version 2020/08/29 16:25
+ * @version 2020/11/24 17:05 UTC
  */
 
-public class MqTTTrafficIOTSensor {
+public class MqTTIOTSensorSimulator {
     private static final Random random = new SecureRandom();
 
     private static String brokerURI = "tcp://localhost:1883";
@@ -45,7 +45,6 @@ public class MqTTTrafficIOTSensor {
             setsleeptime(1000);
             System.err.println("default sleeptime (ms): " + sleeptime);
         }
-
         try  {
             try (MqttClient client = new MqttClient(brokerURI, MqttClient.generateClientId())) {
                 client.connect();
@@ -54,13 +53,22 @@ public class MqTTTrafficIOTSensor {
                     MqttMessage message = new MqttMessage();
                     message.setPayload(("{"
                             + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
-                            + "," + "\"sensor_id\"" + ":" + random.nextInt(11)
-                            + "," + "\"temp\"" + ":" + random.nextInt(42 - 20 + 1)
-                            + "," + "\"rain_level\"" + ":" + random.nextInt(5)
-                            + "," + "\"visibility_level\"" + ":" + random.nextInt(5)
+                            + "," + "\"sensor_id\"" + ":" + random.nextInt(101)
+                            + "," + "\"sensor_0\"" + ":" + random.nextInt(42 - 20 + 1)
+                            + "," + "\"sensor_1\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_2\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_3\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_4\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_5\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_6\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_7\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_8\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_9\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_10\"" + ":" + random.nextInt(99)
+                            + "," + "\"sensor_11\"" + ":" + random.nextInt(99)
                             + "}").getBytes());
 
-                    client.publish("TrafficIOTRaw", message);
+                    client.publish("iot", message);
                     System.out.println("Published data: " + message);
 
                     Thread.sleep(sleeptime);
@@ -73,7 +81,6 @@ public class MqTTTrafficIOTSensor {
         }
     }
 
-    public static void setsleeptime(long sleeptime) {
-        MqTTTrafficIOTSensor.sleeptime = sleeptime;
+    public static void setsleeptime(long sleeptime) { MqTTIOTSensorSimulator.sleeptime = sleeptime;
     }
 }

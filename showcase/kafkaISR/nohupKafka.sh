@@ -83,13 +83,14 @@ rm run_zookeeper3.log
 
 echo "clean-up done"
 
-cd /Users/mdaeppen/infra/kafka_2.12-2.6.0
+cd /Users/mdaeppen/infra/kafka_2.12-2.6.0 || exit
 nohup bin/zookeeper-server-start.sh /Users/mdaeppen/GoogleDrive/workspace/streaming-flink/showcase/kafkaISR/config/zookeeper1.properties > run_zookeeper1.log &
 echo $! > run_zookeeper1.pid &
 nohup bin/zookeeper-server-start.sh /Users/mdaeppen/GoogleDrive/workspace/streaming-flink/showcase/kafkaISR/config/zookeeper2.properties > run_zookeeper2.log &
 echo $! > run_zookeeper2.pid &
 nohup bin/zookeeper-server-start.sh /Users/mdaeppen/GoogleDrive/workspace/streaming-flink/showcase/kafkaISR/config/zookeeper3.properties > run_zookeeper3.log &
 echo $! > run_zookeeper3.pid &
+echo "start zookeeper done"
 nohup bin/kafka-server-start.sh /Users/mdaeppen/GoogleDrive/workspace/streaming-flink/showcase/kafkaISR/config/server1.properties > run_KafkaServer1.log &
 echo $! > run_KafkaServer1.pid &
 nohup bin/kafka-server-start.sh /Users/mdaeppen/GoogleDrive/workspace/streaming-flink/showcase/kafkaISR/config/server2.properties > run_KafkaServer2.log &
@@ -102,6 +103,23 @@ nohup bin/kafka-server-start.sh /Users/mdaeppen/GoogleDrive/workspace/streaming-
 echo $! > run_KafkaServer7.pid &
 nohup bin/kafka-server-start.sh /Users/mdaeppen/GoogleDrive/workspace/streaming-flink/showcase/kafkaISR/config/server8.properties > run_KafkaServer8.log &
 echo $! > run_KafkaServer8.pid &
+echo "start main kafka brokers done"
+
+bin/kafka-topics.sh --delete --bootstrap-server localhost:9092 --topic TrafficIOTRaw
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 5 --partitions 3 --config min.insync.replicas=4 --config unclean.leader.election.enable=true --topic TrafficIOTRaw
+echo "Kafka topic 'TrafficIOTRaw' created"
+
+bin/kafka-topics.sh --delete --bootstrap-server localhost:9092 --topic TrafficCounterRaw
+bin/kafka-topics.sh --create --bootstrap-server localhost:9093 --replication-factor 5 --partitions 10 --config min.insync.replicas=4 --config unclean.leader.election.enable=true --topic TrafficCounterRaw
+echo "Kafka topic 'TrafficCounterRaw' created"
+
+
+cd
+cd /Users/mdaeppen/infra/cruise-control || exit
+nohup ./kafka-cruise-control-start.sh config/cruisecontrol.properties > run_KafkaCruiseControl.log &
+echo $! > run_KafkaCruiseControl.pid &
+echo "start kafka cruise control done - http://localhost:9090/#/ "
+
 
 # nohup bin/kafka-server-start.sh /Users/mdaeppen/GoogleDrive/workspace/streaming-flink/showcase/kafkaISR/config/server4.properties > run_KafkaServer4.log &
 # echo $! > run_KafkaServer4.pid &

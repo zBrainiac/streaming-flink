@@ -25,15 +25,15 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.UC2KafkaSumccTypTrxFx -ynm UC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC8KafkaTRXAmountDispatcher -ynm FSIUC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.UC2KafkaSumccTypTrxFx
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC8KafkaTRXAmountDispatcher
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class UC2KafkaSumccTypTrxFx {
+public class FSIUC8KafkaTRXAmountDispatcher {
 
     private static String brokerURI = "localhost:9092";
 
@@ -48,8 +48,9 @@ public class UC2KafkaSumccTypTrxFx {
             System.err.println("default URI: " + brokerURI);
         }
 
-        String use_case_id = "fsi-uc2_trx_typ_fx";
-        String topic = "result_" + use_case_id ;
+        String use_case_id = "fsi-uc8_trx_amt40";
+        String topicAbove40 = "result_" + use_case_id + "Above40Stream";
+        String topicBelow40 = "result_" + use_case_id + "Below40Stream";
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -75,20 +76,30 @@ public class UC2KafkaSumccTypTrxFx {
 
         trxStream.print("input message: ");
 
-        // deserialization of the received JSONObject into Tuple
-        DataStream<Tuple5<String, String, String, String, Double>> aggStream = trxStream
+        // Above40Stream //
+        DataStream<Tuple5<String, String, String, String, Double>> Above40Stream = trxStream
                 .flatMap(new TrxJSONDeserializer())
-                // group by "cc_typ" AND "fx" and sum their occurrences
-                .keyBy(0,1)
-                .sum(4 );
-
-        aggStream.print(topic + ": ");
+                .filter(value -> value.f4 >= 40.01);
+        Above40Stream.print("Above40Stream :");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducer = new FlinkKafkaProducer<>(
-                topic, new SerializeTuple5toString(), propertiesProducer);
+        FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducerA = new FlinkKafkaProducer<>(
+                topicAbove40, new SerializeTuple5toStringApproval(), propertiesProducer);
 
-        aggStream.addSink(myProducer);
+        Above40Stream.addSink(myProducerA);
+
+
+        // Below40Stream //
+        DataStream<Tuple5<String, String, String, String, Double>> Below40Stream = trxStream
+                .flatMap(new TrxJSONDeserializer())
+                .filter(value -> value.f4 <= 40.00);
+        Below40Stream.print("Below40Stream :");
+
+        // write the aggregated data stream to a Kafka sink
+        FlinkKafkaProducer<Tuple5<String, String, String, String, Double>> myProducerB = new FlinkKafkaProducer<>(
+                topicBelow40, new SerializeTuple5toString(), propertiesProducer);
+
+        Below40Stream.addSink(myProducerB);
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
@@ -114,8 +125,8 @@ public class UC2KafkaSumccTypTrxFx {
             Double amount_orig = jsonNode.get("amount_orig").asDouble();
             String fx = jsonNode.get("fx").toString();
             String fx_account = jsonNode.get("fx_account").toString();
-            String fx_fx = jsonNode.get("fx") + "_" + jsonNode.get("fx_account") ;
-            out.collect(new Tuple5<>(cc_type, fx, fx_account, fx_fx, amount_orig));
+            String cc_id = jsonNode.get("cc_id").toString();
+            out.collect(new Tuple5<>(cc_type, fx, fx_account, cc_id, amount_orig));
 
         }
 
@@ -129,10 +140,34 @@ public class UC2KafkaSumccTypTrxFx {
         @Override
         public byte[] serializeValue(Tuple5 value) {
 
-            String str = "{"+ value.getField(0).toString()
-                    + ":" + value.getField(1).toString()
-                    + ":" + value.getField(2).toString()
-                    + ":" + value.getField(4).toString() + "}";
+            String str = "{"
+                    + "\"type\"" + ":" + "\"okay\""
+                    + "," + "\"subtype\"" + ":" + "\"auto approval - amount below 40\""
+                    + "," + "\"credit cart id\"" + ":" + value.getField(3).toString()
+                    + "," + "\"credit cart issuer\"" + ":" + value.getField(1).toString()
+                    + "," + "\"original amount\"" + ":" + value.getField(4)  + "}";
+            return str.getBytes();
+        }
+        @Override
+        public String getTargetTopic(Tuple5 tuple5) {
+            // use always the default topic
+            return null;
+        }
+    }
+    public static class SerializeTuple5toStringApproval implements KeyedSerializationSchema<Tuple5<String, String, String, String, Double>> {
+        @Override
+        public byte[] serializeKey(Tuple5 element) {
+            return (null);
+        }
+        @Override
+        public byte[] serializeValue(Tuple5 value) {
+
+            String str = "{"
+                    + "\"type\"" + ":" + "\"nok\""
+                    + "," + "\"subtype\"" + ":" + "\"verification required - amount above 40\""
+                    + "," + "\"credit cart id\"" + ":" + value.getField(3).toString()
+                    + "," + "\"credit cart issuer\"" + ":" + value.getField(1).toString()
+                    + "," + "\"original amount\"" + ":" + value.getField(4)  + "}";
             return str.getBytes();
         }
         @Override

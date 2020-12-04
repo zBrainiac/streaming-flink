@@ -5,6 +5,8 @@ addons:
     organization: "zbrainiac"
     token:
       secure: "sYkK8jtgOo8uAXnE2ami8CEdjER4AVmZAhCsvtlCkfBBbAJty2eLOoxBsDmUM/cn8qxzDHwafi9mZYQfmjlnUC60Hsk0Uhdy35hR6hiARdzaWDLLGBc6xgmCBPDALfwcrMp2YFyYG61IwCizncVKB/acKNQQlROr6uheX7Aihn1SYXO5/mIxEdU6CGRhuydu8PNOnUHbK+Ajtj2mezyrQ+8zWM4iT5EhPFGmL0+/geeBQlP3HS2vUDcqvjA/5FqDLoGBjqWHhIgukFd5WzXJR5LKjI5x2JKtpc9zHaOYjK3qnkBNzqMckGiHMGmW14nvcMbSTyHvvZUAXHdWFXQeQOWbcDBuWgFrrH4Wobc/H7H8Y1aZH5Gnt8izRw8Z7tuQdi2+K90oz9CaWzF/UwzaZowfPT2kL+BHYEVj8TWaR8cfF7kHmP1ZdNohaJDftpWZo6gQEL5WvYNungv6XpguDvEg9UcaJ2b22OPg3O2QdPFLFIggAHp5Y2WN6jvSWrgd89pKx8lfGwOjfCy17ac0JNIMMN08/4dQdaoj1yNBPUtmOVOd/TeArAKj962l057KhlCHjD3sCMDjgp1I6tD+3I3Sly931tp3tvVi8Ol1SDYIrHAf6P4Hs/Z1GON/TZBc7kylr/aNxoKg3fTe5Pb4hs2wVVzalCVvhpdv+bqlPtM="
+git:
+  depth: false
 
 script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
