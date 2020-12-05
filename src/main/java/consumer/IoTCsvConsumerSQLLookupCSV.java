@@ -134,7 +134,7 @@ public class IoTCsvConsumerSQLLookupCSV {
         dsRow.print();
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer myProducer = new FlinkKafkaProducer<>(topic,
+        FlinkKafkaProducer<Row> myProducer = new FlinkKafkaProducer<>(topic,
                 (KafkaSerializationSchema<Row>) (element, timestamp) -> new ProducerRecord<byte[], byte[]>(topic,
                         (element.getField(3)).toString().getBytes(),
                         (element.toString()).getBytes()

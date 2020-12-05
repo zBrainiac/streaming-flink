@@ -230,14 +230,14 @@ cd /opt/cloudera/parcels/FLINK
 ```
 ### FSI
 ```
-./bin/flink run -m yarn-cluster -c consumer.FSIUC1KafkaCountTrxPerShop -ynm UC1KafkaCountTrxPerShop lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC2KafkaSumccTypTrxFx -ynm UC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC3KafkaJoin2JsonStreams -ynm UC3KafkaJoin2JsonStreams lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar  edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm UC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm UC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC7KafkaAvgFx -ynm UC7KafkaAvgFx lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC8KafkaTRXAmountDispatcher -ynm UC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092
-./bin/flink run -m yarn-cluster -c consumer.FSIUC9KafkalookupJson -ynm FSIUC9lookupJson lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+./bin/flink run -m yarn-cluster -c consumer.FSIUC1KafkaCountTrxPerShop -ynm FSIUC1KafkaCountTrxPerShop lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC2KafkaSumccTypTrxFx -ynm FSIUC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC3KafkaJoin2JsonStreams -ynm FSIUC3KafkaJoin2JsonStreams lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar  edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm FSIUC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm FSIUC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC7KafkaAvgFx -ynm FSIUC7KafkaAvgFx lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC8KafkaTRXAmountDispatcher -ynm FSIUC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.FSIUC9KafkalookupJson -ynm FSIUC9KafkalookupJson lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
 
 ```
 

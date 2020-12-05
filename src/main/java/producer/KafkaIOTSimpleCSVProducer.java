@@ -1,9 +1,10 @@
 package producer;
 
 import org.apache.kafka.clients.producer.*;
+
+import java.security.SecureRandom;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -57,12 +58,11 @@ public class KafkaIOTSimpleCSVProducer {
 
             //send messages to my-topic
             for (int i = 0; i < 1000000; i++) {
-                int randomNum = ThreadLocalRandom.current().nextInt(11);
+                int randomNum = new SecureRandom().nextInt(11);
                 String uuid = UUID.randomUUID().toString();
-
                 Long unixTime = System.currentTimeMillis();
 
-                ProducerRecord record = new ProducerRecord<>("iot_CSV", i,
+                ProducerRecord<Integer, String> record = new ProducerRecord<>("iot_CSV", i,
                         unixTime
                                 + ", " + randomNum
                                 + ", " + uuid

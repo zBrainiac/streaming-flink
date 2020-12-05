@@ -175,10 +175,10 @@ public class FSIUC9KafkalookupJson {
                     + "\"type\"" + ":" + "\"ok\""
                     + "," + "\"subtype\"" + ":" + "\"message enrichment\""
                     + "," + "\"cc_id\"" + ":" + value.getField(0)
-                    + "," + "\"shop_name\"" + ":" + value.getField(3)
-                    + "," + "\"fx\"" + ":" + value.getField(4)
-                    + "," + "\"fx_account\"" + ":" + value.getField(5)
-                    + "," + "\"amount_orig\"" + ":" + value.getField(6)
+                    + "," + "\"shop_name\"" + ":" + value.getField(2)
+                    + "," + "\"fx\"" + ":" + value.getField(3)
+                    + "," + "\"fx_account\"" + ":" + value.getField(4)
+                    + "," + "\"amount_orig\"" + ":" + value.getField(5)
                     + "," + "\"city\"" + ":"+ "\"" + value.getField(6).toString().trim() + "\""
                     + "," + "\"lat\"" + ":" + value.getField(7)
                     + "," + "\"long\"" + ":" + value.getField(8) + "}";

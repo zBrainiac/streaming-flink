@@ -143,13 +143,13 @@ public class MqTTTrafficCollector {
             T object;
         }
 
-        private final List<WeightedRandomBag.Entry> entries = new ArrayList<>();
+        private final List<Entry> entries = new ArrayList<>();
         private double accumulatedWeight;
         private final Random rand = new SecureRandom();
 
         public void addEntry(T object, double weight) {
             accumulatedWeight += weight;
-            WeightedRandomBag.Entry e = new WeightedRandomBag.Entry();
+            Entry e = new Entry();
             e.object = object;
             e.accumulatedWeight = accumulatedWeight;
             entries.add(e);
@@ -158,12 +158,8 @@ public class MqTTTrafficCollector {
         public T getRandom() {
             double r = rand.nextDouble() * accumulatedWeight;
 
-            for (WeightedRandomBag.Entry entry: entries) {
-                if (entry.accumulatedWeight >= r) {
-                    return (T) entry.object;
-                }
-            }
-            return null; //should only happen when there are no entries
+            return entries.stream().filter(entry -> entry.accumulatedWeight >= r).findFirst().map(entry -> entry.object).orElse(null);
+            //should only happen when there are no entries
         }
     }
     public static void setsleeptime(long sleeptime) {
