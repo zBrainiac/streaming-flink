@@ -144,6 +144,14 @@ under the License.
             <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
+    <!-- https://mvnrepository.com/artifact/com.hortonworks.registries/schema-registry -->
+    <dependency>
+        <groupId>com.hortonworks.registries</groupId>
+        <artifactId>schema-registry</artifactId>
+        <version>0.9.1</version>
+        <type>pom</type>
+    </dependency>
+
     </dependencies>
 
     <build>
