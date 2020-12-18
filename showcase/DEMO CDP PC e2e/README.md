@@ -8,7 +8,7 @@ cd infra
 ```
 Start secure endpoint
 ```
-./cdswctl ssh-endpoint -p VizApp -m 4 -c 2
+./cdswctl ssh-endpoint -p e2e -m 4 -c 2
 ```
 
 Setup SSL host
