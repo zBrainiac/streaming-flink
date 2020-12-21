@@ -1,4 +1,4 @@
-create DATABASE if not exists iot;
+CREATE DATABASE if not exists iot;
 
 USE iot;
 
