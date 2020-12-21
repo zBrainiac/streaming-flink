@@ -17,12 +17,12 @@ tblproperties ("skip.header.line.count"="1", "external"="true");
 SELECT * FROM iot.table_ext_geoloc
 LIMIT 3;
 
-CREATE TABLE if not exists iot.table_int_geoloc
+CREATE TABLE if not exists iot.table_managed_geoloc
 STORED AS orc
 as select * from iot.table_ext_geoloc;
 
 
-SELECT * FROM iot.table_int_geoloc
+SELECT * FROM iot.table_managed_geoloc
 LIMIT 3;
 
 
@@ -48,34 +48,34 @@ LOCATION "s3a://demo-aws-2/user/mdaeppen/data_iot";
 SELECT * FROM iot.table_ext_iot
 LIMIT 3;
 
-CREATE TABLE if not exists iot.table_int_iot
+CREATE TABLE if not exists iot.table_managed_iot
 STORED AS orc
 as select * from iot.table_ext_iot;
 
-SELECT * FROM iot.table_int_iot
+SELECT * FROM iot.table_managed_iot
 LIMIT 3;
 
 DROP VIEW iot.view_sensor_10 ;
 DROP VIEW iot.view_sensor_88 ;
 
 CREATE VIEW if not exists iot.view_sensor_10
-as select * from iot.table_int_iot where sensor_id = 10 ;
+as select * from iot.table_managed_iot where sensor_id = 10 ;
 
 CREATE VIEW if not exists iot.view_sensor_88
-as select * from iot.table_int_iot where sensor_id = 88 ;
+as select * from iot.table_managed_iot where sensor_id = 88 ;
 
 
-SELECT iot.sensor_id, geoloc.city, geoloc.lat, geoloc.lon FROM iot.table_int_iot iot, iot.table_int_geoloc geoloc
+SELECT iot.sensor_id, geoloc.city, geoloc.lat, geoloc.lon FROM iot.table_managed_iot iot, iot.table_managed_geoloc geoloc
 WHERE iot.sensor_id = geoloc.sensor_id
 Limit 3;
 
-SELECT iot.sensor_id, geoloc.city, geoloc.lat, geoloc.lon ,count(*) as counter FROM iot.table_int_iot iot , iot.table_int_geoloc geoloc
+SELECT iot.sensor_id, geoloc.city, geoloc.lat, geoloc.lon ,count(*) as counter FROM iot.table_managed_iot iot , iot.table_managed_geoloc geoloc
 WHERE iot.sensor_id = geoloc.sensor_id
 GROUP BY iot.sensor_id, geoloc.city, geoloc.lat, geoloc.lon;
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS iot.view_mat_join
+CREATE MATERIALIZED VIEW IF NOT EXISTS iot.view_matwerialized_join_iot_geo
 STORED AS ORC
-AS SELECT iot.sensor_id, geoloc.city, geoloc.lat, geoloc.lon  FROM iot.table_int_iot iot, iot.table_int_geoloc geoloc WHERE iot.sensor_id = geoloc.sensor_id ;
+AS SELECT iot.sensor_id, geoloc.city, geoloc.lat, geoloc.lon  FROM iot.table_managed_iot iot, iot.table_managed_geoloc geoloc WHERE iot.sensor_id = geoloc.sensor_id ;
 
-SELECT * FROM iot.view_mat_join;
+SELECT * FROM iot.view_matwerialized_join_iot_geo;

@@ -4,8 +4,6 @@ import os
 import sys
 
 from pyspark.sql import SparkSession
-from pyspark.sql.types import *
-
 
 spark = SparkSession \
     .builder \
@@ -31,14 +29,14 @@ df.write.csv("s3a://demo-aws-2/user/mdaeppen/data_out/joined_iot_geoloc", header
 # dataframe saved into s3
 
 # dop table
-spark.sql("DROP TABLE IF EXISTS iot.table_ext_join") 
+spark.sql("DROP TABLE IF EXISTS iot.table_managed_join") 
 
 
 # create new external table
 df.write.option('path','s3a://demo-aws-2/user/mdaeppen/data_out/joined_iot_geoloc') \
-    .saveAsTable('iot.table_ext_join')
+    .saveAsTable('iot.table_managed_join')
 
 # select same data form the new table
-spark.sql("SELECT sensor_id, city,lat, lon, count(*) as count FROM iot.table_ext_join \
+spark.sql("SELECT sensor_id, city,lat, lon, count(*) as count FROM iot.table_managed_join \
            GROUP BY sensor_id, city,lat, lon \
            ORDER BY count DESC").show()
