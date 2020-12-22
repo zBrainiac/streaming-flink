@@ -44,21 +44,22 @@ public class FSIUC9KafkalookupJson {
 
     private static String brokerURI = "localhost:9092";
     private static String lookupCSV = "data/lookupHeader.csv";
+    private static String loggerMsg = "Program prop set {}";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }else if( args.length == 2 ) {
             brokerURI = args[0];
             lookupCSV = args[1];
             String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV ;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }
 
         String use_case_id = "fsi_uc9_SQL_Lookup_JSON";
@@ -101,7 +102,6 @@ public class FSIUC9KafkalookupJson {
                 .ignoreFirstLine()
                 .ignoreParseErrors()
                 .build();
-
         tableEnv.registerTableSource("lookupValues", lookupValues);
 
         System.out.println("\n CSV Lookup Table Created with Schema: \n");

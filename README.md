@@ -35,13 +35,14 @@ mvn clean package
 Presentation of streaming applications based on credit card transactions and FX rate stream
 
   
-### FSI_Use_cases:  
-#### Use case 1 - "count"
+### FSI Use cases:  
+#### Use case 1 - "Count credit card transactions per shop"
 Start small - counting transactions per shop (group by) 
 
 ![Flink App Use Case 1](images/FlinkApp_flow_uc1.png)
  
-class: KafkaCount_trx_per_shop  
+class: FSIUC1KafkaCountTrxPerShop [--> source code](src/main/java/consumer/FSIUC1KafkaCountTrxPerShop.java)
+
 ```
 DataStream <Tuple2<String, Integer>> aggStream = trxStream
     .flatMap(new trxJSONDeserializer())
@@ -59,12 +60,12 @@ JSON output stream:
 {"SihlCity":83}
 ```
   
-#### Use case 2 - "sum"
+#### Use case 2 - "Aggregating FX amount per credit card issuer "
 
 ![Flink App Use Case 2](images/FlinkApp_flow_uc2.png)
 
 
-class: KafkaSum_ccid_trx_fx  
+class: FSIUC2KafkaSumccTypTrxFx [--> source code](src/main/java/consumer/FSIUC2KafkaSumccTypTrxFx.java)
 
 ```
 DataStream <Tuple2<String, Integer>> aggStream = trxStream
@@ -83,7 +84,7 @@ JSON output stream:
 {"Maestro":"EUR":"USD":101.81}
 ```
   
-#### Use case 3 - "merge two streams"
+#### Use case 3 - "merge two Kafka event streams from credit card transactions and FX rates"
 Merge two data steams - trx with the latest fx rate:  
 ![Flink App Use Case 3](images/FlinkApp_flow_uc3.png)
 

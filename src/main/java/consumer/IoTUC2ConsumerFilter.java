@@ -39,18 +39,18 @@ import java.util.Properties;
 public class IoTUC2ConsumerFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(IoTUC2ConsumerFilter.class);
-
     private static String brokerURI = "localhost:9092";
+    private static String loggerMsg = "Program prop set {}";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use program argument parm: URI' = " + brokerURI;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }
 
         String use_case_id = "iot_uc2_Consumer_Filter";

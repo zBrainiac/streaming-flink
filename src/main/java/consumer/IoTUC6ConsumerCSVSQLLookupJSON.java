@@ -42,8 +42,8 @@ import java.util.Properties;
 public class IoTUC6ConsumerCSVSQLLookupJSON {
 
     private static final Logger LOG = LoggerFactory.getLogger(IoTUC6ConsumerCSVSQLLookupJSON.class);
-
     private static String brokerURI = "localhost:9092";
+    private static String loggerMsg = "Program prop set {}";
     private static String lookupCSV = "data/lookupHeader.csv";
 
     public static void main(String[] args) throws Exception {
@@ -51,15 +51,15 @@ public class IoTUC6ConsumerCSVSQLLookupJSON {
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }else if( args.length == 2 ) {
             brokerURI = args[0];
             lookupCSV = args[1];
             String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV ;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }
 
         String use_case_id = "iot_uc6_Csv_Consumer_SQL_LookupJSON";

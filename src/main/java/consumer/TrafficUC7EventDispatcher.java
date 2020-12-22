@@ -41,8 +41,8 @@ import java.util.Properties;
 public class TrafficUC7EventDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrafficUC7EventDispatcher.class);
-
     private static String brokerURI = "localhost:9092";
+    private static String loggerMsg = "Program prop set {}";
     private static String topicPrefix = "result_";
 
     public static void main(String[] args) throws Exception {
@@ -50,10 +50,10 @@ public class TrafficUC7EventDispatcher {
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use program argument parm: URI' = " + brokerURI;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI;
-            LOG.info("Program prop set {}", parm);
+            LOG.info(loggerMsg, parm);
         }
 
         String use_case_id = "traffic_uc7_IOTRaw_Consumer_EventDispatcher";
