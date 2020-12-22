@@ -80,7 +80,7 @@ public class OPCUC1NoiseCanceller {
         DataStream<String> opcStream = env.addSource(
                 new FlinkKafkaConsumer<>("opc", new SimpleStringSchema(), properties));
 
-        opcStream.print("input message: ");
+        /* opcStream.print("input message: "); */
 
         DataStream<Tuple4<String, String, Double, Integer>> aggStream = opcStream
                 .flatMap(new TrxJSONDeserializer())
@@ -91,9 +91,7 @@ public class OPCUC1NoiseCanceller {
                     @Override
                     public boolean filter(Tuple4<String, String, Double, Integer> value) throws Exception {
 
-                        if (value.f1.equals("Sinusoid")) {
-                            return true;
-                        } else if (value.f1.equals("Sawtooth")) {
+                        if (value.f1.equals("Sinusoid") || value.f1.equals("Sawtooth")) {
                             return true;
                         }
                         return false;

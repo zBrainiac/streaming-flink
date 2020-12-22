@@ -2,6 +2,8 @@ package producer;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -21,30 +23,29 @@ import java.util.Random;
  */
 
 public class MqTTIOTSensorSimulator {
-    private static final Random random = new SecureRandom();
 
+    private static final Logger LOG = LoggerFactory.getLogger(MqTTIOTSensorSimulator.class);
+    private static final Random random = new SecureRandom();
     private static String brokerURI = "tcp://localhost:1883";
-    private static long sleeptime;
+    private static final String LOGGERMSG = "Program prop set {}";
+    private static long sleeptime = 1000;
 
     public static void main(String[] args) {
 
-        if (args.length == 1) {
-            System.err.println("case 'customized URI':");
+        if( args.length == 1 ) {
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
-            System.err.println("default sleeptime (ms): " + sleeptime);
-        } else if (args.length == 2) {
-            System.err.println("case 'customized URI & time':");
+            String parm = "'use customized URI' = " + brokerURI + " & 'use default sleeptime' = " + sleeptime ;
+            LOG.info(LOGGERMSG, parm);
+        }else if( args.length == 2 ) {
             brokerURI = args[0];
             setsleeptime(Long.parseLong(args[1]));
-            System.err.println("arg URL: " + brokerURI);
-            System.err.println("sleeptime (ms): " + sleeptime);
-        } else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
-            setsleeptime(1000);
-            System.err.println("default sleeptime (ms): " + sleeptime);
+            String parm = "'use customized URI' = " + brokerURI + " & 'use customized sleeptime' = " + sleeptime ;
+            LOG.info(LOGGERMSG, parm);
+        }else {
+            String parm = "'use default URI' = " + brokerURI + " & 'use default sleeptime' = " + sleeptime ;
+            LOG.info(LOGGERMSG, parm);
         }
+
         try  {
             try (MqttClient client = new MqttClient(brokerURI, MqttClient.generateClientId())) {
                 client.connect();
@@ -69,7 +70,7 @@ public class MqTTIOTSensorSimulator {
                             + "}").getBytes());
 
                     client.publish("iot", message);
-                    System.out.println("Published data: " + message);
+                    LOG.info("Published data: {}", message);
 
                     Thread.sleep(sleeptime);
                 }
@@ -77,7 +78,7 @@ public class MqTTIOTSensorSimulator {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.info("Exception message: ", e);
         }
     }
 

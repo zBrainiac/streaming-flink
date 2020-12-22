@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="OPCNoiseCanceller" type="Application" factoryName="Application" nameIsGenerated="true">
+  <configuration default="false" name="OPCUC1NoiseCanceller" type="Application" factoryName="Application">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <option name="MAIN_CLASS_NAME" value="consumer.OPCUC1NoiseCanceller" />
     <module name="streaming-flink" />
