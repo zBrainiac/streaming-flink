@@ -13,6 +13,8 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -31,22 +33,24 @@ import java.util.Properties;
  * @version 2020/07/29 14:14
  */
 
-public class IoTConsumerCSVCheckpointing1000 {
+public class IoTUC8ConsumerCSVCheckpointing1000 {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IoTUC8ConsumerCSVCheckpointing1000.class);
 
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "iot_Consumer_CSV_Checkpoint1000";
+        String use_case_id = "iot_uc8_Consumer_CSV_Checkpoint1000";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -98,7 +102,7 @@ public class IoTConsumerCSVCheckpointing1000 {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
     private static class SerializeSum2String implements KeyedSerializationSchema<Tuple5<String, String, String, String, Integer>> {

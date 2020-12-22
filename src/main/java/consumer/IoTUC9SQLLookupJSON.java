@@ -19,6 +19,8 @@ import org.apache.flink.table.sources.CsvTableSource;
 import org.apache.flink.table.sources.TableSource;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -28,15 +30,17 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTSQLLookupJSON -ynm IoTSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTSQLLookupJSON -ynm IoTSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTSQLLookupJSON edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
  */
 
-public class IoTSQLLookupJSON {
+public class IoTUC9SQLLookupJSON {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IoTUC9SQLLookupJSON.class);
 
     private static String brokerURI = "localhost:9092";
     private static String lookupCSV = "data/lookupHeader.csv";
@@ -44,22 +48,20 @@ public class IoTSQLLookupJSON {
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
         }else if( args.length == 2 ) {
-            System.err.println("case 'customized URI & lookup file':");
             brokerURI = args[0];
             lookupCSV = args[1];
-            System.err.println("arg URL: " + brokerURI);
-            System.err.println("arg lookup file: " + lookupCSV);
+            String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
-            System.err.println("default lookupCSV: " + lookupCSV);
+            String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "IoT_SQL_Lookup_JSON";
+        String use_case_id = "ioi_uc9_SQL_Lookup_JSON";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -105,7 +107,7 @@ public class IoTSQLLookupJSON {
                 .ignoreParseErrors()
                 .build();
 
-       // tableEnv.fromTableSource("lookupValues", lookupValues);
+        /* tableEnv.fromTableSource("lookupValues", lookupValues); */
 
         tableEnv.registerTableSource("lookupValues", lookupValues);
 
@@ -165,7 +167,7 @@ public class IoTSQLLookupJSON {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
     public static class SerializeSum2String implements KeyedSerializationSchema<Row> {

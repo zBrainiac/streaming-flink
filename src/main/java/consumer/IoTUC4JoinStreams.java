@@ -18,11 +18,13 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
 /**
- * className: ConsunerFlink.IoTJoinStreams
+ * className: ConsunerFlink.IoTUC4JoinStreams
  * iotStream: {"sensor_ts":1588617762605,"sensor_id":7,"sensor_0":59,"sensor_1":32,"sensor_2":84,"sensor_3":23,"sensor_4":56,"sensor_5":30,"sensor_6":46,"sensor_7":90,"sensor_8":64,"sensor_9":33,"sensor_10":49,"sensor_11":91}
  * csvStream: unixTime :1596022830196, sensor_id :6, id :e78b8a17-527b-4e51-9fdb-577da3207db0, Test Message #198
  *
@@ -30,25 +32,27 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTJoinStreams
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTUC4JoinStreams
  *
  * @author Marcel Daeppen
  * @version 2020/07/29 20:14
  */
 
-public class IoTJoinStreams {
+public class IoTUC4JoinStreams {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FSIUC1KafkaCountTrxPerShop.class);
 
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
         String use_case_id = "iot-Join_IoTandCSV";
@@ -77,7 +81,7 @@ public class IoTJoinStreams {
 
         DataStream<String> csvStream = env.addSource(
                 new FlinkKafkaConsumer<>("iot_CSV", new SimpleStringSchema(), properties));
-        // csvStream.print("csv stream: ");
+        /* csvStream.print("csv stream: "); */
 
         DataStream<JSONObject> csv =
                 csvStream.flatMap(new TokenizerCSV());
@@ -86,7 +90,7 @@ public class IoTJoinStreams {
 
         DataStream<String> iotStream = env.addSource(
                 new FlinkKafkaConsumer<>("iot", new SimpleStringSchema(), properties));
-        // iotStream.print("iot stream:");
+        /* iotStream.print("iot stream:"); */
 
         DataStream<JSONObject> iot =
                 iotStream.flatMap(new TokenizerIOT());
@@ -103,8 +107,8 @@ public class IoTJoinStreams {
                     joinJson.put("csv", second);
 
                     // for debugging: print out
-                    //         System.err.println("iot data: " + first);
-                    //         System.err.println("csv data: " + second);
+                    //       System.err.println("iot data: " + first);
+                    //       System.err.println("csv data: " + second);
                     return joinJson.toJSONString();
                 });
 
@@ -119,7 +123,7 @@ public class IoTJoinStreams {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
     public static final class TokenizerCSV implements FlatMapFunction<String, JSONObject> {
@@ -150,11 +154,11 @@ public class IoTJoinStreams {
         @Override
         public void flatMap(String value, Collector<JSONObject> out) {
             try {
-                //        System.err.println("try");
+                /* System.err.println("try"); */
                 JSONObject json = JSONObject.parseObject(value);
                 out.collect(json);
             } catch (Exception ex) {
-                //        System.err.println("ex: " + value +ex);
+                /* System.err.println("ex: " + value +ex); */
             }
         }
     }

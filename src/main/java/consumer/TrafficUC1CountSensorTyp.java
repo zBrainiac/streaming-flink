@@ -17,6 +17,8 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -41,20 +43,22 @@ import java.util.Properties;
 
 public class TrafficUC1CountSensorTyp {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TrafficUC1CountSensorTyp.class);
+
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length == 1) {
-            System.err.println("case 'customized URI':");
+        if( args.length == 1 ) {
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
-        } else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
+        }else {
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "Traffic_UC1_CountSensorTyp";
+        String use_case_id = "traffic_uc1_CountSensorTyp";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -78,7 +82,7 @@ public class TrafficUC1CountSensorTyp {
         DataStream<String> iotStream = env.addSource(
                 new FlinkKafkaConsumer<>("TrafficCounterRaw", new SimpleStringSchema(), properties));
 
-        iotStream.print("input message: ");
+        /* iotStream.print("input message: "); */
 
         DataStream<Tuple5<Long, Integer, String, Integer, Integer>> aggStream = iotStream
                 .flatMap(new TrxJSONDeserializer())
@@ -96,7 +100,7 @@ public class TrafficUC1CountSensorTyp {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
 

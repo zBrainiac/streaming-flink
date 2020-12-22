@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TrafficUC7EventDispatcher" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
+    <option name="MAIN_CLASS_NAME" value="consumer.TrafficUC7EventDispatcher" />
+    <module name="streaming-flink" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

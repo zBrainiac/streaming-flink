@@ -16,6 +16,8 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -35,17 +37,19 @@ import java.util.Properties;
 
 public class FSIUC1KafkaCountTrxPerShop {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FSIUC1KafkaCountTrxPerShop.class);
+
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
         String use_case_id = "fsi-uc1_trx_per_shop";
@@ -92,7 +96,7 @@ public class FSIUC1KafkaCountTrxPerShop {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
 

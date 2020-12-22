@@ -16,6 +16,8 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -26,30 +28,32 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCount -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC2ConsumerFilter -ynm IoTUC2ConsumerFilter lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTConsumerCount
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTUC2ConsumerFilter
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class IoTConsumerCount {
+public class IoTUC2ConsumerFilter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IoTUC2ConsumerFilter.class);
 
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "iot_Consumer_Count";
+        String use_case_id = "iot_uc2_Consumer_Filter";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -73,12 +77,13 @@ public class IoTConsumerCount {
         DataStream<String> iotStream = env.addSource(
                 new FlinkKafkaConsumer<>("iot", new SimpleStringSchema(), properties));
 
-        iotStream.print("input message: ");
+        /* iotStream.print("input message: "); */
 
         DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
                 .flatMap(new TrxJSONDeserializer())
                 .keyBy(1) // sensor_id
-                .sum(4);
+                .sum(4)
+                .filter(value -> value.f2 >= 50);
 
         aggStream.print(topic + ": ");
 
@@ -91,7 +96,7 @@ public class IoTConsumerCount {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
 
@@ -111,6 +116,7 @@ public class IoTConsumerCount {
             Integer sensor_0 = jsonNode.get("sensor_0").asInt();
             Integer sensor_1 = jsonNode.get("sensor_1").asInt();
             out.collect(new Tuple5<>(sensor_ts, sensor_id, sensor_0, sensor_1, 1));
+
         }
 
     }
@@ -125,10 +131,10 @@ public class IoTConsumerCount {
         public byte[] serializeValue(Tuple5 value) {
 
             String str = "{"
-                    + "\"type\"" + ":" + "\"counter by sensor_id\""
+                    + "\"type\"" + ":" + "\"alert sensor_0 over 50\""
                     + "," + "\"sensor_ts_start\"" + ":" + value.getField(0).toString()
                     + "," + "\"sensor_id\"" + ":" + value.getField(1).toString()
-                    + "," + "\"counter\"" + ":" + value.getField(4).toString() + "}";
+                    + "," + "\"sensor_0\"" + ":" + value.getField(2).toString() + "}";
             return str.getBytes();
         }
 

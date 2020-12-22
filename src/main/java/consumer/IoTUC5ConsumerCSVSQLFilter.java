@@ -2,11 +2,12 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -15,11 +16,12 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.descriptors.Csv;
 import org.apache.flink.table.descriptors.Kafka;
 import org.apache.flink.table.descriptors.Schema;
-import org.apache.flink.table.sources.CsvTableSource;
-import org.apache.flink.table.sources.TableSource;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -29,30 +31,32 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC5ConsumerCSVSQLFilter -ynm IoTUC5ConsumerCSVSQLFilter lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTCsvConsumerSQLLookupJSON
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTUC5ConsumerCSVSQLFilter
  *
  * @author Marcel Daeppen
- * @version 2020/08/24 12:14
+ * @version 2020/08/22 12:14
  */
 
-public class IoTCsvConsumerSQLLookupJSON {
+public class IoTUC5ConsumerCSVSQLFilter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IoTUC5ConsumerCSVSQLFilter.class);
 
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "IoT_Csv_Consumer_SQL_LookupJSON";
+        String use_case_id = "iot_uc5_SQL_Filter";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -84,34 +88,6 @@ public class IoTCsvConsumerSQLLookupJSON {
                 .field("uuid", DataTypes.STRING())
                 .field("text", DataTypes.STRING());
 
-        TableSource<?> lookupValues = CsvTableSource
-                .builder()
-                .path("data/lookupHeader.csv")
-                .field("sensor_id", Types.INT)
-                .field("city", Types.STRING)
-                .field("lat", Types.DOUBLE)
-                .field("lon", Types.DOUBLE)
-                .fieldDelimiter(",")
-                .lineDelimiter("\n")
-                .ignoreFirstLine()
-                .ignoreParseErrors()
-                .build();
-
-        tableEnv.registerTableSource("lookupValues", lookupValues);
-
-        System.out.println("\n CSV Lookup Table Created with Schema: \n");
-
-        //Create a Table Object with the product_sales table.
-        Table lookupValuesTable = tableEnv
-                .scan("lookupValues");
-
-        lookupValuesTable.printSchema();
-
-        Table lookupTable = tableEnv.scan("lookupValues");
-
-        DataStream<Row> CsvTable = tableEnv.toAppendStream(lookupTable, Row.class);
-        CsvTable.print("lookupTable print: ");
-
         tableEnv.connect(
                 new Kafka()
                         .version("universal")    // required: valid connector versions are
@@ -125,52 +101,52 @@ public class IoTCsvConsumerSQLLookupJSON {
                 .createTemporaryTable("CsvSinkTable");
 
 
-        String sql = "SELECT * FROM CsvSinkTable, lookupValues WHERE CsvSinkTable.sensor_id =  lookupValues.sensor_id";
+        String sql = "SELECT * FROM CsvSinkTable WHERE sensor_id = 3";
 
         Table iotTable = tableEnv.sqlQuery(sql);
         iotTable.printSchema();
 
-        DataStream<Row> aggStream = tableEnv.toAppendStream(iotTable, Row.class);
+        DataStream<Row> dsRow = tableEnv.toAppendStream(iotTable, Row.class);
 
-        aggStream.print();
+        dsRow.print();
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Row> myProducer = new FlinkKafkaProducer<>(
-                topic, new SerializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer myProducer = new FlinkKafkaProducer<>(topic,
+                (KafkaSerializationSchema<Row>) (element, timestamp) -> new ProducerRecord<byte[], byte[]>(topic,
+                        (element.getField(3)).toString().getBytes(),
+                        (element.toString()).getBytes()
+                ),
+                propertiesProducer,
+                FlinkKafkaProducer.Semantic.NONE);
 
-        aggStream.addSink(myProducer);
-
+        dsRow.addSink(myProducer);
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
-    public static class SerializeSum2String implements KeyedSerializationSchema<Row> {
+    public static class SerializeSum2String implements KeyedSerializationSchema<Tuple4<Long, Integer, String, String>> {
         @Override
-        public byte[] serializeKey(Row element) {
+        public byte[] serializeKey(Tuple4 element) {
             return (null);
         }
         @Override
-        public byte[] serializeValue(Row value) {
+        public byte[] serializeValue(Tuple4 value) {
 
             String str = "{"
                     + "\"type\"" + ":" + "\"ok\""
-                    + "," + "\"subtype\"" + ":" + "\"message enrichment\""
-                    + "," + "\"sensor_ts\"" + ":" + value.getField(0)
-                    + "," + "\"uuid\"" + ":" + "\"" + value.getField(2).toString() + "\""
-                    + "," + "\"sensor_id\"" + ":" + value.getField(1)
-                    + "," + "\"message\"" + ":" + "\"" + value.getField(3).toString() + "\""
-                    + "," + "\"location\"" + ":"+ "\"" + value.getField(5).toString() + "\"" + "}";
+                    + "," + "\"subtype\"" + ":" + "\"filter sensor_id #3 \""
+                    + "," + "\"sensor_ts\"" + ":" + value.getField(0).toString()
+                    + "," + "\"uuid\"" + ":" + value.getField(2).toString()
+                    + "," + "\"msg\"" + ":" + value.getField(3)  + "}";
             return str.getBytes();
         }
 
         @Override
-        public String getTargetTopic(Row row) {
+        public String getTargetTopic(Tuple4<Long, Integer, String, String> longIntegerStringStringTuple4) {
             return null;
         }
-
     }
-
 }

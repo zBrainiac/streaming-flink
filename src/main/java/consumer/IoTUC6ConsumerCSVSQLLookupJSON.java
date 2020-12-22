@@ -7,7 +7,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
-import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
+import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
@@ -20,7 +20,8 @@ import org.apache.flink.table.sources.TableSource;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -30,30 +31,38 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTCsvConsumerSQLLookupCSV -ynm IoTCsvConsumerSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC6ConsumerCSVSQLLookupJSON -ynm IoTUC6ConsumerCSVSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092 /tmp/lookupHeader.csv
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTCsvConsumerSQLLookupCSV
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTUC6ConsumerCSVSQLLookupJSON
  *
  * @author Marcel Daeppen
- * @version 2020/08/22 12:14
+ * @version 2020/08/24 12:14
  */
 
-public class IoTCsvConsumerSQLLookupCSV {
+public class IoTUC6ConsumerCSVSQLLookupJSON {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IoTUC6ConsumerCSVSQLLookupJSON.class);
 
     private static String brokerURI = "localhost:9092";
+    private static String lookupCSV = "data/lookupHeader.csv";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
+        }else if( args.length == 2 ) {
+            brokerURI = args[0];
+            lookupCSV = args[1];
+            String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "IoT_Csv_Consumer_SQL_Lookup";
+        String use_case_id = "iot_uc6_Csv_Consumer_SQL_LookupJSON";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -87,9 +96,11 @@ public class IoTCsvConsumerSQLLookupCSV {
 
         TableSource<?> lookupValues = CsvTableSource
                 .builder()
-                .path("data/lookup.csv")
+                .path("data/lookupHeader.csv")
                 .field("sensor_id", Types.INT)
-                .field("location", Types.STRING)
+                .field("city", Types.STRING)
+                .field("lat", Types.DOUBLE)
+                .field("lon", Types.DOUBLE)
                 .fieldDelimiter(",")
                 .lineDelimiter("\n")
                 .ignoreFirstLine()
@@ -129,24 +140,47 @@ public class IoTCsvConsumerSQLLookupCSV {
         Table iotTable = tableEnv.sqlQuery(sql);
         iotTable.printSchema();
 
-        DataStream<Row> dsRow = tableEnv.toAppendStream(iotTable, Row.class);
+        DataStream<Row> aggStream = tableEnv.toAppendStream(iotTable, Row.class);
 
-        dsRow.print();
+        aggStream.print();
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Row> myProducer = new FlinkKafkaProducer<>(topic,
-                (KafkaSerializationSchema<Row>) (element, timestamp) -> new ProducerRecord<byte[], byte[]>(topic,
-                        (element.getField(3)).toString().getBytes(),
-                        (element.toString()).getBytes()
-                ),
-                propertiesProducer,
-                FlinkKafkaProducer.Semantic.NONE);
+        FlinkKafkaProducer<Row> myProducer = new FlinkKafkaProducer<>(
+                topic, new SerializeSum2String(), propertiesProducer);
 
-        dsRow.addSink(myProducer);
+        aggStream.addSink(myProducer);
+
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
+
+    public static class SerializeSum2String implements KeyedSerializationSchema<Row> {
+        @Override
+        public byte[] serializeKey(Row element) {
+            return (null);
+        }
+        @Override
+        public byte[] serializeValue(Row value) {
+
+            String str = "{"
+                    + "\"type\"" + ":" + "\"ok\""
+                    + "," + "\"subtype\"" + ":" + "\"message enrichment\""
+                    + "," + "\"sensor_ts\"" + ":" + value.getField(0)
+                    + "," + "\"uuid\"" + ":" + "\"" + value.getField(2).toString() + "\""
+                    + "," + "\"sensor_id\"" + ":" + value.getField(1)
+                    + "," + "\"message\"" + ":" + "\"" + value.getField(3).toString() + "\""
+                    + "," + "\"location\"" + ":"+ "\"" + value.getField(5).toString() + "\"" + "}";
+            return str.getBytes();
+        }
+
+        @Override
+        public String getTargetTopic(Row row) {
+            return null;
+        }
+
+    }
+
 }

@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="IoTUC7ConsumerCSVSQLLookupCSV" type="Application" factoryName="Application" activateToolWindowBeforeRun="false" nameIsGenerated="true">
+  <configuration default="false" name="FSIUC9KafkalookupJson" type="Application" factoryName="Application" activateToolWindowBeforeRun="false" nameIsGenerated="true">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
-    <option name="MAIN_CLASS_NAME" value="consumer.IoTUC7ConsumerCSVSQLLookupCSV" />
+    <option name="MAIN_CLASS_NAME" value="consumer.FSIUC9KafkalookupJson" />
     <module name="streaming-flink" />
     <selectedOptions>
       <option name="environmentVariables" visible="false" />

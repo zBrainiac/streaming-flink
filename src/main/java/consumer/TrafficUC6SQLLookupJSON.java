@@ -19,6 +19,8 @@ import org.apache.flink.table.sources.CsvTableSource;
 import org.apache.flink.table.sources.TableSource;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -38,28 +40,28 @@ import java.util.Properties;
 
 public class TrafficUC6SQLLookupJSON {
 
+    private static final Logger LOG = LoggerFactory.getLogger(IoTUC9SQLLookupJSON.class);
+
     private static String brokerURI = "localhost:9092";
     private static String lookupCSV = "data/lookupHeader.csv";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
         }else if( args.length == 2 ) {
-            System.err.println("case 'customized URI & lookup file':");
             brokerURI = args[0];
             lookupCSV = args[1];
-            System.err.println("arg URL: " + brokerURI);
-            System.err.println("arg lookup file: " + lookupCSV);
+            String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
-            System.err.println("default lookupCSV: " + lookupCSV);
+            String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "Traffic_UC6_IOTRaw_Json_Consumer_SQL_LookupJSON";
+        String use_case_id = "traffic_uc6_IOTRaw_Json_Consumer_SQL_LookupJSON";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -96,7 +98,7 @@ public class TrafficUC6SQLLookupJSON {
                 .ignoreParseErrors()
                 .build();
 
-       // tableEnv.fromTableSource("lookupValues", lookupValues);
+        /* tableEnv.fromTableSource("lookupValues", lookupValues); */
 
         tableEnv.registerTableSource("lookupValues", lookupValues);
 
@@ -156,7 +158,7 @@ public class TrafficUC6SQLLookupJSON {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
     public static class SerializeSum2String implements KeyedSerializationSchema<Row> {

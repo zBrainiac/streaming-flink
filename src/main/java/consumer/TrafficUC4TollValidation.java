@@ -18,6 +18,8 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -42,20 +44,22 @@ import java.util.Properties;
 
 public class TrafficUC4TollValidation {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TrafficUC4TollValidation.class);
+
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length == 1) {
-            System.err.println("case 'customized URI':");
+        if( args.length == 1 ) {
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
-        } else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
+        }else {
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "Traffic_UC4_TollValidation";
+        String use_case_id = "traffic_uc4_TollValidation";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
@@ -79,11 +83,12 @@ public class TrafficUC4TollValidation {
         DataStream<String> iotStream = env.addSource(
                 new FlinkKafkaConsumer<>("TrafficCounterRaw", new SimpleStringSchema(), properties));
 
-        iotStream.print("input message: ");
+        /* iotStream.print("input message: "); */
 
         DataStream<Tuple5<Long, Integer, String, String, String>> aggStream = iotStream
                 .flatMap(new TrxJSONDeserializer())
                 .filter(value -> {
+//                    SELECT objects without 'Toll' / type= 'LKW' or 'PWK'
                     if (value.f3.equals("none")) {
                         if (value.f4.equals("LKW")) {
                             return true;
@@ -106,7 +111,7 @@ public class TrafficUC4TollValidation {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
 

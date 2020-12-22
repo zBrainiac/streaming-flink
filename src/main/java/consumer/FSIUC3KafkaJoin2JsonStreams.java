@@ -16,6 +16,8 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -37,17 +39,19 @@ import java.util.Properties;
 
 public class FSIUC3KafkaJoin2JsonStreams {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FSIUC3KafkaJoin2JsonStreams.class);
+
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
-            if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
+        if( args.length == 1 ) {
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
         String use_case_id = "fsi-uc3_TrxFxCombined";
@@ -77,7 +81,7 @@ public class FSIUC3KafkaJoin2JsonStreams {
         DataStream<String> fxStream = env.addSource(
                 new FlinkKafkaConsumer<>("fxRate", new SimpleStringSchema(), properties));
 
-        fxStream.print("DataStream - fx");
+        //fxStream.print("DataStream - fx");
 
         DataStream<String> trxStream = env.addSource(
                 new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
@@ -119,7 +123,7 @@ public class FSIUC3KafkaJoin2JsonStreams {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
     public static final class Tokenizer implements FlatMapFunction<String, JSONObject> {

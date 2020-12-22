@@ -17,6 +17,8 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -38,21 +40,23 @@ import java.util.Properties;
 
 public class TrafficUC7EventDispatcher {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TrafficUC7EventDispatcher.class);
+
     private static String brokerURI = "localhost:9092";
     private static String topicPrefix = "result_";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
-        String use_case_id = "Traffic_UC7_IOTRaw_Consumer_EventDispatcher";
+        String use_case_id = "traffic_uc7_IOTRaw_Consumer_EventDispatcher";
         String topicVendorA = topicPrefix + use_case_id + "VendorA";
         String topicVendorB = topicPrefix + use_case_id + "VendorB";
         String topicVendorX = topicPrefix + use_case_id + "VendorX";
@@ -78,7 +82,7 @@ public class TrafficUC7EventDispatcher {
         DataStream<String> iotStream = env.addSource(
                 new FlinkKafkaConsumer<>("TrafficIOTRaw", new SimpleStringSchema(), properties));
 
-        iotStream.print("input message: ");
+        /* iotStream.print("input message: "); */
 
         DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
                 .flatMap(new TrxJSONDeserializer())
@@ -139,7 +143,7 @@ public class TrafficUC7EventDispatcher {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
 

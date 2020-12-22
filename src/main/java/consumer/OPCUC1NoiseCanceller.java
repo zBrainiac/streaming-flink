@@ -20,6 +20,8 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -29,27 +31,29 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.OPCNoiseCanceller -ynm OPCNoiseCanceller lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.OPCUC1NoiseCanceller -ynm OPCUC1NoiseCanceller lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.OPCNoiseCanceller
+ *    java -classpath streaming-flink-0.3.0.1.jar consumer.OPCUC1NoiseCanceller
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class OPCNoiseCanceller {
+public class OPCUC1NoiseCanceller {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OPCUC1NoiseCanceller.class);
 
     private static String brokerURI = "localhost:9092";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
+            String parm = "'use program argument parm: URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
+            String parm = "'use default URI' = " + brokerURI;
+            LOG.info("Program prop set {}", parm);
         }
 
         String use_case_id = "opc_UC1_NoiseCanceller";
@@ -107,7 +111,7 @@ public class OPCNoiseCanceller {
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
         JobID jobId = result.getJobID();
-        System.err.println("jobId=" + jobId);
+        LOG.info("Job_id {}", jobId);
     }
 
 
@@ -121,8 +125,10 @@ public class OPCNoiseCanceller {
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // get sensor_ts, sensor_id, sensor_0 AND sensor_1 from JSONObject
-            // {"val":"-0.813473","tagname":"Sinusoid","unit":"Hydrocracker","ts":"2020-03-13T11:17:53Z"}
+            /*
+             get sensor_ts, sensor_id, sensor_0 AND sensor_1 from JSONObject
+             {"val":"-0.813473","tagname":"Sinusoid","unit":"Hydrocracker","ts":"2020-03-13T11:17:53Z"}
+            */
 
             String ts = jsonNode.get("ts").asText();
             String opc_tag = jsonNode.get("tagname").asText();
@@ -162,13 +168,13 @@ public class OPCNoiseCanceller {
 
         public Tuple4<String, String, Double, Integer> reduce(Tuple4<String, String, Double, Integer> current, Tuple4<String, String, Double, Integer> pre_result) throws Exception {
 /*
-            System.out.println("reducefunc f0: " + current.f0);
-            System.out.println("reducefunc f1: " + current.f1);
-            System.out.println("reducefunc f2: " + current.f2);
-            System.out.println("reducefunc f2 pre_result: " + pre_result.f2);
-            System.out.println("reducefunc f3 new: " + current.f3);
-            System.out.println("reducefunc f3 pre_result: " + pre_result.f3);
- */
+ System.out.println("reducefunc f0: " + current.f0);
+ System.out.println("reducefunc f1: " + current.f1);
+ System.out.println("reducefunc f2: " + current.f2);
+ System.out.println("reducefunc f2 pre_result: " + pre_result.f2);
+ System.out.println("reducefunc f3 new: " + current.f3);
+ System.out.println("reducefunc f3 pre_result: " + pre_result.f3);
+*/
             return new Tuple4<>(current.f0, current.f1, (current.f2 + pre_result.f2) / (current.f3 + pre_result.f3), current.f3 + pre_result.f3);
         }
     }
