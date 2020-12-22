@@ -1,11 +1,12 @@
 package producer;
 
 import org.apache.kafka.clients.producer.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -21,29 +22,26 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 
 public class KafkaIOTSimpleKVProducer {
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaIOTSimpleKVProducer.class);
+    private static final String LOGGERMSG = "Program prop set {}";
     private static String brokerURI = "localhost:9092";
-    private static long sleeptime;
+    private static long sleeptime = 1000;
 
     public static void main(String[] args) throws Exception {
 
-            if( args.length == 1 ) {
-                System.err.println("case 'customized URI':");
-                brokerURI = args[0];
-                System.err.println("arg URL: " + brokerURI);
-                setsleeptime(1000);
-                System.err.println("default sleeptime (ms): " + sleeptime);
-            } else if( args.length == 2 ) {
-                System.err.println("case 'customized URI & time':");
-                brokerURI = args[0];
-                setsleeptime(Long.parseLong(args[1]));
-                System.err.println("arg URL: " + brokerURI);
-                System.err.println("sleeptime (ms): " + sleeptime);
-            }else {
-                System.err.println("case default");
-                System.err.println("default URI: " + brokerURI);
-                setsleeptime(1000);
-                System.err.println("default sleeptime (ms): " + sleeptime);
-            }
+        if (args.length == 1) {
+            brokerURI = args[0];
+            String parm = "'use customized URI' = " + brokerURI + " & 'use default sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
+        } else if (args.length == 2) {
+            brokerURI = args[0];
+            setsleeptime(Long.parseLong(args[1]));
+            String parm = "'use customized URI' = " + brokerURI + " & 'use customized sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
+        } else {
+            String parm = "'use default URI' = " + brokerURI + " & 'use default sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
+        }
 
         //properties for producer
         Properties config = new Properties();
@@ -72,7 +70,8 @@ public class KafkaIOTSimpleKVProducer {
                 );
                 producer.send(record);
 
-                System.err.println("Published " + record.topic() + "/" + record.partition() + "/" + " (key=" + record.key() + ") : " + record.value());
+                System.err.println("Published " + record.topic() + "/" + record.partition() + "/"
+                        + " (key=" + record.key() + ") : " + record.value());
                 Thread.sleep(sleeptime);
             }
         }

@@ -5,9 +5,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Properties;
+import java.util.Random;
+import java.util.UUID;
 
 
 /**
@@ -20,31 +24,28 @@ import java.util.*;
  */
 
 public class KafkaJsonProducerFX {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Random random = new SecureRandom();
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaJsonProducerFX.class);
+    private static final Random random = new SecureRandom();
+    private static final String LOGGERMSG = "Program prop set {}";
     private static String brokerURI = "localhost:9092";
-    private static long sleeptime;
+    private static long sleeptime = 1000;
 
     public static void main(String[] args) throws Exception {
 
-        if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
+        if (args.length == 1) {
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
-            setsleeptime(1000);
-            System.err.println("default sleeptime (ms): " + sleeptime);
-        } else if( args.length == 2 ) {
-            System.err.println("case 'customized URI & time':");
+            String parm = "'use customized URI' = " + brokerURI + " & 'use default sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
+        } else if (args.length == 2) {
             brokerURI = args[0];
             setsleeptime(Long.parseLong(args[1]));
-            System.err.println("arg URL: " + brokerURI);
-            System.err.println("sleeptime (ms): " + sleeptime);
-        }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
-            setsleeptime(1000);
-            System.err.println("default sleeptime (ms): " + sleeptime);
+            String parm = "'use customized URI' = " + brokerURI + " & 'use customized sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
+        } else {
+            String parm = "'use default URI' = " + brokerURI + " & 'use default sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
         }
 
         try (Producer<String, byte[]> producer = createProducer()) {
@@ -88,50 +89,51 @@ public class KafkaJsonProducerFX {
         report.put("timestamp", System.currentTimeMillis());
 
         String fxRate = "fx_rate";
+        String fx_target = "fx_target";
         switch (i) {
             case 0:
                 report.put("fx", "CHF");
                 report.put(fxRate, 1.00);
-                report.put("fx_target", "CHF");
+                report.put(fx_target, "CHF");
                 break;
             case 1:
                 report.put("fx", "CHF");
-                report.put("fx_target", "USD");
+                report.put(fx_target, "USD");
                 report.put(fxRate, (random.nextInt(20) + 90) / 100.0);
                 break;
             case 2:
                 report.put("fx", "CHF");
-                report.put("fx_target", "EUR");
+                report.put(fx_target, "EUR");
                 report.put(fxRate, (random.nextInt(20) + 90) / 100.0);
                 break;
             case 3:
                 report.put("fx", "EUR");
                 report.put(fxRate, 1.00);
-                report.put("fx_target", "EUR");
+                report.put(fx_target, "EUR");
                 break;
             case 4:
                 report.put("fx", "EUR");
-                report.put("fx_target", "USD");
+                report.put(fx_target, "USD");
                 report.put(fxRate, (random.nextInt(20) + 90) / 100.0);
                 break;
             case 5:
                 report.put("fx", "EUR");
-                report.put("fx_target", "CHF");
+                report.put(fx_target, "CHF");
                 report.put(fxRate, (random.nextInt(20) + 90) / 100.0);
                 break;
             case 6:
                 report.put("fx", "USD");
                 report.put(fxRate, 1.00);
-                report.put("fx_target", "USD");
+                report.put(fx_target, "USD");
                 break;
             case 7:
                 report.put("fx", "USD");
-                report.put("fx_target", "CHF");
+                report.put(fx_target, "CHF");
                 report.put(fxRate, (random.nextInt(20) + 90) / 100.0);
                 break;
             case 8:
                 report.put("fx", "USD");
-                report.put("fx_target", "EUR");
+                report.put(fx_target, "EUR");
                 report.put(fxRate, (random.nextInt(20) + 90) / 100.0);
                 break;
             default:

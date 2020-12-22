@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -15,8 +17,8 @@ import static java.util.Collections.unmodifiableList;
 
 /**
  * run:
- *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.3.0.1.jar producer.KafkaOPCSimulator localhost:9092
+ * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
+ * java -classpath streaming-flink-0.3.0.1.jar producer.KafkaOPCSimulator localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -24,34 +26,31 @@ import static java.util.Collections.unmodifiableList;
 
 public class KafkaOPCSimulator {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaOPCSimulator.class);
     private static final Random random = new SecureRandom();
+    private static final String LOGGERMSG = "Program prop set {}";
     private static final List<String> tagname_list = unmodifiableList(Arrays.asList(
             "Triangle1", "Triangle4711", "Sinusoid", "Sawtooth"));
     private static final List<String> unit_list = unmodifiableList(Arrays.asList(
             "opc1", "opc2", "opc_APAC", "Hydrocracker"));
 
     private static String brokerURI = "localhost:9092";
-    private static long sleeptime;
+    private static long sleeptime = 1000;
 
     public static void main(String[] args) throws Exception {
 
-        if( args.length == 1 ) {
-            System.err.println("case 'customized URI':");
+        if (args.length == 1) {
             brokerURI = args[0];
-            System.err.println("arg URL: " + brokerURI);
-            setsleeptime(1000);
-            System.err.println("default sleeptime (ms): " + sleeptime);
-        } else if( args.length == 2 ) {
-            System.err.println("case 'customized URI & time':");
+            String parm = "'use customized URI' = " + brokerURI + " & 'use default sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
+        } else if (args.length == 2) {
             brokerURI = args[0];
             setsleeptime(Long.parseLong(args[1]));
-            System.err.println("arg URL: " + brokerURI);
-            System.err.println("sleeptime (ms): " + sleeptime);
-        }else {
-            System.err.println("case default");
-            System.err.println("default URI: " + brokerURI);
-            setsleeptime(1000);
-            System.err.println("default sleeptime (ms): " + sleeptime);
+            String parm = "'use customized URI' = " + brokerURI + " & 'use customized sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
+        } else {
+            String parm = "'use default URI' = " + brokerURI + " & 'use default sleeptime' = " + sleeptime;
+            LOG.info(LOGGERMSG, parm);
         }
 
         try (Producer<String, byte[]> producer = createProducer()) {
@@ -66,7 +65,7 @@ public class KafkaOPCSimulator {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
         config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-OPC");
-        config.put(ProducerConfig.ACKS_CONFIG,"1");
+        config.put(ProducerConfig.ACKS_CONFIG, "1");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
         config.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
