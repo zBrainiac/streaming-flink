@@ -29,7 +29,7 @@ java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC3ConsumerSplitt
 
 ### Download release:  
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.0/streaming-flink-0.3.1.0.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.1/streaming-flink-0.3.1.0.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
 ### Upload release: 
 scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.3.1.0.jar centos@52.59.200.19:/tmp  

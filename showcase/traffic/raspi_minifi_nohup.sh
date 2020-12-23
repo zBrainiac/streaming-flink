@@ -11,7 +11,7 @@ sudo apt-get update
 sudo apt-get install mosquitto mosquitto-clients -y
 sudo systemctl start mosquitto
 
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.0/streaming-flink-0.3.1.0.jar
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.1/streaming-flink-0.3.1.0.jar
 
 echo "-- Download and install MQTT Processor NAR file"
 sudo retry_if_needed 5 5 "wget --progress=dot:giga https://repo1.maven.org/maven2/org/apache/nifi/nifi-mqtt-nar/1.8.0/nifi-mqtt-nar-1.8.0.nar -P /home/pi/minifi-0.6.0.1.2.1.0-23/lib"
