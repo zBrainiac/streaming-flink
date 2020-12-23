@@ -31,9 +31,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC5ConsumerCSVSQLFilter -ynm IoTUC5ConsumerCSVSQLFilter lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC5ConsumerCSVSQLFilter -ynm IoTUC5ConsumerCSVSQLFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTUC5ConsumerCSVSQLFilter
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC5ConsumerCSVSQLFilter
  *
  * @author Marcel Daeppen
  * @version 2020/08/22 12:14
@@ -43,17 +43,17 @@ public class IoTUC5ConsumerCSVSQLFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(IoTUC5ConsumerCSVSQLFilter.class);
     private static String brokerURI = "localhost:9092";
-    private static String loggerMsg = "Program prop set {}";
+    private static final String LOGGERMSG = "Program prop set {}";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use program argument parm: URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }
 
         String use_case_id = "iot_uc5_SQL_Filter";

@@ -30,9 +30,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
@@ -42,7 +42,7 @@ public class IoTUC9SQLLookupJSON {
 
     private static final Logger LOG = LoggerFactory.getLogger(IoTUC9SQLLookupJSON.class);
     private static String brokerURI = "localhost:9092";
-    private static String loggerMsg = "Program prop set {}";
+    private static final String LOGGERMSG = "Program prop set {}";
     private static String lookupCSV = "data/lookupHeader.csv";
 
     public static void main(String[] args) throws Exception {
@@ -50,15 +50,15 @@ public class IoTUC9SQLLookupJSON {
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else if( args.length == 2 ) {
             brokerURI = args[0];
             lookupCSV = args[1];
             String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV ;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }
 
         String use_case_id = "ioi_uc9_SQL_Lookup_JSON";

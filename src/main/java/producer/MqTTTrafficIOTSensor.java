@@ -13,7 +13,7 @@ import java.util.Random;
 /**
  * run:
  * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- * java -classpath streaming-flink-0.3.0.1.jar producer.MqTTTrafficIOTSensor tcp://localhost:1883
+ * java -classpath streaming-flink-0.3.1.0.jar producer.MqTTTrafficIOTSensor tcp://localhost:1883
  *
  * output:
  * {"sensor_ts":1598712320504,"sensor_id":10,"temp":16,"rain_level":0,"visibility_level":2}

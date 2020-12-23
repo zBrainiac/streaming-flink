@@ -30,9 +30,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm FSIUC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm FSIUC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC6KafkaccTrxFraud
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC6KafkaccTrxFraud
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -42,17 +42,17 @@ public class FSIUC6KafkaccTrxFraud {
 
     private static final Logger LOG = LoggerFactory.getLogger(FSIUC6KafkaccTrxFraud.class);
     private static String brokerURI = "localhost:9092";
-    private static String loggerMsg = "Program prop set {}";
+    private static final String LOGGERMSG = "Program prop set {}";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use program argument parm: URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }
 
         String use_case_id = "fsi-uc6_trx_fraudDedection";

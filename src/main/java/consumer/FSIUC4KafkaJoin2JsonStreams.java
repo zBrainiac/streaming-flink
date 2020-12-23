@@ -31,7 +31,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC3KafkaJoin2JsonStreams
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC3KafkaJoin2JsonStreams
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14
@@ -41,17 +41,17 @@ public class FSIUC4KafkaJoin2JsonStreams {
 
     private static final Logger LOG = LoggerFactory.getLogger(FSIUC4KafkaJoin2JsonStreams.class);
     private static String brokerURI = "localhost:9092";
-    private static String loggerMsg = "Program prop set {}";
+    private static final String LOGGERMSG = "Program prop set {}";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use program argument parm: URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }
 
         String use_case_id = "fsi-uc4_TrxFxCombined";

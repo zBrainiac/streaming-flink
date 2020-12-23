@@ -29,10 +29,10 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.TrafficUC7EventDispatcher
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.TrafficUC7EventDispatcher
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -42,7 +42,7 @@ public class TrafficUC7EventDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrafficUC7EventDispatcher.class);
     private static String brokerURI = "localhost:9092";
-    private static String loggerMsg = "Program prop set {}";
+    private static final String LOGGERMSG = "Program prop set {}";
     private static String topicPrefix = "result_";
 
     public static void main(String[] args) throws Exception {
@@ -50,10 +50,10 @@ public class TrafficUC7EventDispatcher {
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use program argument parm: URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }
 
         String use_case_id = "traffic_uc7_IOTRaw_Consumer_EventDispatcher";

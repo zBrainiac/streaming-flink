@@ -32,10 +32,10 @@ import java.util.Properties;
  *
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
- * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
- * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
  *
- * java -classpath streaming-flink-0.3.0.1.jar consumer.TrafficUC1CountSensorTyp
+ * java -classpath streaming-flink-0.3.1.0.jar consumer.TrafficUC1CountSensorTyp
  *
  * @author Marcel Daeppen
  * @version 2020/08/08 12:14
@@ -45,17 +45,17 @@ public class TrafficUC1CountSensorTyp {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrafficUC1CountSensorTyp.class);
     private static String brokerURI = "localhost:9092";
-    private static String loggerMsg = "Program prop set {}";
+    private static final String LOGGERMSG = "Program prop set {}";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use program argument parm: URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }
 
         String use_case_id = "traffic_uc1_CountSensorTyp";

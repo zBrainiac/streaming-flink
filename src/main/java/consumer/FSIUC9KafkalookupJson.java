@@ -30,9 +30,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC9KafkalookupJson -ynm FSIUC9KafkalookupJson lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC9KafkalookupJson -ynm FSIUC9KafkalookupJson lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC9KafkalookupJson edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC9KafkalookupJson -ynm FSIUC9KafkalookupJson lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC9KafkalookupJson -ynm FSIUC9KafkalookupJson lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC9KafkalookupJson edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
@@ -44,22 +44,22 @@ public class FSIUC9KafkalookupJson {
 
     private static String brokerURI = "localhost:9092";
     private static String lookupCSV = "data/lookupHeader.csv";
-    private static String loggerMsg = "Program prop set {}";
+    private static final String LOGGERMSG = "Program prop set {}";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else if( args.length == 2 ) {
             brokerURI = args[0];
             lookupCSV = args[1];
             String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV ;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }
 
         String use_case_id = "fsi_uc9_SQL_Lookup_JSON";

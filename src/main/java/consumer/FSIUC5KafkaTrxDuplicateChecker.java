@@ -29,9 +29,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm FSIUC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.3.0.1.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm FSIUC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.0.1.jar consumer.FSIUC5KafkaTrxDuplicateChecker
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC5KafkaTrxDuplicateChecker
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -41,17 +41,17 @@ public class FSIUC5KafkaTrxDuplicateChecker {
 
     private static final Logger LOG = LoggerFactory.getLogger(FSIUC5KafkaTrxDuplicateChecker.class);
     private static String brokerURI = "localhost:9092";
-    private static String loggerMsg = "Program prop set {}";
+    private static final String LOGGERMSG = "Program prop set {}";
 
     public static void main(String[] args) throws Exception {
 
         if( args.length == 1 ) {
             brokerURI = args[0];
             String parm = "'use program argument parm: URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }else {
             String parm = "'use default URI' = " + brokerURI;
-            LOG.info(loggerMsg, parm);
+            LOG.info(LOGGERMSG, parm);
         }
 
         String use_case_id = "fsi-uc5_trx_duplicated_check";

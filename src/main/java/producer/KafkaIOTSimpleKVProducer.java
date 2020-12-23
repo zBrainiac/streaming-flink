@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.3.0.1.jar producer.KafkaIOTSimpleKVProducer localhost:9092
+ *   java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSimpleKVProducer localhost:9092
  *
  * output:
  *  unixTime: 1596953939783, sensor_id: 1, id: ba292ff6-e4db-4776-b70e-2b49edfb6726, Test Message: bliblablub #33
