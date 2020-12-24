@@ -13,3 +13,4 @@ dependency-reduced-pom.xml
 /showcase/kafkaISR/config/zookeeper2.properties.dynamic.next
 /showcase/kafkaISR/config/zookeeper3.properties.dynamic.next
 /venv/
+/data/output/

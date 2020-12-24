@@ -226,7 +226,7 @@ under the License.
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>consumer.IoTUC1ConsumerCount</mainClass>
+                                    <mainClass>consumer.IoTUC1CountEventsPerSensorId</mainClass>
                                 </transformer>
                                 <!-- append default configs -->
                                 <transformer

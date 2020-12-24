@@ -22,9 +22,9 @@ bin/kafka-server-start.sh config/server.properties
 ```
 cd streaming-flink 
 java -classpath target/streaming-flink-0.3.1.0.jar producer.KafkaIOTSensorSimulator
-java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC1ConsumerCount  
-java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC2ConsumerFilter
-java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC3ConsumerSplitter
+java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC1CountEventsPerSensorId  
+java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC2CountEventsPerSensorIdFilter
+java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC3CountEventsPerSensorIdSplitter
 ```
 
 ### Download release:  
@@ -218,9 +218,9 @@ cd /opt/cloudera/parcels/FLINK
 ```
 ### iot
 ```
-./bin/flink run -m yarn-cluster -c consumer.IoTUC1ConsumerCount -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.IoTUC2ConsumerFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.IoTUC3ConsumerSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC1CountEventsPerSensorId -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC2CountEventsPerSensorIdFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC3CountEventsPerSensorIdSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTCsvConsumerSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.IoTUC6ConsumerCSVSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 
 ```

@@ -55,7 +55,7 @@ public class IoTUC4JoinStreams {
             LOG.info(LOGGERMSG, parm);
         }
 
-        String use_case_id = "iot-Join_IoTandCSV";
+        String use_case_id = "iot_uc4_Join_IoT_and_IOT-CSV";
         String topic = "result_" + use_case_id ;
 
         // set up the streaming execution environment

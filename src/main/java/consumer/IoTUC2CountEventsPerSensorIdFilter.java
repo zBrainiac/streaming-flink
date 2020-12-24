@@ -28,17 +28,17 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC2ConsumerFilter -ynm IoTUC2ConsumerFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC2CountEventsPerSensorIdFilter -ynm IoTUC2CountEventsPerSensorIdFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC2ConsumerFilter
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC2CountEventsPerSensorIdFilter
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class IoTUC2ConsumerFilter {
+public class IoTUC2CountEventsPerSensorIdFilter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IoTUC2ConsumerFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IoTUC2CountEventsPerSensorIdFilter.class);
     private static String brokerURI = "localhost:9092";
     private static final String LOGGERMSG = "Program prop set {}";
 
@@ -53,7 +53,7 @@ public class IoTUC2ConsumerFilter {
             LOG.info(LOGGERMSG, parm);
         }
 
-        String use_case_id = "iot_uc2_Consumer_Filter";
+        String use_case_id = "iot_uc1_Count_EventsPerSensorIdFilter";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment

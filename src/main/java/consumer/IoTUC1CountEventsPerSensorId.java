@@ -2,7 +2,6 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -29,17 +28,17 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC3ConsumerSplitter -ynm IoTUC3ConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC1CountEventsPerSensorId -ynm IoTUC1CountEventsPerSensorId lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC3ConsumerSplitter
+ *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC1CountEventsPerSensorId
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class IoTUC3ConsumerSplitter {
+public class IoTUC1CountEventsPerSensorId {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IoTUC3ConsumerSplitter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IoTUC1CountEventsPerSensorId.class);
     private static String brokerURI = "localhost:9092";
     private static final String LOGGERMSG = "Program prop set {}";
 
@@ -54,13 +53,12 @@ public class IoTUC3ConsumerSplitter {
             LOG.info(LOGGERMSG, parm);
         }
 
-        String use_case_id = "iot_uc3_Consumer_Splitter";
-        String topicVendorA = "result_" + use_case_id + "VendorA";
-        String topicVendorB = "result_" + use_case_id + "VendorB";
-        String topicVendorX = "result_" + use_case_id + "VendorX";
+        String use_case_id = "iot_uc1_Count_EventsPerSensorId";
+        String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.enableCheckpointing(5000); // checkpoint every 5000 msecs
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         Properties properties = new Properties();
@@ -87,53 +85,13 @@ public class IoTUC3ConsumerSplitter {
                 .keyBy(1) // sensor_id
                 .sum(4);
 
-        // Split A //
-        DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> splittedStreamA = aggStream
-                .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) throws Exception {
-                        return value.f1 == 1 || value.f1 == 3;
-                    }
-                });
-        splittedStreamA.print("splitted StreamA :");
+        aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerA = new FlinkKafkaProducer<>(
-                topicVendorA, new SerializeSum2String(), propertiesProducer);
+        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducer = new FlinkKafkaProducer<>(
+                topic, new SerializeSum2String(), propertiesProducer);
 
-        splittedStreamA.addSink(myProducerA);
-
-        // Split B //
-        DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> splittedStreamB = aggStream
-                .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) throws Exception {
-                        return value.f1 == 2 || value.f1 == 4 || value.f1 == 9;
-                    }
-                });
-        splittedStreamB.print("splitted StreamB :");
-
-        // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerB = new FlinkKafkaProducer<>(
-                topicVendorB, new SerializeSum2String(), propertiesProducer);
-
-        splittedStreamB.addSink(myProducerB);
-
-        // Split X //
-        DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> splittedStreamX = aggStream
-                .filter(new FilterFunction<Tuple5<Long, Integer, Integer, Integer, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple5<Long, Integer, Integer, Integer, Integer> value) throws Exception {
-                        return value.f1 == 5 || value.f1 == 7 || value.f1 == 6 || value.f1 == 8;
-                    }
-                });
-        splittedStreamX.print("splitted StreamX :");
-
-        // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple5<Long, Integer, Integer, Integer, Integer>> myProducerX = new FlinkKafkaProducer<>(
-                topicVendorX, new SerializeSum2String(), propertiesProducer);
-
-        splittedStreamX.addSink(myProducerX);
+        aggStream.addSink(myProducer);
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);
@@ -158,7 +116,6 @@ public class IoTUC3ConsumerSplitter {
             Integer sensor_0 = jsonNode.get("sensor_0").asInt();
             Integer sensor_1 = jsonNode.get("sensor_1").asInt();
             out.collect(new Tuple5<>(sensor_ts, sensor_id, sensor_0, sensor_1, 1));
-
         }
 
     }
@@ -173,10 +130,10 @@ public class IoTUC3ConsumerSplitter {
         public byte[] serializeValue(Tuple5 value) {
 
             String str = "{"
-                    + "\"type\"" + ":" + "\"alerts for vendor\""
+                    + "\"type\"" + ":" + "\"counter by sensor_id\""
                     + "," + "\"sensor_ts_start\"" + ":" + value.getField(0).toString()
                     + "," + "\"sensor_id\"" + ":" + value.getField(1).toString()
-                    + "," + "\"sensor_0\"" + ":" + value.getField(2).toString() + "}";
+                    + "," + "\"counter\"" + ":" + value.getField(4).toString() + "}";
             return str.getBytes();
         }
 

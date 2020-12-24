@@ -27,12 +27,12 @@ import java.util.Properties;
 
 /**
  * iotStream: 1598101297091, 1, 16bc7e63-95bc-424b-a5d5-69b5bee9644e, Test Message #1186
- *
+ * <p>
  * run:
- *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
+ * cd /opt/cloudera/parcels/FLINK &&
+ * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
+ * java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
@@ -41,23 +41,23 @@ import java.util.Properties;
 public class IoTUC9SQLLookupJSON {
 
     private static final Logger LOG = LoggerFactory.getLogger(IoTUC9SQLLookupJSON.class);
-    private static String brokerURI = "localhost:9092";
     private static final String LOGGERMSG = "Program prop set {}";
+    private static String brokerURI = "localhost:9092";
     private static String lookupCSV = "data/lookupHeader.csv";
 
     public static void main(String[] args) throws Exception {
 
-        if( args.length == 1 ) {
+        if (args.length == 1) {
             brokerURI = args[0];
-            String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
+            String parm = "'use customized URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV;
             LOG.info(LOGGERMSG, parm);
-        }else if( args.length == 2 ) {
+        } else if (args.length == 2) {
             brokerURI = args[0];
             lookupCSV = args[1];
-            String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV ;
+            String parm = "'use customized URI' = " + brokerURI + " & 'use customized lookup file location' = " + lookupCSV;
             LOG.info(LOGGERMSG, parm);
-        }else {
-            String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV ;
+        } else {
+            String parm = "'use default URI' = " + brokerURI + " & 'use default lookup file location' = " + lookupCSV;
             LOG.info(LOGGERMSG, parm);
         }
 
@@ -175,6 +175,7 @@ public class IoTUC9SQLLookupJSON {
         public byte[] serializeKey(Row element) {
             return (null);
         }
+
         @Override
         public byte[] serializeValue(Row value) {
             String str = "{"
@@ -185,7 +186,7 @@ public class IoTUC9SQLLookupJSON {
                     + "," + "\"sensor_0\"" + ":" + value.getField(2)
                     + "," + "\"sensor_1\"" + ":" + value.getField(3)
                     + "," + "\"sensor_3\"" + ":" + value.getField(4)
-                    + "," + "\"city\"" + ":"+ "\"" + value.getField(5).toString().trim() + "\""
+                    + "," + "\"city\"" + ":" + "\"" + value.getField(5).toString().trim() + "\""
                     + "," + "\"lat\"" + ":" + value.getField(6)
                     + "," + "\"long\"" + ":" + value.getField(7) + "}";
             return str.getBytes();

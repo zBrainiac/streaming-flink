@@ -56,7 +56,7 @@ public class OPCUC1NoiseCanceller {
             LOG.info(LOGGERMSG, parm);
         }
 
-        String use_case_id = "opc_UC1_NoiseCanceller";
+        String use_case_id = "opc_uc1_NoiseCanceller";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment

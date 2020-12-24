@@ -39,7 +39,7 @@ public class MqTTTrafficCollector {
     private static final List<String> license_plate_country = unmodifiableList(Arrays.asList(
             "AT", "CH", "DE"));
 
-    private static final List<String> toll_typ = unmodifiableList(Arrays.asList(
+    private static final List<String> toll_duration = unmodifiableList(Arrays.asList(
             "none", "10-day", "2-month", "Annual"));
 
     public static void main(String[] args) {
@@ -82,41 +82,51 @@ public class MqTTTrafficCollector {
                 for (int i = 0; i < 1000000; i++) {
                     MqttMessage message = new MqttMessage();
                     int s = itemTyp.getRandom();
+
+                    String sensor_ts = "\"sensor_ts\"" ;
+                    String sensor_id = "\"sensor_id\"" ;
+                    String probability = "\"probability\"" ;
+                    String sensor_x = "\"sensor_x\"" ;
+                    String typ = "\"typ\"" ;
+                    String light = "\"light\"" ;
+                    String license_plate = "\"license_plate\"" ;
+                    String toll_typ = "\"toll_typ\"";
+
                     switch (s) {
                         case 0:
                             message.setPayload(("{"
-                                    + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
-                                    + "," + "\"sensor_id\"" + ":" + sensorDrops.getRandom()
-                                    + "," + "\"probability\"" + ":" + random.nextInt(49) + 50
-                                    + "," + "\"sensor_x\"" + ":" + random.nextInt(11)
-                                    + "," + "\"typ\"" + ":" + "\"" + "Bike" + "\""
-                                    + "," + "\"light\"" + ":" + random.nextBoolean()
-                                    + "," + "\"license_plate\"" + ":" + "\"" + "n/a" + "\""
-                                    + "," + "\"toll_typ\"" + ":" + "\"" + "n/a" + "\""
+                                    + sensor_ts + ":" + Instant.now().toEpochMilli()
+                                    + "," + sensor_id + ":" + sensorDrops.getRandom()
+                                    + "," + probability + ":" + random.nextInt(49) + 50
+                                    + "," + sensor_x + ":" + random.nextInt(11)
+                                    + "," + typ + ":" + "\"" + "Bike" + "\""
+                                    + "," + light + ":" + random.nextBoolean()
+                                    + "," + license_plate + ":" + "\"" + "n/a" + "\""
+                                    + "," + toll_typ + ":" + "\"" + "n/a" + "\""
                                     + "}").getBytes());
                             break;
                         case 1:
                             message.setPayload(("{"
-                                    + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
-                                    + "," + "\"sensor_id\"" + ":" + sensorDrops.getRandom()
-                                    + "," + "\"probability\"" + ":" + random.nextInt(49) + 50
-                                    + "," + "\"sensor_x\"" + ":" + random.nextInt(11)
-                                    + "," + "\"typ\"" + ":" + "\"" + "LKW" + "\""
-                                    + "," + "\"light\"" + ":" + random.nextBoolean()
-                                    + "," + "\"license_plate\"" + ":" + "\"" + license_plate_country.get(random.nextInt(license_plate_country.size())) +" "+ (random.nextInt(998 + 1 - 50) + 50) + "-" + (random.nextInt(8999) + 1000) + "\""
-                                    + "," + "\"toll_typ\"" + ":" + "\"" + toll_typ.get(random.nextInt(toll_typ.size())) + "\""
+                                    + sensor_ts + ":" + Instant.now().toEpochMilli()
+                                    + "," + sensor_id + ":" + sensorDrops.getRandom()
+                                    + "," + probability + ":" + random.nextInt(49) + 50
+                                    + "," + sensor_x + ":" + random.nextInt(11)
+                                    + "," + typ + ":" + "\"" + "LKW" + "\""
+                                    + "," + light + ":" + random.nextBoolean()
+                                    + "," + license_plate + ":" + "\"" + license_plate_country.get(random.nextInt(license_plate_country.size())) +" "+ (random.nextInt(998 + 1 - 50) + 50) + "-" + (random.nextInt(8999) + 1000) + "\""
+                                    + "," + toll_typ + ":" + "\"" + toll_duration.get(random.nextInt(toll_duration.size())) + "\""
                                     + "}").getBytes());
                             break;
                         case 2:
                             message.setPayload(("{"
-                                    + "\"sensor_ts\"" + ":" + Instant.now().toEpochMilli()
-                                    + "," + "\"sensor_id\"" + ":" + sensorDrops.getRandom()
-                                    + "," + "\"probability\"" + ":" + random.nextInt(49) + 50
-                                    + "," + "\"sensor_x\"" + ":" + random.nextInt(11)
-                                    + "," + "\"typ\"" + ":" + "\"" + "PKW" + "\""
-                                    + "," + "\"light\"" + ":" + random.nextBoolean()
-                                    + "," + "\"license_plate\"" + ":" + "\"" + license_plate_country.get(random.nextInt(license_plate_country.size())) +" "+ (random.nextInt(998 + 1 - 50) + 50) + "-" + (random.nextInt(8999) + 1000) + "\""
-                                    + "," + "\"toll_typ\"" + ":" + "\"" + toll_typ.get(random.nextInt(toll_typ.size())) + "\""
+                                    + sensor_ts + ":" + Instant.now().toEpochMilli()
+                                    + "," + sensor_id + ":" + sensorDrops.getRandom()
+                                    + "," + probability + ":" + random.nextInt(49) + 50
+                                    + "," + sensor_x + ":" + random.nextInt(11)
+                                    + "," + typ + ":" + "\"" + "PKW" + "\""
+                                    + "," + light + ":" + random.nextBoolean()
+                                    + "," + license_plate + ":" + "\"" + license_plate_country.get(random.nextInt(license_plate_country.size())) +" "+ (random.nextInt(998 + 1 - 50) + 50) + "-" + (random.nextInt(8999) + 1000) + "\""
+                                    + "," + toll_typ + ":" + "\"" + toll_duration.get(random.nextInt(toll_duration.size())) + "\""
                                     + "}").getBytes());
                             break;
                         default:
