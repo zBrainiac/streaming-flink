@@ -95,11 +95,11 @@ public class TrafficUC5Join {
         DataStream<JSONObject> iot =
                 iotStream.flatMap(new Tokenizer());
 
-        iot.print("test iot: ");
+        iot.print("Test iot: ");
 
         DataStream<JSONObject> traffic =
                 trafficStream.flatMap(new Tokenizer());
-        traffic.print("test fx: ");
+        traffic.print("Test fx: ");
 
         DataStream<String> joinedString = traffic.join(iot)
                 .where(new NameKeySelector())

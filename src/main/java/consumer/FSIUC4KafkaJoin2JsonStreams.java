@@ -90,7 +90,7 @@ public class FSIUC4KafkaJoin2JsonStreams {
         DataStream<JSONObject> trx =
                 trxStream.flatMap(new Tokenizer());
 
-        // trx.print("test");
+        // trx.print("Test");
 
         DataStream<JSONObject> fx =
                 fxStream.flatMap(new Tokenizer());

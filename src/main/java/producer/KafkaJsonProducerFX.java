@@ -59,7 +59,7 @@ public class KafkaJsonProducerFX {
     private static Producer<String, byte[]> createProducer() {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-FX");
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-FXRate");
         config.put(ProducerConfig.ACKS_CONFIG,"1");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());

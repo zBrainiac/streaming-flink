@@ -121,7 +121,6 @@ under the License.
                     <artifactId>log4j-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
-
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
@@ -167,14 +166,19 @@ under the License.
             <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
-    <!-- https://mvnrepository.com/artifact/com.hortonworks.registries/schema-registry -->
-    <dependency>
-        <groupId>com.hortonworks.registries</groupId>
-        <artifactId>schema-registry</artifactId>
-        <version>0.9.1</version>
-        <type>pom</type>
-    </dependency>
-
+        <!-- https://mvnrepository.com/artifact/com.hortonworks.registries/schema-registry -->
+        <dependency>
+            <groupId>com.hortonworks.registries</groupId>
+            <artifactId>schema-registry</artifactId>
+            <version>0.9.1</version>
+            <type>pom</type>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.oshi/oshi-core -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>5.3.7</version>
+        </dependency>
     </dependencies>
 
     <build>

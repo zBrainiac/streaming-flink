@@ -91,13 +91,13 @@ public class FSIUC3KafkaJoin2JsonStreams {
         DataStream<JSONObject> trx =
                 trxStream.flatMap(new Tokenizer());
 
-        //trx.print("test");
+        //trx.print("Test");
 
         DataStream<JSONObject> fx =
                 fxStream.flatMap(new Tokenizer());
 
 
-        //fx.print("test");
+        //fx.print("Test");
 
         DataStream<String> joinedString = trx.join(fx)
                 .where(new NameKeySelector())

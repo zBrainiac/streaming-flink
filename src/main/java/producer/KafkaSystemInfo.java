@@ -7,31 +7,33 @@ import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
 
-import java.security.SecureRandom;
-import java.util.*;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 
-import static java.util.Collections.unmodifiableList;
 
 /**
  * run:
  * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- * java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerTRX localhost:9092
+ * java -classpath streaming-flink-0.3.1.0.jar producer.KafkaSystemInfo localhost:9092
  *
  * @author Marcel Daeppen
- * @version 2020/07/11 12:14
+ * @version 2020/12/28 12:14
  */
 
-public class KafkaJsonProducerTRX {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaJsonProducerTRX.class);
-    private static final Random random = new SecureRandom();
-    private static final String LOGGERMSG = "Program prop set {}";
-    private static final List<String> transaction_card_type_list = unmodifiableList(Arrays.asList(
-            "Visa", "MasterCard", "Maestro", "AMEX", "Diners Club", "Revolut"));
-    private static final List<String> transaction_currency_list = unmodifiableList(Arrays.asList(
-            "USD", "EUR", "CHF"));
+public class KafkaSystemInfo {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaSystemInfo.class);
+    private static final String LOGGERMSG = "Program prop set {}";
     private static String brokerURI = "localhost:9092";
     private static long sleeptime = 1000;
 
@@ -51,6 +53,7 @@ public class KafkaJsonProducerTRX {
             LOG.info(LOGGERMSG, parm);
         }
 
+
         try (Producer<String, byte[]> producer = createProducer()) {
             for (int i = 0; i < 1000000; i++) {
                 publishMessage(producer);
@@ -62,7 +65,7 @@ public class KafkaJsonProducerTRX {
     private static Producer<String, byte[]> createProducer() {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-CreditCard-TRX");
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-SystemInfo");
         config.put(ProducerConfig.ACKS_CONFIG, "1");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getName());
@@ -71,57 +74,61 @@ public class KafkaJsonProducerTRX {
     }
 
     private static void publishMessage(Producer<String, byte[]> producer) throws Exception {
+
         String key = UUID.randomUUID().toString();
 
         ObjectNode messageJsonObject = jsonObject();
         byte[] valueJson = objectMapper.writeValueAsBytes(messageJsonObject);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("cctrx", key, valueJson);
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>("SystemInfo", key, valueJson);
 
-        RecordMetadata md = producer.send(record).get();
-        System.err.println("Published " + md.topic() + "/" + md.partition() + "/" + md.offset()
+        RecordMetadata msg = producer.send(record).get();
+
+        System.err.println("Published " + msg.topic() + "/" + msg.partition() + "/" + msg.offset()
                 + " (key=" + key + ") : " + messageJsonObject);
+
     }
 
     // build random json object
     private static ObjectNode jsonObject() {
 
-        int i = random.nextInt(5);
+        SystemInfo systemInfo = new SystemInfo();
+        HardwareAbstractionLayer hardware = systemInfo.getHardware();
+        CentralProcessor processor = hardware.getProcessor();
+        GlobalMemory memory = hardware.getMemory();
+
+        List<NetworkIF> networkIFs = hardware.getNetworkIFs();
 
         ObjectNode report = objectMapper.createObjectNode();
-        report.put("timestamp", System.currentTimeMillis());
-        report.put("cc_id", "51" + (random.nextInt(89) + 10) + "-" + (random.nextInt(8999) + 1000) + "-" + (random.nextInt(8999) + 1000) + "-" + (random.nextInt(8999) + 1000));
-        report.put("cc_type", transaction_card_type_list.get(random.nextInt(transaction_card_type_list.size())));
-        report.put("shop_id", i);
+        report.put("sensor_ts", Instant.now().toEpochMilli());
+        report.put("sensor_id", networkIFs.get(2).getMacaddr());
+        report.put("NET Collisions ", networkIFs.get(2).getCollisions());
 
-        String shopName = "shop_name";
-        switch (i) {
-            case 0:
-                report.put(shopName, "Tante_Emma");
-                break;
-            case 1:
-                report.put(shopName, "Aus_der_Region");
-                break;
-            case 2:
-                report.put(shopName, "Shop_am_Eck");
-                break;
-            case 3:
-                report.put(shopName, "SihlCity");
-                break;
-            case 4:
-                report.put(shopName, "BioMarkt");
-                break;
-            default:
-                System.err.println("i out of range");
-        }
+        report.put("NET Recv Bytes", networkIFs.get(2).getBytesRecv());
+        report.put("NET Send Bytes", networkIFs.get(2).getBytesSent());
+        long[] ticks = processor.getSystemCpuLoadTicks();
+        report.put("CPU, IOWait, and IRQ ticks @ 1 sec:", Arrays.toString(ticks));
 
-        report.put("fx", transaction_currency_list.get(random.nextInt(transaction_currency_list.size())));
-        report.put("fx_account", transaction_currency_list.get(random.nextInt(transaction_currency_list.size())));
-        report.put("amount_orig", (random.nextInt(8900) + 10) / 100.0);
+        // per core CPU
+        double[] loadAverage = processor.getSystemLoadAverage(3);
+        String Avgformat = " %.2f";
+        report.put("CPU load averages:",
+                (loadAverage[0] < 0 ? " N/A" : String.format(Avgformat, loadAverage[0]))
+                        + (loadAverage[1] < 0 ? " N/A" : String.format(Avgformat, loadAverage[1]))
+                        + (loadAverage[2] < 0 ? " N/A" : String.format(Avgformat, loadAverage[2])));
+
+
+        report.put("CPU Context Switches", processor.getContextSwitches());
+        report.put("MEM Total", memory.getTotal());
+        report.put("MEM Available", memory.getAvailable());
+        report.put("MEM Capacity", memory.getPhysicalMemory().get(0).getCapacity());
+        report.put("MEM Page size", memory.getPageSize());
+
+
         return report;
     }
 
     public static void setsleeptime(long sleeptime) {
-        producer.KafkaJsonProducerTRX.sleeptime = sleeptime;
+        KafkaSystemInfo.sleeptime = sleeptime;
     }
 }
