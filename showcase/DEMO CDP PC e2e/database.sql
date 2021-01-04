@@ -1,8 +1,17 @@
+DROP VIEW IF EXISTS view_sensor_10;
+DROP VIEW IF EXISTS view_sensor_88;
+DROP MATERIALIZED VIEW IF EXISTS view_matwerialized_join_iot_geo;
+DROP TABLE IF EXISTS table_managed_geoloc;
+DROP TABLE IF EXISTS table_managed_iot;
+DROP TABLE IF EXISTS table_ext_join;
+DROP TABLE IF EXISTS table_ext_iot;
+DROP TABLE IF EXISTS table_ext_geoloc;
+DROP DATABASE IF EXISTS iot;
+
+
 CREATE DATABASE if not exists iot;
 
 USE iot;
-
-DROP TABLE iot.table_ext_geoloc;
 
 CREATE EXTERNAL TABLE if not exists iot.table_ext_geoloc (
 sensor_id INT
@@ -21,12 +30,8 @@ CREATE TABLE if not exists iot.table_managed_geoloc
 STORED AS orc
 as select * from iot.table_ext_geoloc;
 
-
 SELECT * FROM iot.table_managed_geoloc
 LIMIT 3;
-
-
-DROP TABLE iot.table_ext_iot ;
 
 CREATE EXTERNAL TABLE if not exists iot.table_ext_iot (
 sensor_id INT
@@ -54,9 +59,6 @@ as select * from iot.table_ext_iot;
 
 SELECT * FROM iot.table_managed_iot
 LIMIT 3;
-
-DROP VIEW iot.view_sensor_10 ;
-DROP VIEW iot.view_sensor_88 ;
 
 CREATE VIEW if not exists iot.view_sensor_10
 as select * from iot.table_managed_iot where sensor_id = 10 ;

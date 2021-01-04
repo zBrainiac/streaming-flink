@@ -130,7 +130,7 @@ sample TrafficCounter output json:
 ### Traffic IOT Sensor
 for SQL Lookup use case move lookup CSV to:  
 ```
-/tmp/lookup.csv  
+/tmp/lookupHeader.csv  
 ```
 run generator:
 ```
@@ -221,6 +221,8 @@ cd /opt/cloudera/parcels/FLINK
 ./bin/flink run -m yarn-cluster -c consumer.IoTUC1CountEventsPerSensorId -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.IoTUC2CountEventsPerSensorIdFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.IoTUC3CountEventsPerSensorIdSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC4JoinStreams -ynm IoTUC4JoinStreams lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092   
+./bin/flink run -m yarn-cluster -c consumer.IoTUC5ConsumerCSVSQLFilter -ynm IoTUC5ConsumerCSVSQLFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTCsvConsumerSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
 ./bin/flink run -m yarn-cluster -c consumer.IoTUC6ConsumerCSVSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 
 ```
@@ -243,7 +245,12 @@ cd /opt/cloudera/parcels/FLINK
 
 ### Traffic
 ```
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC3SummeryPerSensor -ynm TrafficUC3SummeryPerSensor lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
 ./bin/flink run -m yarn-cluster -c consumer.TrafficUC5Join -ynm TrafficUC5Join lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC6SQLLookupJSON -ynm TrafficUC6SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
 ./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
 ```
 

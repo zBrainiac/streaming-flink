@@ -32,6 +32,7 @@ import java.util.Properties;
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
  *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC5ConsumerCSVSQLFilter -ynm IoTUC5ConsumerCSVSQLFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC5ConsumerCSVSQLFilter -ynm IoTUC5ConsumerCSVSQLFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
  *
  *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC5ConsumerCSVSQLFilter
  *
