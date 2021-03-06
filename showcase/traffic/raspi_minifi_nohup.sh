@@ -11,7 +11,7 @@ sudo apt-get update
 sudo apt-get install mosquitto mosquitto-clients -y
 sudo systemctl start mosquitto
 
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.1/streaming-flink-0.3.1.0.jar
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.4.0/streaming-flink-0.4.0.0.jar
 
 echo "-- Download and install MQTT Processor NAR file"
 sudo retry_if_needed 5 5 "wget --progress=dot:giga https://repo1.maven.org/maven2/org/apache/nifi/nifi-mqtt-nar/1.8.0/nifi-mqtt-nar-1.8.0.nar -P /home/pi/minifi-0.6.0.1.2.1.0-23/lib"
@@ -27,7 +27,7 @@ echo "setup done"
 cd
 ./minifi-0.6.0.1.2.0.0-70/bin/minifi.sh start &
 echo $! > run_minifi.pid &
-nohup java -classpath streaming-flink-0.3.1.0.jar producer.MqTTTrafficCollector tcp://localhost:1883 999 &
+nohup java -classpath streaming-flink-0.4.0.0.jar producer.MqTTTrafficCollector tcp://localhost:1883 999 &
 echo $! > run_MqTTTrafficCollector.pid &
-nohup java -classpath streaming-flink-0.3.1.0.jar producer.MqTTTrafficIOTSensor tcp://localhost:1883 999 &
+nohup java -classpath streaming-flink-0.4.0.0.jar producer.MqTTTrafficIOTSensor tcp://localhost:1883 999 &
 echo $! > run_MqTTTrafficIOTSensor.pid &

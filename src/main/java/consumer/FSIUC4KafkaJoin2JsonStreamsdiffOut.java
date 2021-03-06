@@ -6,7 +6,8 @@ import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
@@ -31,17 +32,19 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC3KafkaJoin2JsonStreams
+ *    java -classpath streaming-flink-0.4.0.0.jar consumer.FSIUC3KafkaJoin2JsonStreams
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14
  */
 
-public class FSIUC4KafkaJoin2JsonStreams {
+public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FSIUC4KafkaJoin2JsonStreams.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FSIUC4KafkaJoin2JsonStreamsdiffOut.class);
     private static String brokerURI = "localhost:9092";
     private static final String LOGGERMSG = "Program prop set {}";
+    private static DataStream<String> joinedString;
+    private DataStream<String> joinedString1;
 
     public static void main(String[] args) throws Exception {
 
@@ -55,7 +58,8 @@ public class FSIUC4KafkaJoin2JsonStreams {
         }
 
         String use_case_id = "fsi-uc4_TrxFxCombined";
-        String topic = "result_" + use_case_id ;
+        String topicJSON = "result_" + use_case_id + "_json" ;
+        String topicCSV = "result_" + use_case_id + "_csv" ;
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -75,15 +79,14 @@ public class FSIUC4KafkaJoin2JsonStreams {
         propertiesProducer.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, "com.hortonworks.smm.kafka.monitoring.interceptors.MonitoringProducerInterceptor");
 
         //it is necessary to use IngestionTime, not EventTime. during my running this program
-        env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
+
+        DataStream<String> trxStream = env.addSource(
+                new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
 
         DataStream<String> fxStream = env.addSource(
                 new FlinkKafkaConsumer<>("fxRate", new SimpleStringSchema(), properties));
 
         //fxStream.print("DataStream - fx");
-
-        DataStream<String> trxStream = env.addSource(
-                new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
 
         //trxStream.print("DataStream - trx");
 
@@ -110,11 +113,26 @@ public class FSIUC4KafkaJoin2JsonStreams {
                     return joinJson.toJSONString();
                 });
 
-        // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<String> myProducer = new FlinkKafkaProducer<>(
-                topic, new SimpleStringSchema(), propertiesProducer);
+        FlinkKafkaProducer<String> myKafkaProducerJSON = new FlinkKafkaProducer<>(
+                topicJSON,
+                new SimpleStringSchema(),
+                propertiesProducer);
 
-        joinedString.addSink(myProducer);
+        joinedString.addSink(myKafkaProducerJSON);
+
+        DataStream <String> aggStream = joinedString
+                .flatMap(new TrxJSONDeserializer());
+
+        aggStream.print();
+
+        // write the aggregated data stream to a Kafka sink format CSV
+        FlinkKafkaProducer<String> myKafkaProducerCSV = new FlinkKafkaProducer<>(
+                topicCSV,
+                new SimpleStringSchema(),
+                propertiesProducer);
+
+        aggStream.addSink(myKafkaProducerCSV);
+
 
 
         // execute program
@@ -156,5 +174,42 @@ public class FSIUC4KafkaJoin2JsonStreams {
 //           System.err.println("fx: " + str);
             return str;
         }
+    }
+
+    public static class TrxJSONDeserializer implements FlatMapFunction<String, String> {
+        private transient ObjectMapper jsonParser;
+
+        @Override
+        public void flatMap(String value, Collector<String> out) throws Exception {
+            if (jsonParser == null) {
+                jsonParser = new ObjectMapper();
+            }
+            JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
+
+            // get shop_name AND fx from JSONObject
+            String result = new StringBuilder()
+                    .append(jsonNode.get("trx").get("timestamp").toString())
+                    .append(", ")
+                    .append(jsonNode.get("trx").get("cc_id").toString())
+                    .append(", ")
+                    .append(jsonNode.get("trx").get("cc_type").toString())
+                    .append(", ")
+                    .append(jsonNode.get("trx").get("shop_id").toString())
+                    .append(", ")
+                    .append(jsonNode.get("trx").get("shop_name").toString())
+                    .append(", ")
+                    .append(jsonNode.get("trx").get("amount_orig").toString())
+                    .append(", ")
+                    .append(jsonNode.get("trx").get("fx").toString())
+                    .append(", ")
+                    .append(jsonNode.get("fx").get("fx_target").toString())
+                    .append(", ")
+                    .append(jsonNode.get("fx").get("timestamp").toString())
+                    .append(", ")
+                    .append(jsonNode.get("fx").get("fx_rate").toString())
+                    .toString();
+            out.collect(result);
+        }
+
     }
 }

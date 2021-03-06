@@ -22,7 +22,7 @@ import java.util.*;
  *
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.3.1.0.jar producer.KafkaProducerUnbalanced localhost:9092
+ *   java -classpath streaming-flink-0.4.0.0.jar producer.KafkaProducerUnbalanced localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/30 17:14

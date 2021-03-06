@@ -2,7 +2,6 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -11,12 +10,8 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
-import org.apache.flink.table.descriptors.Json;
-import org.apache.flink.table.descriptors.Kafka;
-import org.apache.flink.table.descriptors.Schema;
-import org.apache.flink.table.sources.CsvTableSource;
-import org.apache.flink.table.sources.TableSource;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.table.descriptors.*;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
@@ -30,9 +25,9 @@ import java.util.Properties;
  * <p>
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
- * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
- * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
- * java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+ * java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14
@@ -94,22 +89,17 @@ public class IoTUC9SQLLookupJSON {
                 .field("sensor_10", DataTypes.INT())
                 .field("sensor_11", DataTypes.INT());
 
-        TableSource<?> lookupValues = CsvTableSource
-                .builder()
-                .path(lookupCSV)
-                .field("sensor_id", Types.INT)
-                .field("city", Types.STRING)
-                .field("lat", Types.DOUBLE)
-                .field("lon", Types.DOUBLE)
-                .fieldDelimiter(",")
-                .lineDelimiter("\n")
-                .ignoreFirstLine()
-                .ignoreParseErrors()
-                .build();
+        final Schema schema_lookupValues = new Schema()
+                .field("sensor_id", DataTypes.INT())
+                .field("city", DataTypes.STRING())
+                .field("lat", DataTypes.DOUBLE())
+                .field("lon", DataTypes.DOUBLE());
 
-        /* tableEnv.fromTableSource("lookupValues", lookupValues); */
+        tableEnv.connect(new FileSystem().path(lookupCSV))
+                .withFormat(new Csv().fieldDelimiter(',').deriveSchema())
+                .withSchema(schema_lookupValues)
+                .createTemporaryTable("lookupValues");
 
-        tableEnv.registerTableSource("lookupValues", lookupValues);
 
         System.out.println("\n CSV Lookup Table Created with Schema: \n");
 

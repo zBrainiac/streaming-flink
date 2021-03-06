@@ -29,9 +29,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm FSIUC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm FSIUC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC5KafkaTrxDuplicateChecker
+ *    java -classpath streaming-flink-0.4.0.0.jar consumer.FSIUC5KafkaTrxDuplicateChecker
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -99,10 +99,12 @@ public class FSIUC5KafkaTrxDuplicateChecker {
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple2<String, Integer>> myProducer = new FlinkKafkaProducer<>(
-                topic, new SerializeSum2String(), propertiesProducer);
-
-        aggStream.addSink(myProducer);
+        FlinkKafkaProducer<Tuple2<String, Integer>> myKafkaProducer = new FlinkKafkaProducer<>(
+                topic,                        // target topic
+                new SerializeSum2String(),    // serialization schema
+                propertiesProducer,           // producer config
+                FlinkKafkaProducer.Semantic.EXACTLY_ONCE); // fault-tolerance
+        aggStream.addSink(myKafkaProducer);
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);

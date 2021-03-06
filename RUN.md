@@ -21,19 +21,19 @@ bin/kafka-server-start.sh config/server.properties
 ### Local execution Environment:  
 ```
 cd streaming-flink 
-java -classpath target/streaming-flink-0.3.1.0.jar producer.KafkaIOTSensorSimulator
-java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC1CountEventsPerSensorId  
-java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC2CountEventsPerSensorIdFilter
-java -classpath target/streaming-flink-0.3.1.0.jar consumer.IoTUC3CountEventsPerSensorIdSplitter
+java -classpath target/streaming-flink-0.4.0.0.jar producer.KafkaIOTSensorSimulator
+java -classpath target/streaming-flink-0.4.0.0.jar consumer.IoTUC1CountEventsPerSensorId  
+java -classpath target/streaming-flink-0.4.0.0.jar consumer.IoTUC2CountEventsPerSensorIdFilter
+java -classpath target/streaming-flink-0.4.0.0.jar consumer.IoTUC3CountEventsPerSensorIdSplitter
 ```
 
 ### Download release:  
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.3.1/streaming-flink-0.3.1.0.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.4.0/streaming-flink-0.4.0.0.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
 ### Upload release: 
-scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.3.1.0.jar centos@52.59.200.19:/tmp  
-sudo mv /tmp/streaming-flink-0.3.1.0.jar /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming 
+scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.4.0.0.jar centos@52.59.200.19:/tmp  
+sudo mv /tmp/streaming-flink-0.4.0.0.jar /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming 
 
 
 
@@ -42,9 +42,9 @@ sudo mv /tmp/streaming-flink-0.3.1.0.jar /opt/cloudera/parcels/FLINK/lib/flink/e
 run:  
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerTRX or  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerTRX localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerTRX edge2ai-1.dim.local:9092
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSICreditCartTRX or  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSICreditCartTRX localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSICreditCartTRX edge2ai-1.dim.local:9092
 ```
 sample trx output json:
 ```
@@ -54,9 +54,9 @@ sample trx output json:
 run:  
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerFX or  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerFX localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerFX edge2ai-1.dim.local:9092
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSIFXRates or  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSIFXRates localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSIFXRates edge2ai-1.dim.local:9092
 ```  
 sample fx output json:
 ```
@@ -66,9 +66,9 @@ sample fx output json:
 run:
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSensorSimulator or  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSensorSimulator localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSensorSimulator edge2ai-1.dim.local:9092                           
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSensorSimulator or  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSensorSimulator localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSensorSimulator edge2ai-1.dim.local:9092                           
 ```  
 sample iot output json:
 ```
@@ -79,9 +79,9 @@ sample iot output json:
 run:
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSimpleCSVProducer or  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSimpleCSVProducer localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSimpleCSVProducer edge2ai-1.dim.local:9092  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSimpleCSVProducer or  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSimpleCSVProducer localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSimpleCSVProducer edge2ai-1.dim.local:9092  
 ```  
 sample CSV output message:
 ```
@@ -92,9 +92,9 @@ sample CSV output message:
 run:  
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSimpleKVProducer or  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSimpleKVProducer localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSimpleKVProducer edge2ai-1.dim.local:9092  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSimpleKVProducer or  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSimpleKVProducer localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSimpleKVProducer edge2ai-1.dim.local:9092  
 ```  
 sample KeyValue output message:
 ```
@@ -105,9 +105,9 @@ unixTime: 1596953939783, sensor_id: 1, id: ba292ff6-e4db-4776-b70e-2b49edfb6726,
 run:  
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaOPCSimulator or  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaOPCSimulator localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaOPCSimulator edge2ai-1.dim.local:9092
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaOPCSimulator or  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaOPCSimulator localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaOPCSimulator edge2ai-1.dim.local:9092
 ```  
 sample opc output json:
 ```
@@ -118,9 +118,9 @@ sample opc output json:
 run  
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaTrafficCollector or  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaTrafficCollector localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaTrafficCollector edge2ai-1.dim.local:9092
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficCollector or  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficCollector localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficCollector edge2ai-1.dim.local:9092
 ```  
 sample TrafficCounter output json:
 ```
@@ -135,9 +135,9 @@ for SQL Lookup use case move lookup CSV to:
 run generator:
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaTrafficIOTSensor or  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaTrafficIOTSensor localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaTrafficIOTSensor edge2ai-1.dim.local:9092
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficIOTSensor or  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficIOTSensor localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficIOTSensor edge2ai-1.dim.local:9092
 ```  
 sample IOT Sensor output json:
 ```
@@ -158,7 +158,7 @@ cd /opt/cloudera/parcels/CDH
 run generator:
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaProducerUnbalanced edge2ai-1.dim.local:9092 99
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaProducerUnbalanced edge2ai-1.dim.local:9092 99
 ```
 ### Simple Kafka Generator
 Super simple Kafka producer  
@@ -173,7 +173,7 @@ cd /opt/cloudera/parcels/CDH
 run generator:
 ```
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaProducerSimple edge2ai-1.dim.local:9092 99
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaProducerSimple edge2ai-1.dim.local:9092 99
 ```
 
 ### Let run multiple JAVA processes in the background
@@ -182,17 +182,17 @@ Create a new nohup.sh with a list of jar's
 Sample:
 ```
 #!/bin/sh
-nohup java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerFX edge2ai-1.dim.local:9092 &
-nohup java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerTRX edge2ai-1.dim.local:9092 &
-nohup java -classpath streaming-flink-0.3.1.0.jar producer.KafkaIOTSensorSimulator edge2ai-1.dim.local:9092 &
+nohup java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSIFXRates edge2ai-1.dim.local:9092 &
+nohup java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSICreditCartTRX edge2ai-1.dim.local:9092 &
+nohup java -classpath streaming-flink-0.4.0.0.jar producer.KafkaIOTSensorSimulator edge2ai-1.dim.local:9092 &
 ```
 
 ```
 #!/bin/sh
 cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaTrafficCollector edge2ai-1.dim.local:9092 &
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficCollector edge2ai-1.dim.local:9092 &
 echo $! > run_KafkaTrafficCollector.pid &
-java -classpath streaming-flink-0.3.1.0.jar producer.KafkaTrafficIOTSensor edge2ai-1.dim.local:9092 &
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficIOTSensor edge2ai-1.dim.local:9092 &
 echo $! > run_KafkaTrafficIOTSensor.pid &
 ```
 
@@ -218,40 +218,41 @@ cd /opt/cloudera/parcels/FLINK
 ```
 ### iot
 ```
-./bin/flink run -m yarn-cluster -c consumer.IoTUC1CountEventsPerSensorId -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.IoTUC2CountEventsPerSensorIdFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.IoTUC3CountEventsPerSensorIdSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.IoTUC4JoinStreams -ynm IoTUC4JoinStreams lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092   
-./bin/flink run -m yarn-cluster -c consumer.IoTUC5ConsumerCSVSQLFilter -ynm IoTUC5ConsumerCSVSQLFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTCsvConsumerSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.IoTUC6ConsumerCSVSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 
+./bin/flink run -m yarn-cluster -c consumer.IoTUC1CountEventsPerSensorId -ynm IoTConsumerCount lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC2CountEventsPerSensorIdFilter -ynm IoTConsumerFilter lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC3CountEventsPerSensorIdSplitter -ynm IoTConsumerSplitter lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC4JoinStreams -ynm IoTUC4JoinStreams lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092   
+./bin/flink run -m yarn-cluster -c consumer.IoTUC5ConsumerCSVSQLFilter -ynm IoTUC5ConsumerCSVSQLFilter lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTCsvConsumerSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.IoTUC6ConsumerCSVSQLLookupJSON -ynm IoTCsvConsumerSQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 
 ```
 ### OPC
 ```
-./bin/flink run -m yarn-cluster -c consumer.OPCUC1NoiseCanceller -ynm OPCNoiseCanceller lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.OPCUC1NoiseCanceller -ynm OPCNoiseCanceller lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
 ```
 ### FSI
 ```
-./bin/flink run -m yarn-cluster -c consumer.FSIUC1KafkaCountTrxPerShop -ynm FSIUC1KafkaCountTrxPerShop lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC2KafkaSumccTypTrxFx -ynm FSIUC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC3KafkaJoin2JsonStreams -ynm FSIUC3KafkaJoin2JsonStreams lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar  edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm FSIUC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm FSIUC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC7KafkaAvgFx -ynm FSIUC7KafkaAvgFx lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092  
-./bin/flink run -m yarn-cluster -c consumer.FSIUC8KafkaTRXAmountDispatcher -ynm FSIUC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
-./bin/flink run -m yarn-cluster -c consumer.FSIUC9KafkalookupJson -ynm FSIUC9KafkalookupJson lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+./bin/flink run -m yarn-cluster -c consumer.FSIUC1KafkaCountTrxPerShop -ynm FSIUC1KafkaCountTrxPerShop lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC2KafkaSumccTypTrxFx -ynm FSIUC2KafkaSumccTypTrxFx lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC3KafkaJoin2JsonStreams -ynm FSIUC3KafkaJoin2JsonStreams lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar  edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC4KafkaJoin2JsonStreamsdiffOut -ynm FSIUC4KafkaJoin2JsonStreamsdiffOut lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar  edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC5KafkaTrxDuplicateChecker -ynm FSIUC5KafkaTrxDuplicateChecker lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm FSIUC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC7KafkaAvgFx -ynm FSIUC7KafkaAvgFx lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092  
+./bin/flink run -m yarn-cluster -c consumer.FSIUC8KafkaTRXAmountDispatcher -ynm FSIUC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.FSIUC9KafkalookupJson -ynm FSIUC9KafkalookupJson lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
 
 ```
 
 ### Traffic
 ```
-./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
-./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
-./bin/flink run -m yarn-cluster -c consumer.TrafficUC3SummeryPerSensor -ynm TrafficUC3SummeryPerSensor lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
-./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
-./bin/flink run -m yarn-cluster -c consumer.TrafficUC5Join -ynm TrafficUC5Join lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
-./bin/flink run -m yarn-cluster -c consumer.TrafficUC6SQLLookupJSON -ynm TrafficUC6SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
-./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC1CountSensorTyp -ynm TrafficUC1CountSensorTyp lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC2WindowSensorTyp -ynm TrafficUC2WindowSensorTyp lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC3SummeryPerSensor -ynm TrafficUC3SummeryPerSensor lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC4TollValidation -ynm TrafficUC4TollValidation lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC5Join -ynm TrafficUC5Join lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC6SQLLookupJSON -ynm TrafficUC6SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+./bin/flink run -m yarn-cluster -c consumer.TrafficUC7EventDispatcher -ynm TrafficUC7EventDispatcher lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
 ```
 
 ## Run Atlas sync:

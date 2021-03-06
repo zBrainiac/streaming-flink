@@ -30,9 +30,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm FSIUC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC6KafkaccTrxFraud -ynm FSIUC6KafkaccTrxFraud lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC6KafkaccTrxFraud
+ *    java -classpath streaming-flink-0.4.0.0.jar consumer.FSIUC6KafkaccTrxFraud
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -95,10 +95,12 @@ public class FSIUC6KafkaccTrxFraud {
         aggStream.print(topic + ": ");
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<Tuple3<String, Double, Integer>> myProducer = new FlinkKafkaProducer<>(
-                topic, new SerializeTuple3toString(), propertiesProducer);
-
-        aggStream.addSink(myProducer);
+        FlinkKafkaProducer<Tuple3<String, Double, Integer>> myKafkaProducer = new FlinkKafkaProducer<>(
+                topic,                          // target topic
+                new SerializeTuple3toString(),  // serialization schema
+                propertiesProducer,             // producer config
+                FlinkKafkaProducer.Semantic.EXACTLY_ONCE); // fault-tolerance
+        aggStream.addSink(myKafkaProducer);
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);

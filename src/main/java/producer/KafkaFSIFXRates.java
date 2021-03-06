@@ -17,16 +17,16 @@ import java.util.UUID;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerFX localhost:9092
+ *   java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSIFXRates localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class KafkaJsonProducerFX {
+public class KafkaFSIFXRates {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaJsonProducerFX.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaFSIFXRates.class);
     private static final Random random = new SecureRandom();
     private static final String LOGGERMSG = "Program prop set {}";
     private static String brokerURI = "localhost:9092";
@@ -144,6 +144,6 @@ public class KafkaJsonProducerFX {
     }
 
     public static void setsleeptime(long sleeptime) {
-        KafkaJsonProducerFX.sleeptime = sleeptime;
+        KafkaFSIFXRates.sleeptime = sleeptime;
     }
 }

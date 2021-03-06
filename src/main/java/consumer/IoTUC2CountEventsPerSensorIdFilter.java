@@ -28,9 +28,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC2CountEventsPerSensorIdFilter -ynm IoTUC2CountEventsPerSensorIdFilter lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC2CountEventsPerSensorIdFilter -ynm IoTUC2CountEventsPerSensorIdFilter lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC2CountEventsPerSensorIdFilter
+ *    java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC2CountEventsPerSensorIdFilter
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
@@ -53,7 +53,7 @@ public class IoTUC2CountEventsPerSensorIdFilter {
             LOG.info(LOGGERMSG, parm);
         }
 
-        String use_case_id = "iot_uc1_Count_EventsPerSensorIdFilter";
+        String use_case_id = "iot_uc2_Count_EventsPerSensorIdFilter";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment

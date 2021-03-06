@@ -16,15 +16,15 @@ import static java.util.Collections.unmodifiableList;
 /**
  * run:
  * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- * java -classpath streaming-flink-0.3.1.0.jar producer.KafkaJsonProducerTRX localhost:9092
+ * java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSICreditCartTRX localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14
  */
 
-public class KafkaJsonProducerTRX {
+public class KafkaFSICreditCartTRX {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaJsonProducerTRX.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaFSICreditCartTRX.class);
     private static final Random random = new SecureRandom();
     private static final String LOGGERMSG = "Program prop set {}";
     private static final List<String> transaction_card_type_list = unmodifiableList(Arrays.asList(
@@ -33,7 +33,7 @@ public class KafkaJsonProducerTRX {
             "USD", "EUR", "CHF"));
 
     private static String brokerURI = "localhost:9092";
-    private static long sleeptime = 1000;
+    private static long sleeptime = 333;
 
     public static void main(String[] args) throws Exception {
 
@@ -86,7 +86,7 @@ public class KafkaJsonProducerTRX {
     // build random json object
     private static ObjectNode jsonObject() {
 
-        int i = random.nextInt(5);
+        int i = random.nextInt(16);
 
         ObjectNode report = objectMapper.createObjectNode();
         report.put("timestamp", System.currentTimeMillis());
@@ -97,18 +97,30 @@ public class KafkaJsonProducerTRX {
         String shopName = "shop_name";
         switch (i) {
             case 0:
+            case 5:
+            case 6:
                 report.put(shopName, "Tante_Emma");
                 break;
             case 1:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
                 report.put(shopName, "Aus_der_Region");
                 break;
             case 2:
+            case 11:
                 report.put(shopName, "Shop_am_Eck");
                 break;
             case 3:
                 report.put(shopName, "SihlCity");
                 break;
             case 4:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 16:
                 report.put(shopName, "BioMarkt");
                 break;
             default:
@@ -122,6 +134,6 @@ public class KafkaJsonProducerTRX {
     }
 
     public static void setsleeptime(long sleeptime) {
-        producer.KafkaJsonProducerTRX.sleeptime = sleeptime;
+        producer.KafkaFSICreditCartTRX.sleeptime = sleeptime;
     }
 }

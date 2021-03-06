@@ -31,7 +31,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC3KafkaJoin2JsonStreams
+ *    java -classpath streaming-flink-0.4.0.0.jar consumer.FSIUC3KafkaJoin2JsonStreams
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14
@@ -59,7 +59,6 @@ public class FSIUC3KafkaJoin2JsonStreams {
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
@@ -99,7 +98,7 @@ public class FSIUC3KafkaJoin2JsonStreams {
 
         //fx.print("Test");
 
-        DataStream<String> joinedString = trx.join(fx)
+        DataStream<String> aggStream = trx.join(fx)
                 .where(new NameKeySelector())
                 .equalTo(new EqualKeySelector())
                 .window(TumblingProcessingTimeWindows.of(Time.milliseconds(2000)))
@@ -115,10 +114,12 @@ public class FSIUC3KafkaJoin2JsonStreams {
                 });
 
         // write the aggregated data stream to a Kafka sink
-        FlinkKafkaProducer<String> myProducer = new FlinkKafkaProducer<>(
-                topic, new SimpleStringSchema(), propertiesProducer);
+        FlinkKafkaProducer<String> myKafkaProducer = new FlinkKafkaProducer<>(
+                topic,
+                new SimpleStringSchema(),
+                propertiesProducer);
 
-        joinedString.addSink(myProducer);
+        aggStream.addSink(myKafkaProducer);
 
         // execute program
         JobExecutionResult result = env.execute(use_case_id);

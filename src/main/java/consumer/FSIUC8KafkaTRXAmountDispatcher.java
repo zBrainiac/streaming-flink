@@ -27,9 +27,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC8KafkaTRXAmountDispatcher -ynm FSIUC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC8KafkaTRXAmountDispatcher -ynm FSIUC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
  *
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.FSIUC8KafkaTRXAmountDispatcher
+ *    java -classpath streaming-flink-0.4.0.0.jar consumer.FSIUC8KafkaTRXAmountDispatcher
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

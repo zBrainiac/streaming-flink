@@ -2,7 +2,6 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -11,12 +10,11 @@ import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.descriptors.Csv;
+import org.apache.flink.table.descriptors.FileSystem;
 import org.apache.flink.table.descriptors.Kafka;
 import org.apache.flink.table.descriptors.Schema;
-import org.apache.flink.table.sources.CsvTableSource;
-import org.apache.flink.table.sources.TableSource;
 import org.apache.flink.types.Row;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -32,10 +30,10 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTUC7ConsumerCSVSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar localhost:9092 /tmp/lookupHeader.csv
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTUC7ConsumerCSVSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.3.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTUC7ConsumerCSVSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092 /tmp/lookupHeader.csv
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTUC7ConsumerCSVSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
  *
- *    java -classpath streaming-flink-0.3.1.0.jar consumer.IoTUC7ConsumerCSVSQLLookupCSV
+ *    java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC7ConsumerCSVSQLLookupCSV
  *
  * @author Marcel Daeppen
  * @version 2020/08/22 12:14
@@ -96,20 +94,16 @@ public class IoTUC7ConsumerCSVSQLLookupCSV {
                 .field("uuid", DataTypes.STRING())
                 .field("text", DataTypes.STRING());
 
-        TableSource<?> lookupValues = CsvTableSource
-                .builder()
-                .path(lookupCSV)
-                .field("sensor_id", Types.INT)
-                .field("city", Types.STRING)
-                .field("lat", Types.DOUBLE)
-                .field("lon", Types.DOUBLE)
-                .fieldDelimiter(",")
-                .lineDelimiter("\n")
-                .ignoreFirstLine()
-                .ignoreParseErrors()
-                .build();
+        final Schema schema_lookupValues = new Schema()
+                .field("sensor_id", DataTypes.INT())
+                .field("city", DataTypes.STRING())
+                .field("lat", DataTypes.DOUBLE())
+                .field("lon", DataTypes.DOUBLE());
 
-        tableEnv.registerTableSource("lookupValues", lookupValues);
+        tableEnv.connect(new FileSystem().path(lookupCSV))
+                .withFormat(new Csv().fieldDelimiter(',').deriveSchema())
+                .withSchema(schema_lookupValues)
+                .createTemporaryTable("lookupValues");
 
         System.out.println("\n CSV Lookup Table Created with Schema: \n");
 
