@@ -207,7 +207,8 @@ public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
                     .append(jsonNode.get("fx").get("timestamp").toString())
                     .append(", ")
                     .append(jsonNode.get("fx").get("fx_rate").toString())
-                    .toString();
+                    .toString()
+                    .replace("\"", "");
             out.collect(result);
         }
 
