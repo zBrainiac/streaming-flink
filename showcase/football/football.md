@@ -1,0 +1,83 @@
+
+
+### Upload release:
+```
+scp -i field.pem GoogleDrive/workspace/streaming-flink/target/streaming-flink-0.4.0.0.jar centos@52.59.234.38:/tmp  
+sudo mv /tmp/streaming-flink-0.4.0.0.jar /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+```
+
+### create multiple partition topic:
+```
+cd /opt/cloudera/parcels/CDH  
+./bin/kafka-topics --create --bootstrap-server edge2ai-1.dim.local:9092 --replication-factor 1 --partitions 5 --topic FootballTicketsTRX
+```
+
+### data gen app:
+```
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming && 
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFSIFXRates edge2ai-1.dim.local:9092
+
+
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
+java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFootballTicketsTRX edge2ai-1.dim.local:9092 10000
+```
+
+
+### Flink app:
+```
+cd /opt/cloudera/parcels/FLINK  
+./bin/flink run -m yarn-cluster -c consumer.KafkaFootballTicketsTRXJoin2JsonStreamsDiffOut -ynm KafkaFootballTicketsTRXJoin2JsonStreamsDiffOut lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar  edge2ai-1.dim.local:9092  
+```
+
+### create multiple partion topic:
+```
+cd /opt/cloudera/parcels/CDH  
+./bin/kafka-topics --list --bootstrap-server edge2ai-1.dim.local:9092 &&
+./bin/kafka-console-consumer --bootstrap-server edge2ai-1.dim.local:9092 --topic result_Football-uc1-TicketsTRXJoin2JsonStreams_csv
+
+```
+
+
+
+
+```SQL
+CREATE DATABASE if not exists football;
+
+USE football;
+
+DROP TABLE if exists football.table_ext_ticket_cc_trx_fx;
+
+CREATE EXTERNAL TABLE if not exists football.table_ext_ticket_cc_trx_fx (
+trxtsd BIGINT
+,creditcardid STRING
+,creditcardtype STRING
+,shopid INT
+,gamename STRING
+,amount DOUBLE
+,fx STRING
+,targetfx STRING
+,fxtsd BIGINT
+,fxrate DOUBLE)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+LOCATION "s3a://demo-aws-2/user/mdaeppen/data_football_trx";
+
+SELECT * FROM football.table_ext_ticket_cc_trx_fx
+LIMIT 5;
+
+DROP TABLE football.table_ext_geoloc;
+
+CREATE EXTERNAL TABLE if not exists football.table_ext_geoloc (
+sensor_id INT
+,city STRING
+,lat DOUBLE
+, lon DOUBLE)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+LOCATION "s3a://demo-aws-2/user/mdaeppen/data_geo"
+tblproperties ("skip.header.line.count"="1", "external"="true");
+
+
+SELECT * FROM football.table_ext_ticket_cc_trx_fx ccfx, football.table_ext_geoloc geo
+WHERE ccfx.shopid = geo.sensor_id;
+```

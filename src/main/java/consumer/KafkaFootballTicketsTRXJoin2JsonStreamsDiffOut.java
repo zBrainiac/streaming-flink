@@ -24,11 +24,11 @@ import java.util.Properties;
 
 /**
  * className: ConsunerFlink.KafkaJoin2JsonStreams
- * trxStream: {"timestamp":1565604389166,"shop_id":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
+ * trxStream: {"timestamp":1565604389166,"shop_id":0,"game_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
  * fxStream: {"timestamp":1565604494202,"fx":"EUR","fx_rate":1.01}
  *
  * DataStream<String> joinedString = trx.join(fx)
- * {"EUR":{"fx":"EUR","fx_rate":0.9,"timestamp":1565604610729},"5130-2220-4900-6727":{"cc_type":"Visa","shop_id":4,"fx":"EUR","amount_orig":86.82,"fx_account":"EUR","cc_id":"5130-2220-4900-6727","shop_name":"Ums Eck","timestamp":1565604610745}}
+ * {"EUR":{"fx":"EUR","fx_rate":0.9,"timestamp":1565604610729},"5130-2220-4900-6727":{"cc_type":"Visa","shop_id":4,"fx":"EUR","amount_orig":86.82,"fx_account":"EUR","cc_id":"5130-2220-4900-6727","game_name":"Ums Eck","timestamp":1565604610745}}
  *
  *
  * run:
@@ -38,9 +38,9 @@ import java.util.Properties;
  * @version 2020/04/26 12:14
  */
 
-public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
+public class KafkaFootballTicketsTRXJoin2JsonStreamsDiffOut {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FSIUC4KafkaJoin2JsonStreamsdiffOut.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaFootballTicketsTRXJoin2JsonStreamsDiffOut.class);
     private static String brokerURI = "localhost:9092";
     private static final String LOGGERMSG = "Program prop set {}";
     private static DataStream<String> joinedString;
@@ -57,7 +57,7 @@ public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
             LOG.info(LOGGERMSG, parm);
         }
 
-        String use_case_id = "fsi-uc4_TrxFxCombined";
+        String use_case_id = "Football-uc1-TicketsTRXJoin2JsonStreams";
         String topicJSON = "result_" + use_case_id + "_json" ;
         String topicCSV = "result_" + use_case_id + "_csv" ;
         String topicFlatJSON = "result_" + use_case_id + "_flatjson" ;
@@ -81,11 +81,11 @@ public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
 
         //it is necessary to use IngestionTime, not EventTime. during my running this program
 
-        DataStream<String> trxStream = env.addSource(
-                new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
-
         DataStream<String> fxStream = env.addSource(
                 new FlinkKafkaConsumer<>("fxRate", new SimpleStringSchema(), properties));
+
+        DataStream<String> trxStream = env.addSource(
+                new FlinkKafkaConsumer<>("FootballTicketsTRX", new SimpleStringSchema(), properties));
 
         //fxStream.print("DataStream - fx");
 
@@ -200,26 +200,26 @@ public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // get shop_name AND fx from JSONObject
+            // get game_name AND fx from JSONObject
             String result = new StringBuilder()
                     .append(jsonNode.get("trx").get("timestamp").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("cc_id").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("cc_type").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("shop_id").toString())
-                    .append(", ")
-                    .append(jsonNode.get("trx").get("shop_name").toString())
-                    .append(", ")
+                    .append(",")
+                    .append(jsonNode.get("trx").get("game_name").toString())
+                    .append(",")
                     .append(jsonNode.get("trx").get("amount_orig").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("fx").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("fx").get("fx_target").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("fx").get("timestamp").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("fx").get("fx_rate").toString())
                     .toString()
                     .replace("\"", "");
@@ -238,7 +238,7 @@ public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
             }
             JsonNode jsonNode = jsonParser.readValue(value, JsonNode.class);
 
-            // get shop_name AND fx from JSONObject
+            // get game_name AND fx from JSONObject
             String result = new StringBuilder()
                     .append("{\"timestamp\":")
                     .append(jsonNode.get("trx").get("timestamp").toString())
@@ -248,8 +248,8 @@ public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
                     .append(jsonNode.get("trx").get("cc_type").toString())
                     .append(",\"shop_id\":")
                     .append(jsonNode.get("trx").get("shop_id").toString())
-                    .append(",\"shop_name\":")
-                    .append(jsonNode.get("trx").get("shop_name").toString())
+                    .append(",\"game_name\":")
+                    .append(jsonNode.get("trx").get("game_name").toString())
                     .append(",\"amount_orig\":")
                     .append(jsonNode.get("trx").get("amount_orig").toString())
                     .append(",\"fx\":")

@@ -2,7 +2,6 @@ package consumer;
 
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
-import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
@@ -26,7 +25,7 @@ import java.util.Properties;
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
  * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
- * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+ * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
  * java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
@@ -38,7 +37,7 @@ public class IoTUC9SQLLookupJSON {
     private static final Logger LOG = LoggerFactory.getLogger(IoTUC9SQLLookupJSON.class);
     private static final String LOGGERMSG = "Program prop set {}";
     private static String brokerURI = "localhost:9092";
-    private static String lookupCSV = "data/lookupHeader.csv";
+    private static String lookupCSV = "data/lookup.csv";
 
     public static void main(String[] args) throws Exception {
 
@@ -56,16 +55,13 @@ public class IoTUC9SQLLookupJSON {
             LOG.info(LOGGERMSG, parm);
         }
 
-        String use_case_id = "ioi_uc9_SQL_Lookup_JSON";
+        String use_case_id = "iot_uc9_SQL_Lookup_JSON";
         String topic = "result_" + use_case_id;
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         EnvironmentSettings bsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, bsSettings);
-
-
-        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         Properties propertiesProducer = new Properties();
         propertiesProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);

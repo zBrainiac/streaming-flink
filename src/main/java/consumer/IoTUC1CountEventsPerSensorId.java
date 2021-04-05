@@ -78,8 +78,6 @@ public class IoTUC1CountEventsPerSensorId {
         DataStream<String> iotStream = env.addSource(
                 new FlinkKafkaConsumer<>("iot", new SimpleStringSchema(), properties));
 
-        /* iotStream.print("input message: "); */
-
         DataStream<Tuple5<Long, Integer, Integer, Integer, Integer>> aggStream = iotStream
                 .flatMap(new TrxJSONDeserializer())
                 .keyBy(1) // sensor_id
