@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 
 /**
- * className: ConsunerFlink.KafkaJoin2JsonStreams
+ * className: ConsunerFlink.FSIUC4KafkaJoin2JsonStreamsdiffOut
  * trxStream: {"timestamp":1565604389166,"shop_id":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
  * fxStream: {"timestamp":1565604494202,"fx":"EUR","fx_rate":1.01}
  *
@@ -32,7 +32,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.4.0.0.jar consumer.FSIUC3KafkaJoin2JsonStreams
+ *    java -classpath streaming-flink-0.4.0.0.jar consumer.FSIUC4KafkaJoin2JsonStreamsdiffOut
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14
@@ -81,11 +81,12 @@ public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
 
         //it is necessary to use IngestionTime, not EventTime. during my running this program
 
+        DataStream<String> fxStream = env.addSource(
+                new FlinkKafkaConsumer<>("fxRate", new SimpleStringSchema(), properties));
+
         DataStream<String> trxStream = env.addSource(
                 new FlinkKafkaConsumer<>("cctrx", new SimpleStringSchema(), properties));
 
-        DataStream<String> fxStream = env.addSource(
-                new FlinkKafkaConsumer<>("fxRate", new SimpleStringSchema(), properties));
 
         //fxStream.print("DataStream - fx");
 
@@ -203,23 +204,23 @@ public class FSIUC4KafkaJoin2JsonStreamsdiffOut {
             // get shop_name AND fx from JSONObject
             String result = new StringBuilder()
                     .append(jsonNode.get("trx").get("timestamp").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("cc_id").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("cc_type").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("shop_id").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("shop_name").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("amount_orig").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("trx").get("fx").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("fx").get("fx_target").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("fx").get("timestamp").toString())
-                    .append(", ")
+                    .append(",")
                     .append(jsonNode.get("fx").get("fx_rate").toString())
                     .toString()
                     .replace("\"", "");

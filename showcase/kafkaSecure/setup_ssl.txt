@@ -1,0 +1,36 @@
+SOURCE: https://medium.com/jinternals/kafka-ssl-setup-with-self-signed-certificate-part-1-c2679a57e16c
+
+
+
+wget https://downloads.apache.org/kafka/2.8.0/kafka_2.13-2.8.0.tgz &&
+tar -xzf kafka_2.13-2.8.0.tgz &&
+ln -s kafka_2.13-2.8.0.tgz kafka
+
+openssl req -new -newkey rsa:4096 -days 365 -x509 -subj "/CN=Demo-Kafka" -keyout ca-key -out ca-cert -nodes &&
+keytool -genkey -keystore kafka.server.keystore.jks -validity 365 -storepass supersecret1 -keypass supersecret1 -dname "CN=kafkabroker1.md" -storetype pkcs12 &&
+keytool -list -v -keystore kafka.server.keystore.jks &&
+keytool -keystore kafka.server.keystore.jks -certreq -file cert-file -storepass supersecret1 -keypass supersecret1 &&
+openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out cert-file-signed -days 365 -CAcreateserial -passin pass:supersecret1 &&
+keytool -printcert -v -file cert-file-signed &&
+keytool -keystore kafka.server.keystore.jks -alias CARoot -import -file ca-cert -storepass supersecret1 -keypass supersecret1 -noprompt &&
+keytool -keystore kafka.server.keystore.jks -import -file cert-file-signed -storepass supersecret1 -keypass supersecret1 -noprompt &&
+keytool -keystore kafka.server.truststore.jks -alias CARoot -import -file ca-cert -storepass supersecret1 -keypass supersecret1 -noprompt
+
+
+bin/zookeeper-server-start.sh -daemon config/zookeeper.properties &&
+bin/kafka-server-start.sh -daemon config/server_ssl.properties
+
+
+#client:
+openssl s_client -connect kafkabroker1.md:9093
+
+keytool -keystore kafka.client.truststore.jks -alias CARoot -import -file ca-cert  -storepass supersecret1 -keypass supersecret1 -noprompt
+keytool -list -v -keystore kafka.client.truststore.jks
+
+#client_ssl.properties
+security.protocol=ssl
+ssl.truststore.location=/root/kafka_2.13-2.8.0/ssl/kafka.client.truststore.jks
+ssl.truststore.password=supersecret1
+
+
+bin/kafka-console-producer.sh --broker-list 192.168.0.66:9093 --topic kafka-security-topic --producer.config /root/kafka_2.13-2.8.0/config/client_ssl.properties

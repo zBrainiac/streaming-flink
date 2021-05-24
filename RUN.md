@@ -75,6 +75,21 @@ sample iot output json:
 {"sensor_ts":1588330712878,"sensor_id":1,"sensor_0":88,"sensor_1":93,"sensor_2":31,"sensor_3":90,"sensor_4":75,"sensor_5":74,"sensor_6":58,"sensor_7":91,"sensor_8":10,"sensor_9":21,"sensor_10":66,"sensor_11":40}
 ```
 
+### IOT 32k string Sensor
+run:
+```
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.4.0.0.jar producer.Kafka32kStringSimulator or  
+java -classpath streaming-flink-0.4.0.0.jar producer.Kafka32kStringSimulator localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.0.0.jar producer.Kafka32kStringSimulator edge2ai-1.dim.local:9092                           
+```  
+sample iot output json:
+```
+{"sensor_ts":1588330712878,"32kString":"JNJiGn6....."}
+```
+
+
+
 ### IOT Simple CSV generator
 run:
 ```
