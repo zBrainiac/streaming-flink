@@ -76,11 +76,11 @@ public class KafkaFSICreditCartTRX {
         ObjectNode messageJsonObject = jsonObject();
         byte[] valueJson = objectMapper.writeValueAsBytes(messageJsonObject);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("cctrx", key, valueJson);
+        ProducerRecord<String, byte[]> eventrecord = new ProducerRecord<>("cctrx", key, valueJson);
 
-        RecordMetadata md = producer.send(record).get();
-        System.err.println("Published " + md.topic() + "/" + md.partition() + "/" + md.offset()
-                + " (key=" + key + ") : " + messageJsonObject);
+        RecordMetadata md = producer.send(eventrecord).get();
+        
+        LOG.info(new StringBuilder().append("Published ").append(md.topic()).append("/").append(md.partition()).append("/").append(md.offset()).append(" (key=").append(key).append(") : ").append(messageJsonObject).toString());
     }
 
     // build random json object

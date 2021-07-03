@@ -61,7 +61,7 @@ public class KafkaIOTSimpleCSVProducer {
             //send messages to my-topic
             for (int i = 0; i < 1000000; i++) {
                 
-                ProducerRecord<Integer, String> event_record = new ProducerRecord<>("iot_CSV", i,
+                ProducerRecord<Integer, String> eventrecord = new ProducerRecord<>("iot_CSV", i,
                         Instant.now().toEpochMilli()
                                 + "," + new SecureRandom().nextInt(41) // sensor_id
                                 + "," + new SecureRandom().nextInt(9) // sensor_0
@@ -77,10 +77,9 @@ public class KafkaIOTSimpleCSVProducer {
                                 + "," + new SecureRandom().nextInt(1010) // sensor_10
                                 + "," + new SecureRandom().nextInt(1111) // sensor_11
                 );
-                producer.send(event_record);
+                producer.send(eventrecord);
 
-                System.err.println("Published " + event_record.topic() + "/" + event_record.partition()
-                        + "/" + " (key=" + event_record.key() + ") : " + event_record.value());
+                LOG.info(new StringBuilder().append("Published ").append(eventrecord.topic()).append("/").append(eventrecord.partition()).append("/").append(" (key=").append(eventrecord.key()).append(") : ").append(eventrecord.value()).toString());
 
                 Thread.sleep(sleeptime);
             }

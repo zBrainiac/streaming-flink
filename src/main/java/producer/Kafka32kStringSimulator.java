@@ -74,12 +74,11 @@ public class Kafka32kStringSimulator {
         ObjectNode messageJsonObject = jsonObject();
         byte[] valueJson = objectMapper.writeValueAsBytes(messageJsonObject);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("iot", key, valueJson);
+        ProducerRecord<String, byte[]> eventrecord = new ProducerRecord<>("iot", key, valueJson);
 
-        RecordMetadata msg = producer.send(record).get();
+        RecordMetadata msg = producer.send(eventrecord).get();
 
-        System.err.println("Published " + msg.topic() + "/" + msg.partition() + "/" + msg.offset()
-                + " (key=" + key + ") : " + messageJsonObject);
+        LOG.info(new StringBuilder().append("Published ").append(msg.topic()).append("/").append(msg.partition()).append("/").append(msg.offset()).append(" (key=").append(key).append(") : ").append(messageJsonObject).toString());
     }
 
     // build random json object

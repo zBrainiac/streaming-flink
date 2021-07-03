@@ -64,17 +64,12 @@ public class KafkaProducerSimple {
             for (int i = 0; i < 1000000; i++) {
                 String recordValue = "Current time is " + Instant.now().toString();
 
-                ProducerRecord<String, String> record = new ProducerRecord<>("kafka_simple", recordValue);
+                ProducerRecord<String, String> eventrecord = new ProducerRecord<>("kafka_simple", recordValue);
 
-                //produce the record
-                RecordMetadata metadata = producer.send(record).get();
+                //produce the eventrecord
+                RecordMetadata metadata = producer.send(eventrecord).get();
 
-                System.err.println("Published: "
-                        + "topic=" + metadata.topic() + ", "
-                        + "partition=" + metadata.partition() + ", "
-                        + "offset=" + metadata.offset() + ", "
-                        + "timestamp=" + metadata.timestamp() + ", "
-                        + "payload=" + recordValue);
+                LOG.info(new StringBuilder().append("Published: ").append("topic=").append(metadata.topic()).append(", ").append("partition=").append(metadata.partition()).append(", ").append("offset=").append(metadata.offset()).append(", ").append("timestamp=").append(metadata.timestamp()).append(", ").append("payload=").append(recordValue).toString());
 
                 producer.flush();
                 // wait

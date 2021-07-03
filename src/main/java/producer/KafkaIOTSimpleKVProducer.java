@@ -62,16 +62,15 @@ public class KafkaIOTSimpleKVProducer {
 
                 long unixTime = System.currentTimeMillis();
 
-                ProducerRecord<Integer, String> record = new ProducerRecord<>("iot_KV", i,
+                ProducerRecord<Integer, String> eventrecord = new ProducerRecord<>("iot_KV", i,
                         "unixTime: " + unixTime
                                 + ", sensor_id: " + randomNum
                                 + ", id: " + uuid
                                 + ", Test Message: bliblablub #" + i
                 );
-                producer.send(record);
+                producer.send(eventrecord);
 
-                System.err.println("Published " + record.topic() + "/" + record.partition() + "/"
-                        + " (key=" + record.key() + ") : " + record.value());
+                LOG.info(new StringBuilder().append("Published ").append(eventrecord.topic()).append("/").append(eventrecord.partition()).append("/").append(" (key=").append(eventrecord.key()).append(") : ").append(eventrecord.value()).toString());
                 Thread.sleep(sleeptime);
             }
         }
