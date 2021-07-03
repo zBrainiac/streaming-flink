@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Properties;
-import java.util.UUID;
 
 
 /**
@@ -60,20 +60,27 @@ public class KafkaIOTSimpleCSVProducer {
 
             //send messages to my-topic
             for (int i = 0; i < 1000000; i++) {
-                int randomNum = new SecureRandom().nextInt(11);
-                String uuid = UUID.randomUUID().toString();
-                Long unixTime = System.currentTimeMillis();
-
-                ProducerRecord<Integer, String> record = new ProducerRecord<>("iot_CSV", i,
-                        unixTime
-                                + ", " + randomNum
-                                + ", " + uuid
-                                + ", Test Message #" + i
+                
+                ProducerRecord<Integer, String> event_record = new ProducerRecord<>("iot_CSV", i,
+                        Instant.now().toEpochMilli()
+                                + "," + new SecureRandom().nextInt(41) // sensor_id
+                                + "," + new SecureRandom().nextInt(9) // sensor_0
+                                + "," + new SecureRandom().nextInt(11) // sensor_1
+                                + "," + new SecureRandom().nextInt(22) // sensor_2
+                                + "," + new SecureRandom().nextInt(33) // sensor_3
+                                + "," + new SecureRandom().nextInt(44) // sensor_4
+                                + "," + new SecureRandom().nextInt(55) // sensor_5
+                                + "," + new SecureRandom().nextInt(66) // sensor_6
+                                + "," + new SecureRandom().nextInt(77) // sensor_7
+                                + "," + new SecureRandom().nextInt(88) // sensor_8
+                                + "," + new SecureRandom().nextInt(99) // sensor_9
+                                + "," + new SecureRandom().nextInt(1010) // sensor_10
+                                + "," + new SecureRandom().nextInt(1111) // sensor_11
                 );
-                producer.send(record);
+                producer.send(event_record);
 
-                System.err.println("Published " + record.topic() + "/" + record.partition()
-                        + "/" + " (key=" + record.key() + ") : " + record.value());
+                System.err.println("Published " + event_record.topic() + "/" + event_record.partition()
+                        + "/" + " (key=" + event_record.key() + ") : " + event_record.value());
 
                 Thread.sleep(sleeptime);
             }

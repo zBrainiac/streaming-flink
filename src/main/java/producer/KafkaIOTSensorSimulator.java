@@ -74,9 +74,9 @@ public class KafkaIOTSensorSimulator {
         ObjectNode messageJsonObject = jsonObject();
         byte[] valueJson = objectMapper.writeValueAsBytes(messageJsonObject);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>("iot", key, valueJson);
+        ProducerRecord<String, byte[]> event_record = new ProducerRecord<>("iot", key, valueJson);
 
-        RecordMetadata msg = producer.send(record).get();
+        RecordMetadata msg = producer.send(event_record).get();
 
         System.err.println("Published " + msg.topic() + "/" + msg.partition() + "/" + msg.offset()
                 + " (key=" + key + ") : " + messageJsonObject);
@@ -88,19 +88,19 @@ public class KafkaIOTSensorSimulator {
 
         ObjectNode report = objectMapper.createObjectNode();
         report.put("sensor_ts", Instant.now().toEpochMilli());
-        report.put("sensor_id", (random.nextInt(11)));
-        report.put("sensor_0", (random.nextInt(99)));
-        report.put("sensor_1", (random.nextInt(99)));
-        report.put("sensor_2", (random.nextInt(99)));
-        report.put("sensor_3", (random.nextInt(99)));
-        report.put("sensor_4", (random.nextInt(99)));
-        report.put("sensor_5", (random.nextInt(99)));
-        report.put("sensor_6", (random.nextInt(99)));
-        report.put("sensor_7", (random.nextInt(99)));
-        report.put("sensor_8", (random.nextInt(99)));
+        report.put("sensor_id", (random.nextInt(41)));
+        report.put("sensor_0", (random.nextInt(9)));
+        report.put("sensor_1", (random.nextInt(11)));
+        report.put("sensor_2", (random.nextInt(22)));
+        report.put("sensor_3", (random.nextInt(33)));
+        report.put("sensor_4", (random.nextInt(44)));
+        report.put("sensor_5", (random.nextInt(55)));
+        report.put("sensor_6", (random.nextInt(66)));
+        report.put("sensor_7", (random.nextInt(77)));
+        report.put("sensor_8", (random.nextInt(88)));
         report.put("sensor_9", (random.nextInt(99)));
-        report.put("sensor_10", (random.nextInt(99)));
-        report.put("sensor_11", (random.nextInt(99)));
+        report.put("sensor_10", (random.nextInt(1010)));
+        report.put("sensor_11", (random.nextInt(1111)));
 
         return report;
     }
