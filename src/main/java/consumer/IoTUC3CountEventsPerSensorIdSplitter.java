@@ -29,9 +29,9 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC3CountEventsPerSensorIdSplitter -ynm IoTUC3CountEventsPerSensorIdSplitter lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC3CountEventsPerSensorIdSplitter -ynm IoTUC3CountEventsPerSensorIdSplitter lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC3CountEventsPerSensorIdSplitter
+ *    java -classpath streaming-flink-0.4.1.0.jar consumer.IoTUC3CountEventsPerSensorIdSplitter
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

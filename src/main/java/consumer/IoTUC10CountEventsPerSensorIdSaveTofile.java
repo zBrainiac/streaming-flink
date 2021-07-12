@@ -34,9 +34,9 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
- * ./bin/flink run -m yarn-cluster -c consumer.IoTUC10CountEventsPerSensorIdSaveTofile -ynm IoTUC10CountEventsPerSensorIdSaveTofile lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.IoTUC10CountEventsPerSensorIdSaveTofile -ynm IoTUC10CountEventsPerSensorIdSaveTofile lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar localhost:9092
  * <p>
- * java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC10CountEventsPerSensorIdSaveTofile
+ * java -classpath streaming-flink-0.4.1.0.jar consumer.IoTUC10CountEventsPerSensorIdSaveTofile
  *
  * @author Marcel Daeppen
  * @version 2020/07/11 12:14

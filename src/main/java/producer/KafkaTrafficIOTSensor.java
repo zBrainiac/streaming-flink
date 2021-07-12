@@ -16,8 +16,8 @@ import java.util.*;
 /**
  * run:
  *   cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- *   java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficIoTSensor localhost:9092
- *   java -classpath streaming-flink-0.4.0.0.jar producer.KafkaTrafficIOTSensor edge2ai-1.dim.local:9092
+ *   java -classpath streaming-flink-0.4.1.0.jar producer.KafkaTrafficIoTSensor localhost:9092
+ *   java -classpath streaming-flink-0.4.1.0.jar producer.KafkaTrafficIOTSensor edge2ai-1.dim.local:9092
  *
  *
  * output:

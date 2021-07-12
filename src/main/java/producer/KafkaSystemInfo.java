@@ -23,7 +23,7 @@ import java.util.UUID;
 /**
  * run:
  * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- * java -classpath streaming-flink-0.4.0.0.jar producer.KafkaSystemInfo localhost:9092
+ * java -classpath streaming-flink-0.4.1.0.jar producer.KafkaSystemInfo localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2020/12/28 12:14

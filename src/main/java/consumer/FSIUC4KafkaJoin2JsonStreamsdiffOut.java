@@ -32,7 +32,7 @@ import java.util.Properties;
  *
  *
  * run:
- *    java -classpath streaming-flink-0.4.0.0.jar consumer.FSIUC4KafkaJoin2JsonStreamsdiffOut
+ *    java -classpath streaming-flink-0.4.1.0.jar consumer.FSIUC4KafkaJoin2JsonStreamsdiffOut
  *
  * @author Marcel Daeppen
  * @version 2020/04/26 12:14

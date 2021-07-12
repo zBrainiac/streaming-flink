@@ -32,10 +32,10 @@ import java.util.Properties;
  *
  * run:
  *   cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC4JoinStreams -ynm IoTUC4JoinStreams lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC4JoinStreams -ynm IoTUC4JoinStreams lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC4JoinStreams -ynm IoTUC4JoinStreams lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC4JoinStreams -ynm IoTUC4JoinStreams lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar edge2ai-1.dim.local:9092
  *
- *    java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC4JoinStreams
+ *    java -classpath streaming-flink-0.4.1.0.jar consumer.IoTUC4JoinStreams
  *
  * @author Marcel Daeppen
  * @version 2020/07/29 20:14

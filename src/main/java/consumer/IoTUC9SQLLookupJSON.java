@@ -24,9 +24,9 @@ import java.util.Properties;
  * <p>
  * run:
  * cd /opt/cloudera/parcels/FLINK &&
- * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092
- * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
- * java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar localhost:9092
+ * ./bin/flink run -m yarn-cluster -c consumer.IoTUC9SQLLookupJSON -ynm IoTUC9SQLLookupJSON lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookup.csv
+ * java -classpath streaming-flink-0.4.1.0.jar consumer.IoTUC9SQLLookupJSON edge2ai-1.dim.local:9092
  *
  * @author Marcel Daeppen
  * @version 2020/08/24 12:14

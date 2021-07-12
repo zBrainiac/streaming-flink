@@ -20,15 +20,15 @@ import java.util.Properties;
  * <p>
  * run:
  * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- * java -classpath streaming-flink-0.4.0.0.jar producer.KafkaLookupID localhost:9092
+ * java -classpath streaming-flink-0.4.1.0.jar producer.KafkaLookupGeoLocation localhost:9092
  *
  * @author Marcel Daeppen
  * @version 2021/07/04 17:14
  */
 
-public class KafkaLookupID {
+public class KafkaLookupGeoLocation {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaLookupID.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaLookupGeoLocation.class);
     private static final String LOGGERMSG = "Program prop set {}";
 
     private static String brokerURI = "localhost:9092";
@@ -54,7 +54,7 @@ public class KafkaLookupID {
         //create kafka producer
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerURI);
-        properties.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-Kafka-Simple");
+        properties.put(ProducerConfig.CLIENT_ID_CONFIG, "Feeder-kafka_LookupGeoLocation");
         properties.put(ProducerConfig.ACKS_CONFIG, "1");
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -176,9 +176,9 @@ public class KafkaLookupID {
             al.add("111,Porrentruy,47.415327,7.075221");
 
             for (int i = 0; i < 111; i++) {
-                String recordValue = al.get(i); //"Current time is " + Instant.now().toString();
+                String recordValue = al.get(i);
 
-                ProducerRecord<String, String> eventrecord = new ProducerRecord<>("kafka_lookupid", recordValue);
+                ProducerRecord<String, String> eventrecord = new ProducerRecord<>("kafka_LookupGeoLocation", recordValue);
 
                 //produce the eventrecord
                 RecordMetadata md = producer.send(eventrecord).get();
@@ -191,7 +191,7 @@ public class KafkaLookupID {
     }
 
     public static void setsleeptime(long sleeptime) {
-        KafkaLookupID.sleeptime = sleeptime;
+        KafkaLookupGeoLocation.sleeptime = sleeptime;
     }
 
 }

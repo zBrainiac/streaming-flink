@@ -16,7 +16,7 @@ import static java.util.Collections.unmodifiableList;
 /**
  * run:
  * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- * java -classpath streaming-flink-0.4.0.0.jar producer.KafkaFootballTicketsTRX localhost:9092 10
+ * java -classpath streaming-flink-0.4.1.0.jar producer.KafkaFootballTicketsTRX localhost:9092 10
  *
  * @author Marcel Daeppen
  * @version 2021/03/18 09:46

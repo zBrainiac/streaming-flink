@@ -18,7 +18,7 @@ import static java.util.Collections.unmodifiableList;
 /**
  * run:
  * cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming &&
- * java -classpath streaming-flink-0.4.0.0.jar producer.MqTTTrafficCollector tcp://localhost:1883
+ * java -classpath streaming-flink-0.4.1.0.jar producer.MqTTTrafficCollector tcp://localhost:1883
  *
  * output:
  *   {"sensor_ts":1596956979295,"sensor_id":8,"probability":50,"sensor_x":47,"typ":"LKW","light":false,"license_plate":"DE 483-5849","toll_typ":"10-day"}

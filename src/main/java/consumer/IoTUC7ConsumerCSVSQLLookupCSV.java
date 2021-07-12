@@ -30,10 +30,10 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTUC7ConsumerCSVSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar localhost:9092 /tmp/lookupHeader.csv
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTUC7ConsumerCSVSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.4.0.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTUC7ConsumerCSVSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar localhost:9092 /tmp/lookupHeader.csv
+ *    ./bin/flink run -m yarn-cluster -c consumer.IoTUC7ConsumerCSVSQLLookupCSV -ynm IoTUC7ConsumerCSVSQLLookupCSV lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar edge2ai-1.dim.local:9092 /tmp/lookupHeader.csv
  *
- *    java -classpath streaming-flink-0.4.0.0.jar consumer.IoTUC7ConsumerCSVSQLLookupCSV
+ *    java -classpath streaming-flink-0.4.1.0.jar consumer.IoTUC7ConsumerCSVSQLLookupCSV
  *
  * @author Marcel Daeppen
  * @version 2020/08/22 12:14
