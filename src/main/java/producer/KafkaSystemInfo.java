@@ -100,11 +100,11 @@ public class KafkaSystemInfo {
 
         ObjectNode report = objectMapper.createObjectNode();
         report.put("sensor_ts", Instant.now().toEpochMilli());
-        report.put("sensor_id", networkIFs.get(2).getMacaddr());
-        report.put("NET Collisions ", networkIFs.get(2).getCollisions());
+        report.put("MAC_addr", networkIFs.get(2).getMacaddr());
+        report.put("NET_Collisions ", networkIFs.get(2).getCollisions());
 
-        report.put("NET Recv Bytes", networkIFs.get(2).getBytesRecv());
-        report.put("NET Send Bytes", networkIFs.get(2).getBytesSent());
+        report.put("NET_Recv_Bytes", networkIFs.get(2).getBytesRecv());
+        report.put("NET_Send_Bytes", networkIFs.get(2).getBytesSent());
         long[] ticks = processor.getSystemCpuLoadTicks();
         report.put("CPU, IOWait, and IRQ ticks @ 1 sec:", Arrays.toString(ticks));
 

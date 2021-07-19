@@ -50,6 +50,15 @@ sample trx output json:
 ```
 {"timestamp":1565604610745,"shop_id":4,"shop_name":"Ums Eck","cc_type":"Visa","cc_id":"cc_id":"5130-2220-4900-6727","amount_orig":86.82,"fx":"EUR","fx_account":"CHF"}
 ```   
+### KafkaFootballTicketsTRX
+```
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaFootballTicketsTRX or  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaFootballTicketsTRX localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaFootballTicketsTRX edge2ai-1.dim.local:9092
+```
+
+
 ### FX
 run:  
 ```
@@ -69,7 +78,9 @@ cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 java -classpath streaming-flink-0.4.1.0.jar producer.KafkaIOTSensorSimulator or  
 java -classpath streaming-flink-0.4.1.0.jar producer.KafkaIOTSensorSimulator localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
 java -classpath streaming-flink-0.4.1.0.jar producer.KafkaIOTSensorSimulator edge2ai-1.dim.local:9092
-
+```
+simulation of anomalies 1:1'000
+```
 java -classpath streaming-flink-0.4.1.0.jar producer.KafkaProducerIOTSensorAnomaly edge2ai-1.dim.local:9092 100                           
 ```  
 sample iot output json:
@@ -117,6 +128,25 @@ sample KeyValue output message:
 ```
 unixTime: 1596953939783, sensor_id: 1, id: ba292ff6-e4db-4776-b70e-2b49edfb6726, Test Message: bliblablub #33
 ```  
+
+### Lookup Geolocation
+run:
+```
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaLookupGeoLocation or  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaLookupGeoLocation localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaLookupGeoLocation edge2ai-1.dim.local:9092  
+```
+
+### Lookup Weather Condition
+run:
+```
+cd /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaLookupWeatherCondition or  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaLookupWeatherCondition localhost:9092 10 (= 10 sleep time in ms between the messages | default 1'000 ms)  
+java -classpath streaming-flink-0.4.1.0.jar producer.KafkaLookupWeatherCondition edge2ai-1.dim.local:9092  
+```
+
 
 ### OPC Sensor
 run:  
