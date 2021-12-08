@@ -16,7 +16,7 @@ public class ReadFromKafka {
 
         Properties properties = new Properties();
         properties.setProperty("bootstrap.servers", "localhost:9092");
-        properties.setProperty("group.id", "test-consumer-group");
+        properties.setProperty("group.id", "Test-consumer-group");
 
 
         DataStream<String> stream = env
