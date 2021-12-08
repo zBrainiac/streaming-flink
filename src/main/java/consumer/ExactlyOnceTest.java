@@ -20,17 +20,16 @@ import java.util.Properties;
 
 
 /**
- * csvStream: unixTime :1596022830196, sensor_id :6, id :e78b8a17-527b-4e51-9fdb-577da3207db0, Test Message #198
- * Aggregation on "sensor_id"
+ * csvStream: msg_id:295, Current_time_is:2021-12-08T09:05:00.440Z
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.IoTConsumerCSV -ynm IoTConsumerCSV lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.ExactlyOnceTest -ynm ExactlyOnceTest lib/flink/examples/streaming/streaming-flink-0.4.1.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.4.1.0.jar consumer.IoTConsumerCSV
+ *    java -classpath streaming-flink-0.4.1.0.jar consumer.ExactlyOnceTest
  *
  * @author Marcel Daeppen
- * @version 2020/07/29 14:14
+ * @version 2021/12/08 10:12
  */
 
 public class ExactlyOnceTest {
