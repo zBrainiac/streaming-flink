@@ -113,7 +113,7 @@ public class IoTUC5ConsumerCSVSQLFilter {
 
         // write the aggregated data stream to a Kafka sink
         FlinkKafkaProducer myProducer = new FlinkKafkaProducer<>(topic,
-                (KafkaSerializationSchema<Row>) (element, timestamp) -> new ProducerRecord<byte[], byte[]>(topic,
+                (KafkaSerializationSchema<Row>) (element, timestamp) -> new ProducerRecord<>(topic,
                         (element.getField(3)).toString().getBytes(),
                         (element.toString()).getBytes()
                 ),
