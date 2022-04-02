@@ -478,7 +478,7 @@
                 <properties>
                     <entry>
                         <key>bootstrap.servers</key>
-                        <value>edge2ai-1.dim.local:9092</value>
+                        <value>edge2ai-0.dim.local:9092</value>
                     </entry>
                     <entry>
                         <key>security.protocol</key>

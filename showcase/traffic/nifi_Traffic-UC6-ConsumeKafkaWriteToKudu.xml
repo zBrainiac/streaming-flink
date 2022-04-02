@@ -114,7 +114,7 @@
             <properties>
                 <entry>
                     <key>url</key>
-                    <value>http://edge2ai-1.dim.local:7788/api/v1</value>
+                    <value>http://edge2ai-0.dim.local:7788/api/v1</value>
                 </entry>
                 <entry>
                     <key>cache-size</key>
@@ -350,7 +350,7 @@
                 <properties>
                     <entry>
                         <key>bootstrap.servers</key>
-                        <value>edge2ai-1.dim.local:9092</value>
+                        <value>edge2ai-0.dim.local:9092</value>
                     </entry>
                     <entry>
                         <key>security.protocol</key>
@@ -527,7 +527,7 @@
                 <properties>
                     <entry>
                         <key>Kudu Masters</key>
-                        <value>edge2ai-1.dim.local:7051</value>
+                        <value>edge2ai-0.dim.local:7051</value>
                     </entry>
                     <entry>
                         <key>Table Name</key>

@@ -1,0 +1,14 @@
+{
+   "unique_id": "${UUID()}",
+   "sensor_id": ${random():mod(30)},
+   "sensor_0": ${random():mod(150)},
+   "sensor_1": ${random():mod(255)},
+   "sensor_2": ${random():mod(95)},
+   "fan" : [   
+            { "pos" : "1",  
+              "avg"       : ${random():mod(95)} },
+
+            { "pos" : "2",  
+              "avg"      : ${random():mod(95)} }
+         ]
+}

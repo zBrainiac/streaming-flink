@@ -26,17 +26,17 @@ import java.util.Properties;
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.ExactlyOnceUniqueIDTest -ynm ExactlyOnceUniqueIDTest lib/flink/examples/streaming/streaming-flink-0.5.0.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.ExactlyOnce -ynm ExactlyOnce lib/flink/examples/streaming/streaming-flink-0.5.0.0.jar localhost:9092
  *
- *    java -classpath streaming-flink-0.5.0.0.jar consumer.ExactlyOnceUniqueIDTest
+ *    java -classpath streaming-flink-0.5.0.0.jar consumer.ExactlyOnce
  *
  * @author Marcel Daeppen
  * @version 2021/12/08 10:12
  */
 
-public class ExactlyOnceUniqueIDTest {
+public class ExactlyOnce {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ExactlyOnceUniqueIDTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExactlyOnce.class);
     private static String brokerURI = "localhost:9092";
     private static final String LOGGMSG = "Program prop set {}";
 
@@ -51,7 +51,7 @@ public class ExactlyOnceUniqueIDTest {
             LOG.info(LOGGMSG, parm);
         }
 
-        String usecaseId = "ExactlyOnceUniqueIDTest";
+        String usecaseId = "ExactlyOnce";
         String topic = "result_" + usecaseId;
 
         // set up the streaming execution environment
@@ -75,18 +75,17 @@ public class ExactlyOnceUniqueIDTest {
         propertiesProducer.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG,"1000");
 
 
-        KafkaSource<String> kafkaSource = KafkaSource.<String>builder()
+        KafkaSource<String> eventStream = KafkaSource.<String>builder()
                 .setBootstrapServers(brokerURI)
                 .setTopics("kafka_simple_transactional")
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .setProperties(properties)
                 .build();
 
-
         DataStream<Tuple3<String, String, Integer>> transformedStream = env.fromSource(
-                kafkaSource,
-                WatermarkStrategy.noWatermarks(),
-                "Kafka Source")
+                        eventStream,
+                        WatermarkStrategy.noWatermarks(),
+                        "Kafka Source")
                 .map(new MapFunction<String, Tuple3<String, String, Integer>>() {
                     @Override
                     public Tuple3<String, String, Integer> map(String str) {
@@ -113,9 +112,9 @@ public class ExactlyOnceUniqueIDTest {
 
 
         transformedStream.map((MapFunction<Tuple3<String, String, Integer>, String>) s -> "{"
-                + "\"type\"" + ":" + "\"TEST - Exactly Once\""
-                + "," + "\"msg_id\"" + ":" + s.f0
-                + "," + "\"Current_time_is\"" + ":"+"\"" + s.f1 + "\"" + "}")
+                        + "\"type\"" + ":" + "\"TEST - Exactly Once\""
+                        + "," + "\"msg_id\"" + ":" + s.f0
+                        + "," + "\"Current_time_is\"" + ":"+"\"" + s.f1 + "\"" + "}")
                 .sinkTo(kafkaSink).name("Equipment Kafka Destination");
 
         // execute program

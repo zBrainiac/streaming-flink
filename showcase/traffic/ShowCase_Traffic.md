@@ -40,10 +40,10 @@ Link to: [efm designer](http://localhost:10080/efm/ui/)
 ### Download release:  
 ```
 cd /opt/cloudera/parcels/FLINK  
-sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.4.1/streaming-flink-0.4.1.0.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
+sudo wget https://github.com/zBrainiac/streaming-flink/releases/download/0.5.0/streaming-flink-0.5.0.0.jar -P /opt/cloudera/parcels/FLINK/lib/flink/examples/streaming
 
-java -classpath streaming-flink-0.4.1.0.jar producer.MqTTTrafficIOTSensor tcp://18.184.199.92:1883 999
-java -classpath streaming-flink-0.4.1.0.jar producer.MqTTTrafficCollector tcp://18.184.199.92:1883 999
+java -classpath streaming-flink-0.5.0.0.jar producer.MqTTTrafficIOTSensor tcp://18.184.199.92:1883 999
+java -classpath streaming-flink-0.5.0.0.jar producer.MqTTTrafficCollector tcp://18.184.199.92:1883 999
 
 cd /tmp
 sudo  wget https://raw.githubusercontent.com/zBrainiac/streaming-flink/master/data/lookupHeader.csv -P /tmp
@@ -114,7 +114,7 @@ sudo chmod +x nohup_minifi.sh
 
 ## run local: 
 
-cd /Users/mdaeppen/infra/kafka_2.12-2.4.1  
+cd /Users/mdaeppen/infra/kafka_2.12-2.8.1  
 ./bin/zookeeper-server-start.sh config/zookeeper.properties  
 ./bin/kafka-server-start.sh config/server.properties  
 ./bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic minifi  

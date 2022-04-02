@@ -3,18 +3,14 @@ package consumer;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.api.java.tuple.Tuple10;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.slf4j.Logger;
@@ -22,23 +18,23 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-
 /**
- * opcStream = {"val":"-0.813473","tagname":"Sinusoid","unit":"Hydrocracker","ts":"2020-03-13T11:17:53Z"}
+ * trxStream: {"timestamp":1565604389166,"shop_name":0,"shop_name":"Ums Eck","cc_type":"Revolut","cc_id":"5179-5212-9764-8013","amount_orig":75.86,"fx":"CHF","fx_account":"CHF"}
+ * Aggregation on "shop_name" & "fx"
  *
  * run:
  *    cd /opt/cloudera/parcels/FLINK &&
- *    ./bin/flink run -m yarn-cluster -c consumer.OPCUC1NoiseCanceller -ynm OPCUC1NoiseCanceller lib/flink/examples/streaming/streaming-flink-0.5.0.0.jar localhost:9092
+ *    ./bin/flink run -m yarn-cluster -c consumer.FSIUC8KafkaTRXAmountDispatcher -ynm FSIUC8KafkaTRXAmountDispatcher lib/flink/examples/streaming/streaming-flink-0.5.0.0.jar edge2ai-0.dim.local:9092
  *
- *    java -classpath streaming-flink-0.5.0.0.jar consumer.OPCUC1NoiseCanceller
+ *    java -classpath streaming-flink-0.5.0.0.jar consumer.FSIUC8KafkaTRXAmountDispatcher
  *
  * @author Marcel Daeppen
  * @version 2022/02/06 12:14
  */
 
-public class OPCUC1NoiseCanceller {
+public class FSIUC8CCTRXAmountDispatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OPCUC1NoiseCanceller.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FSIUC8CCTRXAmountDispatcher.class);
     private static String brokerURI = "localhost:9092";
     private static final String LOGGMSG = "Program prop set {}";
 
@@ -53,8 +49,9 @@ public class OPCUC1NoiseCanceller {
             LOG.info(LOGGMSG, parm);
         }
 
-        String usecaseid = "OPCUC1NoiseCanceller";
-        String topic = "result_" + usecaseid;
+        String usecaseid = "FSIUC8CCTRXAmountDispatcher";
+        String topicAbove40 = "result_" + usecaseid + "Above40Stream";
+        String topicBelow40 = "result_" + usecaseid + "Below40Stream";
 
         // set up the streaming execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -75,51 +72,72 @@ public class OPCUC1NoiseCanceller {
 
         KafkaSource<String> eventStream = KafkaSource.<String>builder()
                 .setBootstrapServers(brokerURI)
-                .setTopics("opc")
+                .setTopics("cctrx")
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .setProperties(properties)
                 .build();
 
-        DataStream<Tuple4<String, String, Double, Integer>> transformedStream = env.fromSource(
-                eventStream,
-                WatermarkStrategy.noWatermarks(),
-                "Kafka Source")
-                .flatMap(new OPCJSONDeserializer())
-                .keyBy(1)
-                .window(TumblingProcessingTimeWindows.of(Time.seconds(30)))
-                .reduce(new ReduceFunc())
-                .filter(new FilterFunction<Tuple4<String, String, Double, Integer>>() {
-                    @Override
-                    public boolean filter(Tuple4<String, String, Double, Integer> value) throws Exception {
+        DataStream<Tuple10<Integer, String, String, Double, Integer, String, String, String, String, Integer>> Above40Stream = env.fromSource(
+                        eventStream,
+                        WatermarkStrategy.noWatermarks(),
+                        "Kafka Source")
+                .flatMap(new FSIJSONDeserializerCreditCardTrxTuple10())
+                .filter(value -> value.f3 >= 40.01);
 
-                        if (value.f1.equals("Sinusoid") || value.f1.equals("Sawtooth")) {
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-
-        transformedStream.print(topic + ": ");
-
-        // write the aggregated data stream to a Kafka sink
-        transformedStream.print(topic + ": ");
+        Above40Stream.print("Above40Stream :");
 
         KafkaSink<String> kafkaSink = KafkaSink.<String>builder()
                 .setBootstrapServers(brokerURI)
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-                        .setTopic(topic)
+                        .setTopic(topicAbove40)
                         .setValueSerializationSchema(new SimpleStringSchema())
                         .build()
                 )
                 .setKafkaProducerConfig(propertiesProducer)
                 .build();
 
-        transformedStream.map((MapFunction<Tuple4<String, String, Double, Integer>, String>) s -> "{"
-                        + "\"type\"" + ":" + "\"aggregated opc stream over 10sec.\""
-                        + "," + "\"ts\"" + ":" + "\"" + s.f0 + "\""
-                        + "," + "\"tagname\"" + ":" + "\"" + s.f1 + "\""
-                        + "," + "\"value\"" + ":" + "\"" + s.f2 + "\"" + "}")
+        Above40Stream
+                .map((MapFunction<Tuple10<Integer, String, String, Double, Integer, String, String, String, String, Integer>, String>) s -> "{"
+                        + "\"type\"" + ":" + "\"" + topicAbove40 + "\""
+                        + "," + "\"cc_ic\"" + ":" + "\"" + s.f1 + "\""
+                        + "," + "\"cc_type\"" + ":" + "\"" + s.f2 + "\""
+                        + "," + "\"amount_orig\"" + ":" + s.f3
+                        + "," + "\"fx\"" + ":"  + s.f6 + "}")
                 .sinkTo(kafkaSink).name("Equipment Kafka Destination");
+
+
+        DataStream<Tuple10<Integer, String, String, Double, Integer, String, String, String, String, Integer>> Below40Stream = env.fromSource(
+                        eventStream,
+                        WatermarkStrategy.noWatermarks(),
+                        "Kafka Source")
+                .flatMap(new FSIJSONDeserializerCreditCardTrxTuple10())
+                .filter(value -> value.f3 <= 40.01);
+
+        Below40Stream.print("Below40Stream :");
+
+        KafkaSink<String> kafkaSinkBelow40Stream = KafkaSink.<String>builder()
+                .setBootstrapServers(brokerURI)
+                .setRecordSerializer(KafkaRecordSerializationSchema.builder()
+                        .setTopic(topicBelow40)
+                        .setValueSerializationSchema(new SimpleStringSchema())
+                        .build()
+                )
+                .setKafkaProducerConfig(propertiesProducer)
+                .build();
+
+        Below40Stream
+                .map((MapFunction<Tuple10<Integer, String, String, Double, Integer, String, String, String, String, Integer>, String>) s -> "{"
+                        + "\"type\"" + ":" + "\"" + topicBelow40 + "\""
+                        + "," + "\"cc_ic\"" + ":" + "\"" + s.f1 + "\""
+                        + "," + "\"cc_type\"" + ":" + "\"" + s.f2 + "\""
+                        + "," + "\"amount_orig\"" + ":" + s.f3
+                        + "," + "\"fx\"" + ":"  + s.f6 + "}")
+                .sinkTo(kafkaSinkBelow40Stream).name("Equipment Kafka Destination");
+
+
+
+
+
 
         // execute program
         JobExecutionResult result = env.execute(usecaseid);
@@ -127,18 +145,4 @@ public class OPCUC1NoiseCanceller {
         LOG.info("Job_id {}", jobId);
     }
 
-    public static class ReduceFunc implements ReduceFunction<Tuple4<String, String, Double, Integer>> {
-
-        public Tuple4<String, String, Double, Integer> reduce(Tuple4<String, String, Double, Integer> current, Tuple4<String, String, Double, Integer> pre_result) throws Exception {
-/*
- System.out.println("reducefunc f0: " + current.f0);
- System.out.println("reducefunc f1: " + current.f1);
- System.out.println("reducefunc f2: " + current.f2);
- System.out.println("reducefunc f2 pre_result: " + pre_result.f2);
- System.out.println("reducefunc f3 new: " + current.f3);
- System.out.println("reducefunc f3 pre_result: " + pre_result.f3);
-*/
-            return new Tuple4<>(current.f0, current.f1, (current.f2 + pre_result.f2) / (current.f3 + pre_result.f3), current.f3 + pre_result.f3);
-        }
-    }
 }
