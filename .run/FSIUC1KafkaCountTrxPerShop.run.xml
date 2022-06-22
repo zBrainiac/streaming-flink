@@ -1,9 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="IoTUC2CountEventsPerSensorIdFilter" type="Application" factoryName="Application" nameIsGenerated="true">
+  <configuration default="false" name="FSIUC1KafkaCountTrxPerShop" type="Application" factoryName="Application" activateToolWindowBeforeRun="false" nameIsGenerated="true">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
-    <option name="MAIN_CLASS_NAME" value="consumer.IoTUC2CountEventsPerSensorIdFilter" />
+    <option name="MAIN_CLASS_NAME" value="consumer.FSIUC1KafkaCountTrxPerShop" />
     <module name="streaming-flink" />
-    <option name="PROGRAM_PARAMETERS" value="18.194.48.247:9092" />
     <selectedOptions>
       <option name="environmentVariables" visible="false" />
     </selectedOptions>

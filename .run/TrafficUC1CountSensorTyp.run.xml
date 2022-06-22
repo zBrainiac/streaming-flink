@@ -1,9 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="IoTUC2CountEventsPerSensorIdFilter" type="Application" factoryName="Application" nameIsGenerated="true">
+  <configuration default="false" name="TrafficUC1CountSensorTyp" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
-    <option name="MAIN_CLASS_NAME" value="consumer.IoTUC2CountEventsPerSensorIdFilter" />
+    <option name="MAIN_CLASS_NAME" value="consumer.TrafficUC1CountSensorTyp" />
     <module name="streaming-flink" />
-    <option name="PROGRAM_PARAMETERS" value="18.194.48.247:9092" />
     <selectedOptions>
       <option name="environmentVariables" visible="false" />
     </selectedOptions>
